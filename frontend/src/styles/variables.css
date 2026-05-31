@@ -4,29 +4,29 @@
   --color-surface: #ffffff;
   --color-overlay: rgba(42, 29, 34, 0.45);
 
-  --color-text: #3c2a30;
-  --color-text-secondary: #6f5159;
+  --color-text: #352027;
+  --color-text-secondary: #6b4b54;
   --color-text-muted: #9b7681;
 
-  --color-primary: #c25b6c;
-  --color-primary-hover: #a8475a;
-  --color-primary-soft: #fae3e4;
+  --color-primary: #c14d63;
+  --color-primary-hover: #a93a52;
+  --color-primary-soft: #eecfd5;
   --color-primary-contrast: #ffffff;
 
-  --color-accent: #a890d9;
+  --color-accent: #9579d4;
   --color-accent-contrast: #ffffff;
 
-  --color-border: #ead8d1;
-  --color-ring: #c4b5e8;
+  --color-border: #ecd6d2;
+  --color-ring: #b9a6e6;
 
-  --color-danger: #d96a72;
-  --color-success: #6fa97e;
+  --color-danger: #d9626b;
+  --color-success: #5fa473;
 
-  --color-sidebar-bg: linear-gradient(180deg, #a8868e, #8c6a73);
+  --color-sidebar-bg: linear-gradient(165deg, #b1808c, #7c505d);
   --color-sidebar-text: #fdfaf7;
-  --color-sidebar-text-muted: #d9c3c8;
-  --color-sidebar-active: rgba(255, 255, 255, 0.18);
-  --color-sidebar-hover: rgba(255, 255, 255, 0.1);
+  --color-sidebar-text-muted: #e4ccd1;
+  --color-sidebar-active: rgba(255, 255, 255, 0.22);
+  --color-sidebar-hover: rgba(255, 255, 255, 0.12);
 
   /* typography */
   --font-display: "Fraunces", Georgia, serif;
@@ -62,7 +62,7 @@
   /* shadows */
   --shadow-md: 0 6px 16px rgba(60, 42, 48, 0.08);
   --shadow-lg: 0 14px 32px rgba(60, 42, 48, 0.1);
-  --shadow-focus: 0 0 0 3px rgba(196, 181, 232, 0.55);
+  --shadow-focus: 0 0 0 3px rgba(185, 166, 230, 0.55);
 
   /* layout */
   --sidebar-width: 248px;
