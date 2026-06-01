@@ -43,7 +43,7 @@ function TimeGrid({
   today: string;
   onPickDay: (date: Date) => void;
 }) {
-  const cols = `64px repeat(${days.length}, minmax(120px, 1fr))`;
+  const cols = `64px repeat(${days.length}, minmax(0, 1fr))`;
   return (
     <div className="tg">
       <div className="tg__head" style={{ gridTemplateColumns: cols }}>
