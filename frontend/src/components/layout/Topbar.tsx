@@ -1,14 +1,28 @@
+import { useEffect, useState } from 'react';
 import { Icon } from '@/lib/icons';
-import { mockUser } from '@/mocks/user';
+import { getUser } from '@/api/user';
+import type { User } from '@/types/user';
 import './Topbar.css';
 
 interface TopbarProps {
   onMenuClick: () => void;
 }
 
-const initials = (mockUser.firstName[0] ?? '') + (mockUser.lastName[0] ?? '');
-
 export function Topbar({ onMenuClick }: TopbarProps) {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getUser().then((u) => {
+      if (active) setUser(u);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const initials = user ? (user.firstName[0] ?? '') + (user.lastName[0] ?? '') : '';
+
   return (
     <header className="topbar">
       <button className="icon-btn menu-btn" onClick={onMenuClick} aria-label="Open menu">
@@ -32,7 +46,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
         <div className="user">
           <span className="avatar">{initials}</span>
-          <span className="username">{mockUser.firstName}</span>
+          <span className="username">{user?.firstName}</span>
           <Icon name="chevron-down" size={16} />
         </div>
       </div>
