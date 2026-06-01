@@ -19,3 +19,9 @@
 }
 ```
 Розбіжності з `Task`: `deadline` → dueDate+dueTime; id Long→string.
+
+## PATCH /api/tasks/{id}
+```jsonc
+{ "status": "TODO | IN_PROGRESS | COMPLETED" }
+```
+Часткове оновлення; повертає оновлену задачу. Зараз фронт кличе для галочки «виконано».

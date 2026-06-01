@@ -5,7 +5,7 @@
   grid-template-areas:
     'sidebar topbar'
     'sidebar content';
-  min-height: 100vh;
+  height: 100vh;
   background: var(--color-bg);
 }
 
@@ -13,6 +13,11 @@
   grid-area: content;
   overflow-y: auto;
   padding: var(--space-6) var(--content-padding) var(--space-12);
+  scrollbar-width: none;
+}
+
+.layout .content::-webkit-scrollbar {
+  display: none;
 }
 
 .layout .content-inner {

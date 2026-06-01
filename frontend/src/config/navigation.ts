@@ -1,5 +1,14 @@
 import type { NavSection } from '@/types/navigation';
 
+export function titleForPath(path: string): string {
+  for (const section of navSections) {
+    const item = section.items.find((navItem) => navItem.path === path);
+    if (item) return item.label;
+  }
+  const slug = path.replace('/', '');
+  return slug ? slug[0].toUpperCase() + slug.slice(1) : 'Page';
+}
+
 export const navSections: NavSection[] = [
   {
     title: 'Study',

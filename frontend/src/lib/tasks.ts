@@ -1,7 +1,19 @@
-import type { Task, TaskState } from '@/types/task';
+import type { Task, TaskPriority, TaskState } from '@/types/task';
+
+export const priorityLabels: Record<TaskPriority, string> = {
+  LOW: 'Low',
+  MEDIUM: 'Medium',
+  HIGH: 'High',
+};
 
 export function todayISO(now: Date = new Date()): string {
   return now.toLocaleDateString('en-CA');
+}
+
+export function addDays(now: Date, days: number): Date {
+  const date = new Date(now);
+  date.setDate(date.getDate() + days);
+  return date;
 }
 
 export function taskDueAt(task: Task): Date {
@@ -23,4 +35,8 @@ export function byDueTime(a: Task, b: Task): number {
   if (a.dueTime) return -1;
   if (b.dueTime) return 1;
   return 0;
+}
+
+export function byDeadline(a: Task, b: Task): number {
+  return taskDueAt(a).getTime() - taskDueAt(b).getTime();
 }
