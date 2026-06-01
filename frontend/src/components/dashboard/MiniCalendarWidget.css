@@ -1,0 +1,83 @@
+.mini-cal {
+  display: block;
+  max-width: 340px;
+  padding: var(--space-6);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow var(--transition);
+}
+
+.mini-cal:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.mini-cal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.mini-cal__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}
+
+.mini-cal__chevron {
+  color: var(--color-text-muted);
+}
+
+.mini-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+}
+
+.mini-cal__weekday {
+  padding-bottom: var(--space-1);
+  text-align: center;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.mini-cal__day {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.mini-cal__day--muted {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.mini-cal__day--today {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: var(--weight-bold);
+}
+
+.mini-cal__dot {
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+}
+
+.mini-cal__day--today .mini-cal__dot {
+  background: var(--color-primary-contrast);
+}

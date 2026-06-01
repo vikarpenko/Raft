@@ -1,6 +1,7 @@
 import {
   LayoutDashboard, FolderKanban, NotebookPen, ListChecks, Calendar, BarChart3, Boxes, MessagesSquare,
-  Wallet, Inbox, Settings, HelpCircle, LogOut, Search, Bell, Plus, ChevronDown, Menu, X, type LucideIcon,
+  Wallet, Inbox, Settings, HelpCircle, LogOut, Search, Bell, Plus, ChevronDown, ChevronLeft, ChevronRight,
+  Menu, X, type LucideIcon,
 } from 'lucide-react';
 
 const icons = {
@@ -21,6 +22,8 @@ const icons = {
   bell: Bell,
   plus: Plus,
   'chevron-down': ChevronDown,
+  'chevron-left': ChevronLeft,
+  'chevron-right': ChevronRight,
   menu: Menu,
   close: X,
 } satisfies Record<string, LucideIcon>;
