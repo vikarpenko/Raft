@@ -13,7 +13,7 @@ export function Sidebar({ activeItem, onNavigate, isOpen, onClose }: SidebarProp
   return (
     <aside className="sidebar" data-open={isOpen}>
       <div className="brand">
-        <span className="brand-mark">🦦</span>
+        <img className="brand-mark" src="/otter.png" alt="" />
         <span className="brand-name">Raft</span>
         <button className="close-btn" onClick={onClose} aria-label="Close menu">
           <Icon name="close" />
