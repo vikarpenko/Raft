@@ -5,9 +5,9 @@ import type { Task, TaskPriority } from '@/types/task';
 import './TodayTasksWidget.css';
 
 const priorityLabels: Record<TaskPriority, string> = {
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High',
+  LOW: 'Low',
+  MEDIUM: 'Medium',
+  HIGH: 'High',
 };
 
 export function TodayTasksWidget() {
@@ -31,7 +31,7 @@ export function TodayTasksWidget() {
   const today = todayISO(now);
 
   const items = tasks
-    .filter((task) => isDueOn(task, today) && !task.completed)
+    .filter((task) => isDueOn(task, today) && task.status !== 'COMPLETED')
     .sort(byDueTime)
     .map((task) => ({ task, state: getTaskState(task, now) }));
 
@@ -67,7 +67,7 @@ export function TodayTasksWidget() {
                     <span className="timeline__rail" />
                   </div>
                   <div className={`timeline__card${overdue ? ' timeline__card--overdue' : ''}`}>
-                    <span className={`timeline__priority timeline__priority--${task.priority}`}>
+                    <span className={`timeline__priority timeline__priority--${task.priority.toLowerCase()}`}>
                       {priorityLabels[task.priority]}
                     </span>
                     <p className="timeline__name">

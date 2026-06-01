@@ -2,18 +2,18 @@
 
 ## GET /api/me
 ```jsonc
-{ "id", "firstName", "lastName", "email", "avatarUrl": "| null" }
+{ "id", "firstName", "lastName", "email", "avatar": "| null" }
 ```
-Розбіжності з `User`: `name` → firstName/lastName; `avatar` → avatarUrl; `password` не віддавати; id Long→string.
+Розбіжності з `User`: `name` → firstName/lastName; `password` не віддавати; id Long→string.
 
 ## GET /api/tasks
 ```jsonc
 {
   "id", "title", "description": "| null",
-  "priority": "low|medium|high",
+  "priority": "LOW|MEDIUM|HIGH",
   "dueDate": "YYYY-MM-DD",
   "dueTime": "HH:mm | null",
-  "completed": true
+  "status": "TODO | IN_PROGRESS | COMPLETED"
 }
 ```
-Розбіжності з `Task`: `deadline` → dueDate+dueTime; `status` → completed (COMPLETED=true); priority LOW→low; id Long→string.
+Розбіжності з `Task`: `deadline` → dueDate+dueTime; id Long→string.

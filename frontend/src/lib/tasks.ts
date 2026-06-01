@@ -9,7 +9,7 @@ export function taskDueAt(task: Task): Date {
 }
 
 export function getTaskState(task: Task, now: Date = new Date()): TaskState {
-  if (task.completed) return 'done';
+  if (task.status === 'COMPLETED') return 'done';
   if (taskDueAt(task).getTime() < now.getTime()) return 'overdue';
   return 'upcoming';
 }

@@ -1,4 +1,5 @@
-export type TaskPriority = 'low' | 'medium' | 'high';
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
+export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
 export type TaskState = 'upcoming' | 'overdue' | 'done';
 
 export interface Task {
@@ -8,5 +9,5 @@ export interface Task {
   priority: TaskPriority;
   dueDate: string;
   dueTime?: string;
-  completed: boolean;
+  status: TaskStatus;
 }
