@@ -1,10 +1,12 @@
-export type TaskStatus = 'todo' | 'in_progress' | 'done';
 export type TaskPriority = 'low' | 'medium' | 'high';
+export type TaskState = 'upcoming' | 'overdue' | 'done';
 
 export interface Task {
   id: string;
   title: string;
-  status: TaskStatus;
+  description?: string;
   priority: TaskPriority;
   dueDate: string;
+  dueTime?: string;
+  completed: boolean;
 }
