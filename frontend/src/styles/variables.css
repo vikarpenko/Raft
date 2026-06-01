@@ -24,9 +24,9 @@
   --color-warning: #c79029;
 
   /* priority ramp */
-  --color-priority-high: #c75165;
-  --color-priority-medium: #d36978;
-  --color-priority-low: #d3848c;
+  --color-priority-high: #c73951;
+  --color-priority-medium: #e0566a;
+  --color-priority-low: #e5737f;
 
   --color-sidebar-bg: linear-gradient(165deg, #b1808c, #7c505d);
   --color-sidebar-text: #fdfaf7;

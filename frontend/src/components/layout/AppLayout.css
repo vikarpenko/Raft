@@ -11,6 +11,7 @@
 
 .layout .content {
   grid-area: content;
+  min-width: 0;
   overflow-y: auto;
   padding: var(--space-6) var(--content-padding) var(--space-12);
   scrollbar-width: none;
