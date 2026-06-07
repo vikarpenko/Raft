@@ -1,0 +1,116 @@
+.msfilter {
+  position: relative;
+}
+
+.msfilter__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: border-color var(--transition), background-color var(--transition);
+}
+
+.msfilter__button:hover {
+  border-color: var(--color-ring);
+}
+
+.msfilter__button[data-active='true'] {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-weight: var(--weight-semibold);
+}
+
+.msfilter__current {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msfilter__menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: var(--z-sticky);
+  width: 240px;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.msfilter__search {
+  width: 100%;
+  height: 34px;
+  margin-bottom: var(--space-2);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.msfilter__search:focus {
+  outline: none;
+  border-color: var(--color-ring);
+  box-shadow: var(--shadow-focus);
+}
+
+.msfilter__list {
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.msfilter__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+.msfilter__option:hover {
+  background: var(--color-bg);
+}
+
+.msfilter__option[data-active='true'] {
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+}
+
+.msfilter__option-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.msfilter__option svg {
+  color: var(--color-primary);
+}
+
+.msfilter__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}

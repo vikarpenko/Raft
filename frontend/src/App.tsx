@@ -3,6 +3,8 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { DashboardPage } from '@/pages/dashboard/DashboardPage';
 import { TodoPage } from '@/pages/todo/TodoPage';
 import { CalendarPage } from '@/pages/calendar/CalendarPage';
+import { SpacesPage } from '@/pages/spaces/SpacesPage';
+import { WorkspacePage } from '@/pages/spaces/WorkspacePage';
 import { PlaceholderPage } from '@/pages/placeholder/PlaceholderPage';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
@@ -19,6 +21,8 @@ function App() {
           <Route index element={<DashboardPage />} />
           <Route path="todo" element={<TodoPage />} />
           <Route path="calendar" element={<CalendarPage />} />
+          <Route path="spaces" element={<SpacesPage />} />
+          <Route path="spaces/:id" element={<WorkspacePage />} />
           <Route path="*" element={<PlaceholderPage />} />
         </Route>
       </Route>

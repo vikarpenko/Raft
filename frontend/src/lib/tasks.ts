@@ -6,6 +6,12 @@ export const priorityLabels: Record<TaskPriority, string> = {
   HIGH: 'High',
 };
 
+export const priorityColors: Record<TaskPriority, string> = {
+  HIGH: '#c73951',
+  MEDIUM: '#e0566a',
+  LOW: '#e5737f',
+};
+
 export function todayISO(now: Date = new Date()): string {
   return now.toLocaleDateString('en-CA');
 }

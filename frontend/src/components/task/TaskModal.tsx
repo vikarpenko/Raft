@@ -1,6 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { priorityLabels, todayISO } from '@/lib/tasks';
+import { getWorkspaces } from '@/api/workspaces';
 import type { Task, TaskPriority } from '@/types/task';
+import type { Workspace } from '@/types/workspace';
 import './TaskModal.css';
 
 const PRIORITIES: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
@@ -20,6 +22,17 @@ export function TaskModal({ task, defaultDate, onClose, onCreate, onUpdate, onDe
   const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? 'MEDIUM');
   const [dueDate, setDueDate] = useState(task?.dueDate ?? defaultDate ?? todayISO());
   const [dueTime, setDueTime] = useState(task?.dueTime ?? '');
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [workspaceId, setWorkspaceId] = useState('');
+
+  useEffect(() => {
+    if (task) return;
+    getWorkspaces().then((all) => {
+      setWorkspaces(all);
+      const personal = all.find((w) => w.type === 'PERSONAL') ?? all[0];
+      if (personal) setWorkspaceId(personal.id);
+    });
+  }, [task]);
 
   const handleTimeChange = (raw: string) => {
     const digits = raw.replace(/\D/g, '').slice(0, 4);
@@ -45,7 +58,7 @@ export function TaskModal({ task, defaultDate, onClose, onCreate, onUpdate, onDe
       dueTime: dueTime || undefined,
     };
     if (task) onUpdate(task.id, data);
-    else onCreate({ ...data, status: 'TODO' });
+    else onCreate({ ...data, status: 'TODO', workspaceId: workspaceId || undefined });
   };
 
   return (
@@ -67,6 +80,19 @@ export function TaskModal({ task, defaultDate, onClose, onCreate, onUpdate, onDe
           value={description}
           onChange={(event) => setDescription(event.target.value)}
         />
+
+        {!task && workspaces.length > 0 && (
+          <label className="modal__field modal__field--full">
+            <span>Space</span>
+            <select value={workspaceId} onChange={(event) => setWorkspaceId(event.target.value)}>
+              {workspaces.map((ws) => (
+                <option key={ws.id} value={ws.id}>
+                  {ws.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <div className="modal__row">
           <label className="modal__field">

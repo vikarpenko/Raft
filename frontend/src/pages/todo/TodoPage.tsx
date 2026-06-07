@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createTask, deleteTask, getTasks, updateTask } from '@/api/tasks';
+import { getWorkspaces } from '@/api/workspaces';
 import { TaskModal } from '@/components/task/TaskModal';
+import { MultiSelectFilter } from '@/components/common/MultiSelectFilter';
 import { Icon } from '@/lib/icons';
-import { byDeadline, getTaskState, isDueOn, priorityLabels, todayISO } from '@/lib/tasks';
+import { byDeadline, getTaskState, isDueOn, priorityColors, priorityLabels, todayISO } from '@/lib/tasks';
+import { colorHex } from '@/lib/workspaceColors';
 import type { Task, TaskPriority } from '@/types/task';
+import type { Workspace } from '@/types/workspace';
 import './TodoPage.css';
 
 type StatusFilter = 'all' | 'active' | 'completed';
@@ -20,7 +24,9 @@ export function TodoPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [activePriorities, setActivePriorities] = useState<Set<TaskPriority>>(() => new Set(PRIORITIES));
+  const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(() => new Set());
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [selectedSpaces, setSelectedSpaces] = useState<Set<string>>(() => new Set());
   const [modalTask, setModalTask] = useState<Task | null | undefined>(undefined);
 
   useEffect(() => {
@@ -34,6 +40,10 @@ export function TodoPage() {
     return () => {
       active = false;
     };
+  }, []);
+
+  useEffect(() => {
+    getWorkspaces().then(setWorkspaces);
   }, []);
 
   const toggle = async (task: Task) => {
@@ -60,14 +70,6 @@ export function TodoPage() {
     setModalTask(undefined);
   };
 
-  const togglePriority = (priority: TaskPriority) =>
-    setActivePriorities((prev) => {
-      const next = new Set(prev);
-      if (next.has(priority)) next.delete(priority);
-      else next.add(priority);
-      return next;
-    });
-
   const remaining = tasks.filter((task) => task.status !== 'COMPLETED').length;
 
   const sections = useMemo(() => {
@@ -77,7 +79,8 @@ export function TodoPage() {
 
     const filtered = tasks.filter((task) => {
       if (query && !task.title.toLowerCase().includes(query)) return false;
-      if (!activePriorities.has(task.priority)) return false;
+      if (selectedPriorities.size > 0 && !selectedPriorities.has(task.priority)) return false;
+      if (selectedSpaces.size > 0 && (!task.workspaceId || !selectedSpaces.has(task.workspaceId))) return false;
       if (statusFilter === 'active' && task.status === 'COMPLETED') return false;
       if (statusFilter === 'completed' && task.status !== 'COMPLETED') return false;
       return true;
@@ -93,9 +96,12 @@ export function TodoPage() {
       { key: 'upcoming', title: 'Upcoming', overdue: false, tasks: pick((x) => x.state === 'upcoming' && !isDueOn(x.task, today)) },
       { key: 'completed', title: 'Completed', overdue: false, tasks: pick((x) => x.state === 'done') },
     ];
-  }, [tasks, search, statusFilter, activePriorities]);
+  }, [tasks, search, statusFilter, selectedPriorities, selectedSpaces]);
 
   const visibleSections = sections.filter((section) => section.tasks.length > 0);
+
+  const priorityOptions = PRIORITIES.map((p) => ({ id: p, label: priorityLabels[p], color: priorityColors[p] }));
+  const spaceOptions = workspaces.map((w) => ({ id: w.id, label: w.name, color: colorHex(w.color) }));
 
   return (
     <div className="todo">
@@ -138,20 +144,24 @@ export function TodoPage() {
             ))}
           </div>
 
-          <div className="todo__priorities">
-            {PRIORITIES.map((priority) => (
-              <button
-                key={priority}
-                type="button"
-                className="todo__priority"
-                data-active={activePriorities.has(priority)}
-                onClick={() => togglePriority(priority)}
-              >
-                <span className={`todo__priority-dot todo__priority-dot--${priority.toLowerCase()}`} />
-                {priorityLabels[priority]}
-              </button>
-            ))}
-          </div>
+          <MultiSelectFilter
+            options={priorityOptions}
+            selected={selectedPriorities}
+            onChange={setSelectedPriorities}
+            allLabel="All priorities"
+            countNoun="priorities"
+          />
+
+          {workspaces.length > 0 && (
+            <MultiSelectFilter
+              options={spaceOptions}
+              selected={selectedSpaces}
+              onChange={setSelectedSpaces}
+              allLabel="All spaces"
+              countNoun="spaces"
+              icon="spaces"
+            />
+          )}
         </div>
       </div>
 
@@ -185,6 +195,11 @@ export function TodoPage() {
                     />
                     <div className="todo-task__body" onClick={() => setModalTask(task)}>
                       <div className="todo-task__head">
+                        <span
+                          className="todo-task__space-dot"
+                          style={{ background: colorHex(task.workspaceColor) }}
+                          title={task.workspaceName}
+                        />
                         <span className="todo-task__title">{task.title}</span>
                         <span className={`todo-task__priority todo-task__priority--${task.priority.toLowerCase()}`}>
                           {priorityLabels[task.priority]}

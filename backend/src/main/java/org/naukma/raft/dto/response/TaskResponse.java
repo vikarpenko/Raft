@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.naukma.raft.enums.TaskPriority;
 import org.naukma.raft.enums.TaskStatus;
+import org.naukma.raft.enums.WorkspaceColor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -24,4 +25,8 @@ public class TaskResponse {
     private LocalTime dueTime;
 
     private TaskStatus status;
+
+    private String workspaceId;
+    private String workspaceName;
+    private WorkspaceColor workspaceColor;
 }

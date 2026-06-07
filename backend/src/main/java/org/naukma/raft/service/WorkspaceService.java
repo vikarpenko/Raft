@@ -1,0 +1,187 @@
+package org.naukma.raft.service;
+
+import lombok.RequiredArgsConstructor;
+import org.naukma.raft.dto.request.MemberRequest;
+import org.naukma.raft.dto.request.WorkspaceRequest;
+import org.naukma.raft.dto.response.MemberResponse;
+import org.naukma.raft.dto.response.WorkspaceDetailResponse;
+import org.naukma.raft.dto.response.WorkspaceResponse;
+import org.naukma.raft.entity.User;
+import org.naukma.raft.entity.Workspace;
+import org.naukma.raft.entity.WorkspaceMember;
+import org.naukma.raft.enums.MemberRole;
+import org.naukma.raft.enums.WorkspaceColor;
+import org.naukma.raft.enums.WorkspaceType;
+import org.naukma.raft.errorsHadling.AccessDeniedException;
+import org.naukma.raft.errorsHadling.ConflictException;
+import org.naukma.raft.errorsHadling.NotFoundException;
+import org.naukma.raft.repository.UserRepository;
+import org.naukma.raft.repository.WorkspaceMemberRepository;
+import org.naukma.raft.repository.WorkspaceRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class WorkspaceService {
+    private static final WorkspaceColor DEFAULT_COLOR = WorkspaceColor.ROSE;
+
+    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceMemberRepository memberRepository;
+    private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    public List<WorkspaceResponse> getWorkspaces(Long userId) {
+        Map<Long, WorkspaceResponse> result = new LinkedHashMap<>();
+
+        for (Workspace workspace : workspaceRepository.findByOwner_Id(userId)) {
+            result.put(workspace.getId(), toResponse(workspace, MemberRole.ADMIN));
+        }
+        for (WorkspaceMember member : memberRepository.findByUser_Id(userId)) {
+            Workspace workspace = member.getWorkspace();
+            result.putIfAbsent(workspace.getId(), toResponse(workspace, member.getRole()));
+        }
+
+        return List.copyOf(result.values());
+    }
+
+    @Transactional
+    public WorkspaceResponse createWorkspace(Long userId, WorkspaceRequest request) {
+        User user = getUser(userId);
+
+        Workspace workspace = workspaceRepository.save(
+                Workspace.builder()
+                        .name(request.getName().trim())
+                        .type(WorkspaceType.SHARED)
+                        .color(resolveColor(request.getColor()))
+                        .owner(user)
+                        .build()
+        );
+
+        memberRepository.save(
+                WorkspaceMember.builder()
+                        .workspace(workspace)
+                        .user(user)
+                        .role(MemberRole.ADMIN)
+                        .build()
+        );
+
+        return toResponse(workspace, MemberRole.ADMIN);
+    }
+
+    @Transactional(readOnly = true)
+    public WorkspaceDetailResponse getWorkspace(Long userId, Long workspaceId) {
+        Workspace workspace = getWorkspaceEntity(workspaceId);
+        MemberRole role = requireMember(workspace, userId);
+
+        List<MemberResponse> members = memberRepository.findByWorkspace_Id(workspaceId)
+                .stream()
+                .map(this::toMemberResponse)
+                .toList();
+
+        return WorkspaceDetailResponse.builder()
+                .id(workspace.getId().toString())
+                .name(workspace.getName())
+                .type(workspace.getType())
+                .color(workspace.getColor())
+                .role(role)
+                .members(members)
+                .build();
+    }
+
+    @Transactional
+    public MemberResponse addMember(Long userId, Long workspaceId, MemberRequest request) {
+        Workspace workspace = getWorkspaceEntity(workspaceId);
+        requireAdmin(workspace, userId);
+
+        User target = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
+        if (workspace.getOwner().getId().equals(target.getId())
+                || memberRepository.existsByWorkspace_IdAndUser_Id(workspaceId, target.getId())) {
+            throw new ConflictException("User is already a member");
+        }
+
+        MemberRole role = request.getRole() != null ? request.getRole() : MemberRole.MEMBER;
+        WorkspaceMember member = memberRepository.save(
+                WorkspaceMember.builder()
+                        .workspace(workspace)
+                        .user(target)
+                        .role(role)
+                        .build()
+        );
+
+        return toMemberResponse(member);
+    }
+
+    @Transactional
+    public void removeMember(Long userId, Long workspaceId, Long memberUserId) {
+        Workspace workspace = getWorkspaceEntity(workspaceId);
+        requireAdmin(workspace, userId);
+
+        if (workspace.getOwner().getId().equals(memberUserId)) {
+            throw new ConflictException("Cannot remove the workspace owner");
+        }
+
+        WorkspaceMember member = memberRepository
+                .findByWorkspace_IdAndUser_Id(workspaceId, memberUserId)
+                .orElseThrow(() -> new NotFoundException("Member not found"));
+
+        memberRepository.delete(member);
+    }
+
+    private Workspace getWorkspaceEntity(Long workspaceId) {
+        return workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new NotFoundException("Workspace not found"));
+    }
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    private MemberRole requireMember(Workspace workspace, Long userId) {
+        if (workspace.getOwner().getId().equals(userId)) {
+            return MemberRole.ADMIN;
+        }
+        return memberRepository.findByWorkspace_IdAndUser_Id(workspace.getId(), userId)
+                .map(WorkspaceMember::getRole)
+                .orElseThrow(() -> new AccessDeniedException("You do not have access to this workspace"));
+    }
+
+    private void requireAdmin(Workspace workspace, Long userId) {
+        if (requireMember(workspace, userId) != MemberRole.ADMIN) {
+            throw new AccessDeniedException("Only admins can manage members");
+        }
+    }
+
+    private WorkspaceResponse toResponse(Workspace workspace, MemberRole role) {
+        return WorkspaceResponse.builder()
+                .id(workspace.getId().toString())
+                .name(workspace.getName())
+                .type(workspace.getType())
+                .color(workspace.getColor())
+                .role(role)
+                .build();
+    }
+
+    private WorkspaceColor resolveColor(WorkspaceColor requested) {
+        return requested != null ? requested : DEFAULT_COLOR;
+    }
+
+    private MemberResponse toMemberResponse(WorkspaceMember member) {
+        User user = member.getUser();
+        return MemberResponse.builder()
+                .id(member.getId().toString())
+                .userId(user.getId().toString())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .role(member.getRole())
+                .build();
+    }
+}

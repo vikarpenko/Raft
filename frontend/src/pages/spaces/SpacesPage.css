@@ -1,0 +1,435 @@
+.spaces__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-8);
+}
+
+.spaces__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  max-width: 420px;
+  height: var(--control-height);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.spaces__search:focus-within {
+  border-color: var(--color-ring);
+  box-shadow: var(--shadow-focus);
+}
+
+.spaces__search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+}
+
+.spaces__search input:focus {
+  outline: none;
+}
+
+.spaces__add {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  cursor: pointer;
+  transition: background-color var(--transition), transform var(--transition);
+}
+
+.spaces__add:hover {
+  background: var(--color-primary-hover);
+  transform: scale(1.05);
+}
+
+.spaces__muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.spaces__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-6);
+}
+
+/* Space card */
+.scard {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.scard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+.scard:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.scard__banner {
+  position: relative;
+  height: 120px;
+}
+
+.scard__chip {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.scard__body {
+  padding: var(--space-6);
+}
+
+.scard__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.scard__name {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.scard__role {
+  flex-shrink: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+}
+
+.scard__role[data-role='ADMIN'] {
+  color: var(--color-primary);
+}
+
+.scard__hint {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Modal (create + members) */
+.smodal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+}
+
+.smodal__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--color-overlay);
+}
+
+.smodal__card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+}
+
+.smodal__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.smodal__chip-dot,
+.scard__chip-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.smodal__title {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.smodal__subtitle {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.smodal__close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+.smodal__close:hover {
+  background: var(--color-bg);
+}
+
+.smodal__input {
+  height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: var(--text-base);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.smodal__input:focus {
+  outline: none;
+  border-color: var(--color-ring);
+  box-shadow: var(--shadow-focus);
+}
+
+.smodal__swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.smodal__swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform var(--transition);
+}
+
+.smodal__swatch:hover {
+  transform: scale(1.1);
+}
+
+.smodal__swatch[data-active='true'] {
+  border-color: var(--color-text);
+}
+
+.smodal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.smodal__btn {
+  height: var(--control-height);
+  padding: 0 var(--space-5);
+  border: none;
+  border-radius: var(--radius-full);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+.smodal__btn--ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.smodal__btn--ghost:hover {
+  background: var(--color-bg);
+}
+
+.smodal__btn--primary {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.smodal__btn--primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.smodal__btn--primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.smodal__error {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.smodal__members {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+}
+
+.smodal__member {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.smodal__avatar {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.smodal__member-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.smodal__member-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
+}
+
+.smodal__you {
+  color: var(--color-text-muted);
+}
+
+.smodal__member-email {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.smodal__role {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-bg);
+  color: var(--color-text-secondary);
+}
+
+.smodal__role[data-role='ADMIN'] {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.smodal__remove {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition);
+}
+
+.smodal__remove:hover {
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+  color: var(--color-danger);
+}
+
+.smodal__invite {
+  display: flex;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.smodal__invite input {
+  flex: 1;
+  height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.smodal__invite input:focus {
+  outline: none;
+  border-color: var(--color-ring);
+  box-shadow: var(--shadow-focus);
+}
+
+.smodal__invite button {
+  height: var(--control-height);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background-color var(--transition);
+}
+
+.smodal__invite button:hover {
+  background: var(--color-primary-hover);
+}
+
+.smodal__invite button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

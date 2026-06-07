@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.naukma.raft.enums.WorkspaceColor;
 import org.naukma.raft.enums.WorkspaceType;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,10 @@ public class Workspace {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private WorkspaceType type;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private WorkspaceColor color;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)

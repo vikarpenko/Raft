@@ -11,22 +11,16 @@ export function titleForPath(path: string): string {
 
 export const navSections: NavSection[] = [
   {
-    title: 'Study',
+    title: 'Workspace',
     items: [
       { label: 'Dashboard', icon: 'dashboard', path: '/' },
-      { label: 'Projects', icon: 'projects', path: '/projects' },
-      { label: 'Notes', icon: 'notes', path: '/notes' },
+      { label: 'Spaces', icon: 'spaces', path: '/spaces' },
       { label: 'To-Do', icon: 'todo', path: '/todo' },
       { label: 'Calendar', icon: 'calendar', path: '/calendar' },
-      { label: 'Statistics', icon: 'statistics', path: '/statistics' },
-    ],
-  },
-  {
-    title: 'Expenses',
-    items: [
-      { label: 'Spaces', icon: 'spaces', path: '/spaces' },
+      { label: 'Notes', icon: 'notes', path: '/notes' },
       { label: 'Chats', icon: 'chats', path: '/chats' },
-      { label: 'Statistics', icon: 'expenses', path: '/expenses' },
+      { label: 'Expenses', icon: 'expenses', path: '/expenses' },
+      { label: 'Statistics', icon: 'statistics', path: '/statistics' },
     ],
   },
   {

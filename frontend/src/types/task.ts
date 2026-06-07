@@ -1,3 +1,5 @@
+import type { WorkspaceColor } from '@/types/workspace';
+
 export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH';
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'COMPLETED';
 export type TaskState = 'upcoming' | 'overdue' | 'done';
@@ -10,4 +12,7 @@ export interface Task {
   dueDate: string;
   dueTime?: string;
   status: TaskStatus;
+  workspaceId?: string;
+  workspaceName?: string;
+  workspaceColor?: WorkspaceColor | null;
 }

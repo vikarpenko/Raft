@@ -29,4 +29,6 @@ public class TaskRequest {
 
     @NotNull(message = "Status is required")
     private TaskStatus status;
+
+    private Long workspaceId;
 }

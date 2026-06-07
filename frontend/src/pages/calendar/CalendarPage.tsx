@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createTask, deleteTask, getTasks, updateTask } from '@/api/tasks';
+import { getWorkspaces } from '@/api/workspaces';
 import { TaskModal } from '@/components/task/TaskModal';
+import { MultiSelectFilter } from '@/components/common/MultiSelectFilter';
 import { monthGridDays, toISODate, weekDays } from '@/lib/calendar';
 import { Icon } from '@/lib/icons';
-import { addDays, byDueTime, priorityLabels } from '@/lib/tasks';
+import { addDays, byDueTime, priorityColors, priorityLabels } from '@/lib/tasks';
+import { colorHex } from '@/lib/workspaceColors';
 import type { Task, TaskPriority } from '@/types/task';
+import type { Workspace } from '@/types/workspace';
 import './CalendarPage.css';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -26,7 +30,8 @@ function Chip({ task, onSelect }: { task: Task; onSelect: (task: Task) => void }
   return (
     <button
       type="button"
-      className={`tg__chip tg__chip--${task.priority.toLowerCase()}${task.status === 'COMPLETED' ? ' tg__chip--done' : ''}`}
+      className={`tg__chip${task.status === 'COMPLETED' ? ' tg__chip--done' : ''}`}
+      style={{ borderLeftColor: colorHex(task.workspaceColor) }}
       onClick={() => onSelect(task)}
     >
       {task.dueTime && <span className="tg__chip-time">{task.dueTime}</span>}
@@ -112,9 +117,9 @@ export function CalendarPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [view, setView] = useState<View>('month');
   const [focus, setFocus] = useState(() => new Date());
-  const [activePriorities, setActivePriorities] = useState<Set<TaskPriority>>(
-    () => new Set(PRIORITIES),
-  );
+  const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(() => new Set());
+  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [selectedSpaces, setSelectedSpaces] = useState<Set<string>>(() => new Set());
   const [modalTask, setModalTask] = useState<Task | null | undefined>(undefined);
 
   const create = async (input: Omit<Task, 'id'>) => {
@@ -135,14 +140,6 @@ export function CalendarPage() {
     setModalTask(undefined);
   };
 
-  const togglePriority = (priority: TaskPriority) =>
-    setActivePriorities((prev) => {
-      const next = new Set(prev);
-      if (next.has(priority)) next.delete(priority);
-      else next.add(priority);
-      return next;
-    });
-
   useEffect(() => {
     let active = true;
     getTasks().then((all) => {
@@ -153,19 +150,24 @@ export function CalendarPage() {
     };
   }, []);
 
+  useEffect(() => {
+    getWorkspaces().then(setWorkspaces);
+  }, []);
+
   const today = toISODate(new Date());
 
   const tasksByDate = useMemo(() => {
     const map = new Map<string, Task[]>();
     for (const task of tasks) {
-      if (!activePriorities.has(task.priority)) continue;
+      if (selectedPriorities.size > 0 && !selectedPriorities.has(task.priority)) continue;
+      if (selectedSpaces.size > 0 && (!task.workspaceId || !selectedSpaces.has(task.workspaceId))) continue;
       const list = map.get(task.dueDate) ?? [];
       list.push(task);
       map.set(task.dueDate, list);
     }
     for (const list of map.values()) list.sort(byDueTime);
     return map;
-  }, [tasks, activePriorities]);
+  }, [tasks, selectedPriorities, selectedSpaces]);
 
   const shift = (delta: number) =>
     setFocus((f) => {
@@ -186,6 +188,9 @@ export function CalendarPage() {
           })();
 
   const monthDays = monthGridDays(focus.getFullYear(), focus.getMonth());
+
+  const priorityOptions = PRIORITIES.map((p) => ({ id: p, label: priorityLabels[p], color: priorityColors[p] }));
+  const spaceOptions = workspaces.map((w) => ({ id: w.id, label: w.name, color: colorHex(w.color) }));
 
   return (
     <div className="calendar">
@@ -224,18 +229,23 @@ export function CalendarPage() {
       </header>
 
       <div className="calendar__filters">
-        {PRIORITIES.map((priority) => (
-          <button
-            key={priority}
-            type="button"
-            className="calendar__filter"
-            data-active={activePriorities.has(priority)}
-            onClick={() => togglePriority(priority)}
-          >
-            <span className={`calendar__filter-dot calendar__filter-dot--${priority.toLowerCase()}`} />
-            {priorityLabels[priority]}
-          </button>
-        ))}
+        <MultiSelectFilter
+          options={priorityOptions}
+          selected={selectedPriorities}
+          onChange={setSelectedPriorities}
+          allLabel="All priorities"
+          countNoun="priorities"
+        />
+        {workspaces.length > 0 && (
+          <MultiSelectFilter
+            options={spaceOptions}
+            selected={selectedSpaces}
+            onChange={setSelectedSpaces}
+            allLabel="All spaces"
+            countNoun="spaces"
+            icon="spaces"
+          />
+        )}
       </div>
 
       <div className="calendar__scroll">
@@ -276,7 +286,7 @@ export function CalendarPage() {
                       key={task.id}
                       className={`calendar__task${task.status === 'COMPLETED' ? ' calendar__task--done' : ''}`}
                     >
-                      <span className={`calendar__dot calendar__dot--${task.priority.toLowerCase()}`} />
+                      <span className="calendar__dot" style={{ background: colorHex(task.workspaceColor) }} />
                       <span className="calendar__task-title">{task.title}</span>
                     </span>
                   ))}
