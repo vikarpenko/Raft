@@ -21,6 +21,18 @@ export function TaskModal({ task, defaultDate, onClose, onCreate, onUpdate, onDe
   const [dueDate, setDueDate] = useState(task?.dueDate ?? defaultDate ?? todayISO());
   const [dueTime, setDueTime] = useState(task?.dueTime ?? '');
 
+  const handleTimeChange = (raw: string) => {
+    const digits = raw.replace(/\D/g, '').slice(0, 4);
+    const deleting = raw.length < dueTime.length;
+    if (digits.length >= 3) {
+      setDueTime(`${digits.slice(0, 2)}:${digits.slice(2)}`);
+    } else if (digits.length === 2 && !deleting) {
+      setDueTime(`${digits}:`);
+    } else {
+      setDueTime(digits);
+    }
+  };
+
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     const trimmed = title.trim();
@@ -73,7 +85,16 @@ export function TaskModal({ task, defaultDate, onClose, onCreate, onUpdate, onDe
           </label>
           <label className="modal__field">
             <span>Time</span>
-            <input type="time" value={dueTime} onChange={(event) => setDueTime(event.target.value)} />
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="HH:mm"
+              maxLength={5}
+              pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
+              title="24-hour time, e.g. 14:30"
+              value={dueTime}
+              onChange={(event) => handleTimeChange(event.target.value)}
+            />
           </label>
         </div>
 

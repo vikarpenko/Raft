@@ -3,18 +3,26 @@ import {AppLayout} from '@/components/layout/AppLayout';
 import {DashboardPage} from '@/pages/dashboard/DashboardPage';
 import {TodoPage} from '@/pages/todo/TodoPage';
 import {CalendarPage} from '@/pages/calendar/CalendarPage';
+import {NotesPage} from '@/pages/notes/NotesPage';
 import {PlaceholderPage} from '@/pages/placeholder/PlaceholderPage';
-import {NotesPage} from "@/pages/notes/NotesPage.tsx";
+import {LoginPage} from '@/pages/auth/LoginPage';
+import {RegisterPage} from '@/pages/auth/RegisterPage';
+import {ProtectedRoute} from '@/auth/ProtectedRoute';
 
 function App() {
     return (
         <Routes>
-            <Route path="/" element={<AppLayout/>}>
-                <Route index element={<DashboardPage/>}/>
-                <Route path="todo" element={<TodoPage/>}/>
-                <Route path="calendar" element={<CalendarPage/>}/>
-                <Route path="*" element={<PlaceholderPage/>}/>
-                <Route path="notes" element={<NotesPage/>}/>
+            <Route path="/login" element={<LoginPage/>}/>
+            <Route path="/register" element={<RegisterPage/>}/>
+
+            <Route element={<ProtectedRoute/>}>
+                <Route path="/" element={<AppLayout/>}>
+                    <Route index element={<DashboardPage/>}/>
+                    <Route path="todo" element={<TodoPage/>}/>
+                    <Route path="calendar" element={<CalendarPage/>}/>
+                    <Route path="notes" element={<NotesPage/>}/>
+                    <Route path="*" element={<PlaceholderPage/>}/>
+                </Route>
             </Route>
         </Routes>
     );
