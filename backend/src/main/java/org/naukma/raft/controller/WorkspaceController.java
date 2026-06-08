@@ -23,8 +23,7 @@ public class WorkspaceController {
     private final WorkspaceService workspaceService;
 
     @GetMapping
-    public ResponseEntity<List<WorkspaceResponse>> getWorkspaces(
-            @AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<List<WorkspaceResponse>> getWorkspaces(@AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(workspaceService.getWorkspaces(user.getId()));
     }
 
@@ -48,8 +47,7 @@ public class WorkspaceController {
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long id,
             @Valid @RequestBody MemberRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(workspaceService.addMember(user.getId(), id, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(workspaceService.addMember(user.getId(), id, request));
     }
 
     @DeleteMapping("/{id}/members/{memberUserId}")

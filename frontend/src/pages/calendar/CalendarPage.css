@@ -112,42 +112,6 @@
   gap: var(--space-2);
 }
 
-.calendar__filter {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  background: var(--color-surface);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: opacity var(--transition);
-}
-
-.calendar__filter[data-active='false'] {
-  opacity: 0.4;
-}
-
-.calendar__filter-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
-}
-
-.calendar__filter-dot--low {
-  background: var(--color-priority-low);
-}
-
-.calendar__filter-dot--medium {
-  background: var(--color-priority-medium);
-}
-
-.calendar__filter-dot--high {
-  background: var(--color-priority-high);
-}
-
 .calendar__scroll {
   min-width: 0;
   overflow-x: auto;
@@ -247,18 +211,6 @@
   width: 6px;
   height: 6px;
   border-radius: var(--radius-full);
-}
-
-.calendar__dot--low {
-  background: var(--color-priority-low);
-}
-
-.calendar__dot--medium {
-  background: var(--color-priority-medium);
-}
-
-.calendar__dot--high {
-  background: var(--color-priority-high);
 }
 
 .calendar__more {
@@ -367,18 +319,6 @@
 
 .tg__chip:hover {
   filter: brightness(0.96);
-}
-
-.tg__chip--low {
-  border-left-color: var(--color-priority-low);
-}
-
-.tg__chip--medium {
-  border-left-color: var(--color-priority-medium);
-}
-
-.tg__chip--high {
-  border-left-color: var(--color-priority-high);
 }
 
 .tg__chip--done .tg__chip-title {

@@ -1,7 +1,7 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { getTasks } from '@/api/tasks';
 import { addDays, byDueTime, getTaskState, isDueOn, priorityLabels, todayISO } from '@/lib/tasks';
+import { colorHex } from '@/lib/workspaceColors';
 import type { Task, TaskState } from '@/types/task';
 import './TodayTasksWidget.css';
 
@@ -10,23 +10,13 @@ const MAX_TOMORROW = 3;
 
 type Row = { task: Task; state: TaskState };
 
-export function TodayTasksWidget() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+interface TodayTasksWidgetProps {
+  tasks: Task[];
+  loading: boolean;
+  error?: boolean;
+}
 
-  useEffect(() => {
-    let active = true;
-    getTasks().then((all) => {
-      if (active) {
-        setTasks(all);
-        setLoading(false);
-      }
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
-
+export function TodayTasksWidget({ tasks, loading, error }: TodayTasksWidgetProps) {
   const now = new Date();
 
   const activeOn = (isoDate: string): Row[] =>
@@ -70,6 +60,12 @@ export function TodayTasksWidget() {
                   {overdue && <span className="timeline__tag">Overdue</span>}
                 </p>
                 {task.description && <p className="timeline__desc">{task.description}</p>}
+                {task.workspaceName && (
+                  <p className="timeline__space">
+                    <span className="timeline__space-dot" style={{ background: colorHex(task.workspaceColor) }} />
+                    {task.workspaceName}
+                  </p>
+                )}
               </div>
             </li>
           </Fragment>
@@ -87,7 +83,9 @@ export function TodayTasksWidget() {
         </span>
       </header>
 
-      {loading ? (
+      {error ? (
+        <p className="today-tasks__muted">Couldn&rsquo;t load tasks.</p>
+      ) : loading ? (
         <p className="today-tasks__muted">Loading&hellip;</p>
       ) : todayRows.length > 0 ? (
         <>

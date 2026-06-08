@@ -53,10 +53,12 @@ public class WorkspaceService {
     public WorkspaceResponse createWorkspace(Long userId, WorkspaceRequest request) {
         User user = getUser(userId);
 
+        WorkspaceType type = request.getType() != null ? request.getType() : WorkspaceType.SHARED;
+
         Workspace workspace = workspaceRepository.save(
                 Workspace.builder()
                         .name(request.getName().trim())
-                        .type(WorkspaceType.SHARED)
+                        .type(type)
                         .color(resolveColor(request.getColor()))
                         .owner(user)
                         .build()
@@ -69,6 +71,25 @@ public class WorkspaceService {
                         .role(MemberRole.ADMIN)
                         .build()
         );
+
+        if (type == WorkspaceType.SHARED && request.getMemberEmails() != null) {
+            for (String email : request.getMemberEmails()) {
+                if (email == null || email.isBlank()) continue;
+                userRepository.findByEmail(email.trim()).ifPresent(target -> {
+                    boolean alreadyIn = target.getId().equals(user.getId())
+                            || memberRepository.existsByWorkspace_IdAndUser_Id(workspace.getId(), target.getId());
+                    if (!alreadyIn) {
+                        memberRepository.save(
+                                WorkspaceMember.builder()
+                                        .workspace(workspace)
+                                        .user(target)
+                                        .role(MemberRole.MEMBER)
+                                        .build()
+                        );
+                    }
+                });
+            }
+        }
 
         return toResponse(workspace, MemberRole.ADMIN);
     }
@@ -160,12 +181,14 @@ public class WorkspaceService {
     }
 
     private WorkspaceResponse toResponse(Workspace workspace, MemberRole role) {
+        int memberCount = (int) Math.max(memberRepository.countByWorkspace_Id(workspace.getId()), 1);
         return WorkspaceResponse.builder()
                 .id(workspace.getId().toString())
                 .name(workspace.getName())
                 .type(workspace.getType())
                 .color(workspace.getColor())
                 .role(role)
+                .memberCount(memberCount)
                 .build();
     }
 

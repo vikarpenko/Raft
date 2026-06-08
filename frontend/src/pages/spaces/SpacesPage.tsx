@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/lib/icons';
 import { ApiError } from '@/api/http';
 import { createWorkspace, getWorkspaces } from '@/api/workspaces';
+import { WorkspaceCard } from '@/components/workspace/WorkspaceCard';
 import { colorHex, WORKSPACE_COLOR_NAMES } from '@/lib/workspaceColors';
-import type { Workspace, WorkspaceColor } from '@/types/workspace';
+import type { Workspace, WorkspaceColor, WorkspaceType } from '@/types/workspace';
 import './SpacesPage.css';
 
 function errorMessage(err: unknown): string {
@@ -20,7 +21,20 @@ export function SpacesPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState<WorkspaceColor>('ROSE');
+  const [newType, setNewType] = useState<WorkspaceType>('SHARED');
+  const [memberEmails, setMemberEmails] = useState<string[]>([]);
+  const [emailInput, setEmailInput] = useState('');
   const [error, setError] = useState('');
+
+  const addEmail = () => {
+    const email = emailInput.trim();
+    if (!email || !email.includes('@') || memberEmails.includes(email)) return;
+    setMemberEmails((prev) => [...prev, email]);
+    setEmailInput('');
+  };
+
+  const removeEmail = (email: string) =>
+    setMemberEmails((prev) => prev.filter((e) => e !== email));
 
   useEffect(() => {
     getWorkspaces().then((all) => {
@@ -36,10 +50,17 @@ export function SpacesPage() {
     const name = newName.trim();
     if (!name) return;
     try {
-      const ws = await createWorkspace(name, newColor);
+      const ws = await createWorkspace(name, {
+        color: newColor,
+        type: newType,
+        memberEmails: newType === 'SHARED' ? memberEmails : [],
+      });
       setCreateOpen(false);
       setNewName('');
       setNewColor('ROSE');
+      setNewType('SHARED');
+      setMemberEmails([]);
+      setEmailInput('');
       setError('');
       navigate(`/spaces/${ws.id}`);
     } catch (err) {
@@ -77,29 +98,7 @@ export function SpacesPage() {
       ) : (
         <div className="spaces__grid">
           {filtered.map((ws) => (
-            <div
-              key={ws.id}
-              className="scard"
-              role="button"
-              tabIndex={0}
-              onClick={() => open(ws.id)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') open(ws.id);
-              }}
-            >
-              <div className="scard__banner" style={{ background: colorHex(ws.color) }}>
-                <span className="scard__chip">{ws.type === 'SHARED' ? 'Shared' : 'Personal'}</span>
-              </div>
-              <div className="scard__body">
-                <div className="scard__row">
-                  <span className="scard__name">{ws.name}</span>
-                  <span className="scard__role" data-role={ws.role}>
-                    {ws.role === 'ADMIN' ? 'Admin' : 'Member'}
-                  </span>
-                </div>
-                <p className="scard__hint">Open space</p>
-              </div>
-            </div>
+            <WorkspaceCard key={ws.id} workspace={ws} onOpen={open} />
           ))}
         </div>
       )}
@@ -118,6 +117,26 @@ export function SpacesPage() {
               value={newName}
               onChange={(event) => setNewName(event.target.value)}
             />
+
+            <div className="smodal__types">
+              <button
+                type="button"
+                className="smodal__type"
+                data-active={newType === 'PERSONAL'}
+                onClick={() => setNewType('PERSONAL')}
+              >
+                Private
+              </button>
+              <button
+                type="button"
+                className="smodal__type"
+                data-active={newType === 'SHARED'}
+                onClick={() => setNewType('SHARED')}
+              >
+                Shared
+              </button>
+            </div>
+
             <div className="smodal__swatches">
               {WORKSPACE_COLOR_NAMES.map((color) => (
                 <button
@@ -132,6 +151,41 @@ export function SpacesPage() {
                 />
               ))}
             </div>
+
+            {newType === 'SHARED' && (
+              <div className="smodal__invite-add">
+                <div className="smodal__email-row">
+                  <input
+                    type="email"
+                    placeholder="Add member by email"
+                    value={emailInput}
+                    onChange={(event) => setEmailInput(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault();
+                        addEmail();
+                      }
+                    }}
+                  />
+                  <button type="button" onClick={addEmail} disabled={!emailInput.trim()}>
+                    Add
+                  </button>
+                </div>
+                {memberEmails.length > 0 && (
+                  <div className="smodal__email-chips">
+                    {memberEmails.map((email) => (
+                      <span key={email} className="smodal__email-chip">
+                        {email}
+                        <button type="button" onClick={() => removeEmail(email)} aria-label={`Remove ${email}`}>
+                          <Icon name="close" size={12} />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="smodal__actions">
               <button type="button" className="smodal__btn smodal__btn--ghost" onClick={() => setCreateOpen(false)}>
                 Cancel

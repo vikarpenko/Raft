@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.naukma.raft.enums.WorkspaceColor;
+import org.naukma.raft.enums.WorkspaceType;
+
+import java.util.List;
 
 @Data
 public class WorkspaceRequest {
@@ -12,4 +15,8 @@ public class WorkspaceRequest {
     private String name;
 
     private WorkspaceColor color;
+
+    private WorkspaceType type;
+
+    private List<String> memberEmails;
 }

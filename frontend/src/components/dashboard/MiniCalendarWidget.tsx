@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { getTasks } from '@/api/tasks';
 import { monthGridDays, toISODate } from '@/lib/calendar';
 import { Icon } from '@/lib/icons';
 import type { Task } from '@/types/task';
@@ -8,19 +7,11 @@ import './MiniCalendarWidget.css';
 
 const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
-export function MiniCalendarWidget() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+interface MiniCalendarWidgetProps {
+  tasks: Task[];
+}
 
-  useEffect(() => {
-    let active = true;
-    getTasks().then((all) => {
-      if (active) setTasks(all);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
-
+export function MiniCalendarWidget({ tasks }: MiniCalendarWidgetProps) {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();

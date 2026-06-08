@@ -5,7 +5,12 @@ export function titleForPath(path: string): string {
     const item = section.items.find((navItem) => navItem.path === path);
     if (item) return item.label;
   }
-  const slug = path.replace('/', '');
+  const firstSegment = `/${path.split('/').filter(Boolean)[0] ?? ''}`;
+  for (const section of navSections) {
+    const item = section.items.find((navItem) => navItem.path === firstSegment);
+    if (item) return item.label;
+  }
+  const slug = path.split('/').filter(Boolean)[0] ?? '';
   return slug ? slug[0].toUpperCase() + slug.slice(1) : 'Page';
 }
 

@@ -10,6 +10,7 @@ export interface Workspace {
   type: WorkspaceType;
   color: WorkspaceColor | null;
   role: MemberRole;
+  memberCount?: number;
 }
 
 export interface Member {

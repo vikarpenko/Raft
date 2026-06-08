@@ -1,12 +1,25 @@
 import { api } from '@/api/http';
-import type { Member, MemberRole, Workspace, WorkspaceColor, WorkspaceDetail } from '@/types/workspace';
+import type {
+  Member,
+  MemberRole,
+  Workspace,
+  WorkspaceColor,
+  WorkspaceDetail,
+  WorkspaceType,
+} from '@/types/workspace';
+
+export interface CreateWorkspaceInput {
+  color?: WorkspaceColor;
+  type?: WorkspaceType;
+  memberEmails?: string[];
+}
 
 export async function getWorkspaces(): Promise<Workspace[]> {
   return api.get<Workspace[]>('/workspaces');
 }
 
-export async function createWorkspace(name: string, color?: WorkspaceColor): Promise<Workspace> {
-  return api.post<Workspace>('/workspaces', { name, color });
+export async function createWorkspace(name: string, input?: CreateWorkspaceInput): Promise<Workspace> {
+  return api.post<Workspace>('/workspaces', { name, ...input });
 }
 
 export async function getWorkspace(id: string): Promise<WorkspaceDetail> {

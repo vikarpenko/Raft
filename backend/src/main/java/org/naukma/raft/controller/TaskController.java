@@ -29,8 +29,7 @@ public class TaskController {
     public ResponseEntity<TaskResponse> createTask(
             @AuthenticationPrincipal CustomUserDetails user,
             @Valid @RequestBody TaskRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(taskService.createTask(user.getId(), request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(user.getId(), request));
     }
 
     @PatchMapping("/{id}")

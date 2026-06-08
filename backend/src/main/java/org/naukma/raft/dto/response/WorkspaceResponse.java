@@ -14,4 +14,5 @@ public class WorkspaceResponse {
     private WorkspaceType type;
     private WorkspaceColor color;
     private MemberRole role;
+    private int memberCount;
 }
