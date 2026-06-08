@@ -9,6 +9,7 @@ import org.naukma.raft.enums.MemberRole;
 public class MemberResponse {
     private String id;
     private String userId;
+    private String username;
     private String firstName;
     private String lastName;
     private String email;

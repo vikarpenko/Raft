@@ -3,6 +3,7 @@ package org.naukma.raft.service;
 import lombok.RequiredArgsConstructor;
 import org.naukma.raft.dto.request.MemberRequest;
 import org.naukma.raft.dto.request.WorkspaceRequest;
+import org.naukma.raft.dto.request.WorkspaceUpdateRequest;
 import org.naukma.raft.dto.response.MemberResponse;
 import org.naukma.raft.dto.response.WorkspaceDetailResponse;
 import org.naukma.raft.dto.response.WorkspaceResponse;
@@ -15,6 +16,7 @@ import org.naukma.raft.enums.WorkspaceType;
 import org.naukma.raft.errorsHadling.AccessDeniedException;
 import org.naukma.raft.errorsHadling.ConflictException;
 import org.naukma.raft.errorsHadling.NotFoundException;
+import org.naukma.raft.repository.TaskRepository;
 import org.naukma.raft.repository.UserRepository;
 import org.naukma.raft.repository.WorkspaceMemberRepository;
 import org.naukma.raft.repository.WorkspaceRepository;
@@ -33,9 +35,12 @@ public class WorkspaceService {
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
 
-    @Transactional(readOnly = true)
+    @Transactional
     public List<WorkspaceResponse> getWorkspaces(Long userId) {
+        ensurePersonalWorkspace(userId);
+
         Map<Long, WorkspaceResponse> result = new LinkedHashMap<>();
 
         for (Workspace workspace : workspaceRepository.findByOwner_Id(userId)) {
@@ -47,6 +52,22 @@ public class WorkspaceService {
         }
 
         return List.copyOf(result.values());
+    }
+
+    private void ensurePersonalWorkspace(Long userId) {
+        if (workspaceRepository.findFirstByOwner_IdAndType(userId, WorkspaceType.PERSONAL).isPresent()) {
+            return;
+        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        workspaceRepository.save(
+                Workspace.builder()
+                        .name("Personal")
+                        .type(WorkspaceType.PERSONAL)
+                        .color(WorkspaceColor.GRAY)
+                        .owner(user)
+                        .build()
+        );
     }
 
     @Transactional
@@ -72,10 +93,10 @@ public class WorkspaceService {
                         .build()
         );
 
-        if (type == WorkspaceType.SHARED && request.getMemberEmails() != null) {
-            for (String email : request.getMemberEmails()) {
-                if (email == null || email.isBlank()) continue;
-                userRepository.findByEmail(email.trim()).ifPresent(target -> {
+        if (type == WorkspaceType.SHARED && request.getMemberLogins() != null) {
+            for (String loginValue : request.getMemberLogins()) {
+                if (loginValue == null || loginValue.isBlank()) continue;
+                userRepository.findByEmailOrUsername(loginValue.trim(), loginValue.trim()).ifPresent(target -> {
                     boolean alreadyIn = target.getId().equals(user.getId())
                             || memberRepository.existsByWorkspace_IdAndUser_Id(workspace.getId(), target.getId());
                     if (!alreadyIn) {
@@ -115,11 +136,41 @@ public class WorkspaceService {
     }
 
     @Transactional
+    public WorkspaceResponse updateWorkspace(Long userId, Long workspaceId, WorkspaceUpdateRequest request) {
+        Workspace workspace = getWorkspaceEntity(workspaceId);
+        MemberRole role = requireMember(workspace, userId);
+        if (role != MemberRole.ADMIN) {
+            throw new AccessDeniedException("Only admins can edit the workspace");
+        }
+        if (request.getName() != null && !request.getName().isBlank()) {
+            workspace.setName(request.getName().trim());
+        }
+        if (request.getColor() != null) {
+            workspace.setColor(request.getColor());
+        }
+        return toResponse(workspaceRepository.save(workspace), role);
+    }
+
+    @Transactional
+    public void deleteWorkspace(Long userId, Long workspaceId) {
+        Workspace workspace = getWorkspaceEntity(workspaceId);
+        if (requireMember(workspace, userId) != MemberRole.ADMIN) {
+            throw new AccessDeniedException("Only admins can delete the workspace");
+        }
+        if (workspace.getType() == WorkspaceType.PERSONAL) {
+            throw new ConflictException("You can't delete your personal space");
+        }
+        taskRepository.deleteByWorkspace_Id(workspaceId);
+        memberRepository.deleteByWorkspace_Id(workspaceId);
+        workspaceRepository.delete(workspace);
+    }
+
+    @Transactional
     public MemberResponse addMember(Long userId, Long workspaceId, MemberRequest request) {
         Workspace workspace = getWorkspaceEntity(workspaceId);
         requireAdmin(workspace, userId);
 
-        User target = userRepository.findByEmail(request.getEmail())
+        User target = userRepository.findByEmailOrUsername(request.getLogin(), request.getLogin())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (workspace.getOwner().getId().equals(target.getId())
@@ -201,6 +252,7 @@ public class WorkspaceService {
         return MemberResponse.builder()
                 .id(member.getId().toString())
                 .userId(user.getId().toString())
+                .username(user.getUsername())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())

@@ -1,16 +1,14 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/lib/icons';
-import { ApiError } from '@/api/http';
+import { errorMessage } from '@/api/http';
 import { createWorkspace, getWorkspaces } from '@/api/workspaces';
 import { WorkspaceCard } from '@/components/workspace/WorkspaceCard';
+import { UserSuggestions } from '@/components/common/UserSuggestions';
 import { colorHex, WORKSPACE_COLOR_NAMES } from '@/lib/workspaceColors';
+import { useUserSuggestions } from '@/lib/useUserSuggestions';
 import type { Workspace, WorkspaceColor, WorkspaceType } from '@/types/workspace';
 import './SpacesPage.css';
-
-function errorMessage(err: unknown): string {
-  return err instanceof ApiError ? err.message : 'Something went wrong. Try again.';
-}
 
 export function SpacesPage() {
   const navigate = useNavigate();
@@ -22,19 +20,21 @@ export function SpacesPage() {
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState<WorkspaceColor>('ROSE');
   const [newType, setNewType] = useState<WorkspaceType>('SHARED');
-  const [memberEmails, setMemberEmails] = useState<string[]>([]);
-  const [emailInput, setEmailInput] = useState('');
+  const [memberLogins, setMemberLogins] = useState<string[]>([]);
+  const [loginInput, setLoginInput] = useState('');
   const [error, setError] = useState('');
+  const [showSuggest, setShowSuggest] = useState(false);
+  const suggestions = useUserSuggestions(loginInput);
 
-  const addEmail = () => {
-    const email = emailInput.trim();
-    if (!email || !email.includes('@') || memberEmails.includes(email)) return;
-    setMemberEmails((prev) => [...prev, email]);
-    setEmailInput('');
+  const addLogin = (login?: string) => {
+    const value = (login ?? loginInput).trim();
+    if (!value || memberLogins.includes(value)) return;
+    setMemberLogins((prev) => [...prev, value]);
+    setLoginInput('');
   };
 
-  const removeEmail = (email: string) =>
-    setMemberEmails((prev) => prev.filter((e) => e !== email));
+  const removeLogin = (value: string) =>
+    setMemberLogins((prev) => prev.filter((v) => v !== value));
 
   useEffect(() => {
     getWorkspaces().then((all) => {
@@ -53,14 +53,14 @@ export function SpacesPage() {
       const ws = await createWorkspace(name, {
         color: newColor,
         type: newType,
-        memberEmails: newType === 'SHARED' ? memberEmails : [],
+        memberLogins: newType === 'SHARED' ? memberLogins : [],
       });
       setCreateOpen(false);
       setNewName('');
       setNewColor('ROSE');
       setNewType('SHARED');
-      setMemberEmails([]);
-      setEmailInput('');
+      setMemberLogins([]);
+      setLoginInput('');
       setError('');
       navigate(`/spaces/${ws.id}`);
     } catch (err) {
@@ -155,28 +155,45 @@ export function SpacesPage() {
             {newType === 'SHARED' && (
               <div className="smodal__invite-add">
                 <div className="smodal__email-row">
-                  <input
-                    type="email"
-                    placeholder="Add member by email"
-                    value={emailInput}
-                    onChange={(event) => setEmailInput(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter') {
-                        event.preventDefault();
-                        addEmail();
-                      }
-                    }}
-                  />
-                  <button type="button" onClick={addEmail} disabled={!emailInput.trim()}>
+                  <div className="smodal__email-field">
+                    <input
+                      type="text"
+                      placeholder="Add member by email or username"
+                      autoComplete="off"
+                      value={loginInput}
+                      onChange={(event) => {
+                        setLoginInput(event.target.value);
+                        setShowSuggest(true);
+                      }}
+                      onFocus={() => setShowSuggest(true)}
+                      onBlur={() => setShowSuggest(false)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault();
+                          addLogin();
+                        }
+                      }}
+                    />
+                    {showSuggest && (
+                      <UserSuggestions
+                        users={suggestions.filter((u) => !memberLogins.includes(u.username))}
+                        onPick={(u) => {
+                          addLogin(u.username);
+                          setShowSuggest(false);
+                        }}
+                      />
+                    )}
+                  </div>
+                  <button type="button" onClick={() => addLogin()} disabled={!loginInput.trim()}>
                     Add
                   </button>
                 </div>
-                {memberEmails.length > 0 && (
+                {memberLogins.length > 0 && (
                   <div className="smodal__email-chips">
-                    {memberEmails.map((email) => (
-                      <span key={email} className="smodal__email-chip">
-                        {email}
-                        <button type="button" onClick={() => removeEmail(email)} aria-label={`Remove ${email}`}>
+                    {memberLogins.map((value) => (
+                      <span key={value} className="smodal__email-chip">
+                        {value}
+                        <button type="button" onClick={() => removeLogin(value)} aria-label={`Remove ${value}`}>
                           <Icon name="close" size={12} />
                         </button>
                       </span>

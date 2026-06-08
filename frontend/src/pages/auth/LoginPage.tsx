@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/auth/AuthContext';
-import { ApiError } from '@/api/http';
+import { errorMessage } from '@/api/http';
 import './AuthPage.css';
 
 export function LoginPage() {
@@ -20,7 +20,7 @@ export function LoginPage() {
       await login(identifier, password);
       navigate('/', { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Something went wrong. Try again.');
+      setError(errorMessage(err));
     } finally {
       setSubmitting(false);
     }

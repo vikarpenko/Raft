@@ -10,13 +10,14 @@ const PRIORITIES: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
 interface TaskModalProps {
   task: Task | null;
   defaultDate?: string;
+  defaultWorkspaceId?: string;
   onClose: () => void;
   onCreate: (input: Omit<Task, 'id'>) => void;
   onUpdate: (id: string, patch: Partial<Task>) => void;
   onDelete: (id: string) => void;
 }
 
-export function TaskModal({ task, defaultDate, onClose, onCreate, onUpdate, onDelete }: TaskModalProps) {
+export function TaskModal({ task, defaultDate, defaultWorkspaceId, onClose, onCreate, onUpdate, onDelete }: TaskModalProps) {
   const [title, setTitle] = useState(task?.title ?? '');
   const [description, setDescription] = useState(task?.description ?? '');
   const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? 'MEDIUM');
@@ -27,12 +28,17 @@ export function TaskModal({ task, defaultDate, onClose, onCreate, onUpdate, onDe
 
   useEffect(() => {
     if (task) return;
+    if (defaultWorkspaceId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setWorkspaceId(defaultWorkspaceId);
+      return;
+    }
     getWorkspaces().then((all) => {
       setWorkspaces(all);
-      const personal = all.find((w) => w.type === 'PERSONAL') ?? all[0];
-      if (personal) setWorkspaceId(personal.id);
+      const preferred = all.find((w) => w.type === 'PERSONAL') ?? all[0];
+      if (preferred) setWorkspaceId(preferred.id);
     });
-  }, [task]);
+  }, [task, defaultWorkspaceId]);
 
   const handleTimeChange = (raw: string) => {
     const digits = raw.replace(/\D/g, '').slice(0, 4);
@@ -81,7 +87,7 @@ export function TaskModal({ task, defaultDate, onClose, onCreate, onUpdate, onDe
           onChange={(event) => setDescription(event.target.value)}
         />
 
-        {!task && workspaces.length > 0 && (
+        {!task && !defaultWorkspaceId && workspaces.length > 0 && (
           <label className="modal__field modal__field--full">
             <span>Space</span>
             <select value={workspaceId} onChange={(event) => setWorkspaceId(event.target.value)}>

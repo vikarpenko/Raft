@@ -1,7 +1,11 @@
+import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '@/lib/icons';
 import { useAuth } from '@/auth/AuthContext';
+import { getWorkspace } from '@/api/workspaces';
+import { colorHex } from '@/lib/workspaceColors';
 import { titleForPath } from '@/config/navigation';
+import type { MemberRole, WorkspaceColor } from '@/types/workspace';
 import './Topbar.css';
 
 interface TopbarProps {
@@ -20,14 +24,67 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const { pathname } = useLocation();
   const { user } = useAuth();
 
+  const spaceId = pathname.match(/^\/spaces\/(.+)$/)?.[1] ?? null;
+  const [space, setSpace] = useState<{ name: string; color: WorkspaceColor | null; role: MemberRole } | null>(null);
+
+  useEffect(() => {
+    if (!spaceId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSpace(null);
+      return;
+    }
+    let active = true;
+    getWorkspace(spaceId)
+      .then((w) => {
+        if (active) setSpace({ name: w.name, color: w.color, role: w.role });
+      })
+      .catch(() => {
+        if (active) setSpace(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [spaceId, pathname]);
+
+  useEffect(() => {
+    const onUpdated = (event: Event) => {
+      const { id, name, color } = (event as CustomEvent<{ id: string; name: string; color: WorkspaceColor | null }>).detail;
+      if (id === spaceId) {
+        setSpace((prev) => (prev ? { ...prev, name, color } : prev));
+      }
+    };
+    window.addEventListener('workspace-updated', onUpdated);
+    return () => window.removeEventListener('workspace-updated', onUpdated);
+  }, [spaceId]);
+
   const initials = user ? (user.firstName[0] ?? '') + (user.lastName[0] ?? '') : '';
 
-  const title =
-    pathname === '/'
-      ? user
-        ? `${timeGreeting()}, ${user.firstName}!`
-        : timeGreeting()
-      : titleForPath(pathname);
+  let title: ReactNode;
+  if (spaceId) {
+    title = space ? (
+      <span className="topbar__space">
+        <span className="topbar__space-dot" style={{ background: colorHex(space.color) }} />
+        {space.name}
+        {space.role === 'ADMIN' && (
+          <button
+            type="button"
+            className="topbar__space-edit"
+            aria-label="Edit space"
+            title="Edit space"
+            onClick={() => navigate(`/spaces/${spaceId}?edit=1`)}
+          >
+            <Icon name="edit" size={16} />
+          </button>
+        )}
+      </span>
+    ) : (
+      'Space'
+    );
+  } else if (pathname === '/') {
+    title = user ? `${timeGreeting()}, ${user.firstName}!` : timeGreeting();
+  } else {
+    title = titleForPath(pathname);
+  }
 
   return (
     <header className="topbar">

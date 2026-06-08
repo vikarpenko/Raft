@@ -10,6 +10,10 @@ export class ApiError extends Error {
   }
 }
 
+export function errorMessage(err: unknown): string {
+  return err instanceof ApiError ? err.message : 'Something went wrong. Try again.';
+}
+
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }

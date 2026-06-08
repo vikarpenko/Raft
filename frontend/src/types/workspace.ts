@@ -16,9 +16,9 @@ export interface Workspace {
 export interface Member {
   id: string;
   userId: string;
+  username: string;
   firstName: string;
   lastName: string;
-  email: string;
   role: MemberRole;
 }
 

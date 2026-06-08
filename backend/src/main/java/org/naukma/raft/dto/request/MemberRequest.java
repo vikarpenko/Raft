@@ -1,15 +1,13 @@
 package org.naukma.raft.dto.request;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.naukma.raft.enums.MemberRole;
 
 @Data
 public class MemberRequest {
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    private String email;
+    @NotBlank(message = "Email or username is required")
+    private String login;
 
     private MemberRole role;
 }

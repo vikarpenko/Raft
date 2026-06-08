@@ -26,24 +26,21 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskResponse> createTask(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @Valid @RequestBody TaskRequest request) {
+    public ResponseEntity<TaskResponse> createTask(@AuthenticationPrincipal CustomUserDetails user,
+                                                   @Valid @RequestBody TaskRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(user.getId(), request));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<TaskResponse> updateTask(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable Long id,
-            @RequestBody TaskPatchRequest request) {
+    public ResponseEntity<TaskResponse> updateTask(@AuthenticationPrincipal CustomUserDetails user,
+                                                   @PathVariable Long id,
+                                                   @RequestBody TaskPatchRequest request) {
         return ResponseEntity.ok(taskService.updateTask(user.getId(), id, request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable Long id) {
+    public ResponseEntity<Void> deleteTask(@AuthenticationPrincipal CustomUserDetails user,
+                                           @PathVariable Long id) {
         taskService.deleteTask(user.getId(), id);
         return ResponseEntity.noContent().build();
     }

@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByWorkspace_IdInOrderByCreatedDesc(Collection<Long> workspaceIds);
+
+    void deleteByWorkspace_Id(Long workspaceId);
 }

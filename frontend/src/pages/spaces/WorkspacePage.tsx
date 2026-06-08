@@ -1,20 +1,47 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState, type FormEvent } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Icon } from '@/lib/icons';
-import { getWorkspace } from '@/api/workspaces';
-import { colorHex } from '@/lib/workspaceColors';
-import type { WorkspaceDetail } from '@/types/workspace';
+import { useAuth } from '@/auth/AuthContext';
+import { errorMessage } from '@/api/http';
+import { addMember, deleteWorkspace, getWorkspace, removeMember, updateWorkspace } from '@/api/workspaces';
+import { createTask, deleteTask, getTasks, updateTask } from '@/api/tasks';
+import { TaskModal } from '@/components/task/TaskModal';
+import { UserSuggestions } from '@/components/common/UserSuggestions';
+import { byDeadline, priorityLabels } from '@/lib/tasks';
+import { useUserSuggestions } from '@/lib/useUserSuggestions';
+import { colorHex, WORKSPACE_COLOR_NAMES } from '@/lib/workspaceColors';
+import type { Task } from '@/types/task';
+import type { WorkspaceColor, WorkspaceDetail } from '@/types/workspace';
 import './WorkspacePage.css';
+
+function formatDue(task: Task): string {
+  const date = new Date(`${task.dueDate}T${task.dueTime ?? '00:00'}`);
+  const day = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return task.dueTime ? `${day} · ${task.dueTime}` : day;
+}
 
 export function WorkspacePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
   const [detail, setDetail] = useState<WorkspaceDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [modalTask, setModalTask] = useState<Task | null | undefined>(undefined);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editColor, setEditColor] = useState<WorkspaceColor>('ROSE');
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [inviteLogin, setInviteLogin] = useState('');
+  const [memberError, setMemberError] = useState('');
+  const [showSuggest, setShowSuggest] = useState(false);
+  const suggestions = useUserSuggestions(inviteLogin);
 
   useEffect(() => {
     if (!id) return;
     let active = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     getWorkspace(id)
       .then((d) => {
@@ -30,6 +57,100 @@ export function WorkspacePage() {
       active = false;
     };
   }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    let active = true;
+    getTasks()
+      .then((all) => {
+        if (active) setTasks(all.filter((task) => task.workspaceId === id));
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [id]);
+
+  const toggle = async (task: Task) => {
+    const next = task.status === 'COMPLETED' ? 'TODO' : 'COMPLETED';
+    const updated = await updateTask(task.id, { status: next });
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
+  };
+
+  const create = async (input: Omit<Task, 'id'>) => {
+    const created = await createTask(input);
+    if (created.workspaceId === id) setTasks((prev) => [created, ...prev]);
+    setModalTask(undefined);
+  };
+
+  const update = async (taskId: string, patch: Partial<Task>) => {
+    const updated = await updateTask(taskId, patch);
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? updated : t)));
+    setModalTask(undefined);
+  };
+
+  const remove = async (taskId: string) => {
+    await deleteTask(taskId);
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+    setModalTask(undefined);
+  };
+
+  useEffect(() => {
+    if (searchParams.get('edit') === '1' && detail && detail.role === 'ADMIN') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setEditName(detail.name);
+      setEditColor(detail.color ?? 'ROSE');
+      setEditOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, detail, setSearchParams]);
+
+  const saveEdit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!detail) return;
+    const name = editName.trim();
+    if (!name) return;
+    const updated = await updateWorkspace(detail.id, { name, color: editColor });
+    setDetail({ ...detail, name: updated.name, color: updated.color });
+    window.dispatchEvent(
+      new CustomEvent('workspace-updated', {
+        detail: { id: detail.id, name: updated.name, color: updated.color },
+      }),
+    );
+    setEditOpen(false);
+  };
+
+  const confirmDelete = async () => {
+    if (!detail) return;
+    await deleteWorkspace(detail.id);
+    navigate('/spaces');
+  };
+
+  const invite = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!detail) return;
+    const value = inviteLogin.trim();
+    if (!value) return;
+    try {
+      const member = await addMember(detail.id, value);
+      setDetail({ ...detail, members: [...detail.members, member] });
+      setInviteLogin('');
+      setMemberError('');
+    } catch (err) {
+      setMemberError(errorMessage(err));
+    }
+  };
+
+  const kick = async (userId: string) => {
+    if (!detail) return;
+    try {
+      await removeMember(detail.id, userId);
+      setDetail({ ...detail, members: detail.members.filter((m) => m.userId !== userId) });
+      setMemberError('');
+    } catch (err) {
+      setMemberError(errorMessage(err));
+    }
+  };
 
   const back = (
     <button type="button" className="wpage__back" onClick={() => navigate('/spaces')}>
@@ -56,14 +177,210 @@ export function WorkspacePage() {
     );
   }
 
+  const sorted = [...tasks].sort(byDeadline);
+  const isAdmin = detail.role === 'ADMIN';
+  const canManage = isAdmin && detail.type === 'SHARED';
+
   return (
     <div className="wpage">
-      {back}
+      <div className="wpage__top">{back}</div>
 
-      <header className="wpage__head">
-        <span className="wpage__dot" style={{ background: colorHex(detail.color) }} />
-        <h1 className="wpage__title">{detail.name}</h1>
-      </header>
+      <div className="wpage__columns" data-single={detail.type !== 'SHARED'}>
+        <div className="wpage__main">
+          <div className="wpage__tasks-head">
+            <h2 className="wpage__subtitle">Tasks ({tasks.length})</h2>
+            <button type="button" className="wpage__add" onClick={() => setModalTask(null)}>
+              <Icon name="plus" size={16} />
+              Add task
+            </button>
+          </div>
+
+          {sorted.length === 0 ? (
+            <p className="wpage__muted">No tasks in this space yet.</p>
+          ) : (
+            <ul className="wpage__list">
+              {sorted.map((task) => {
+                const done = task.status === 'COMPLETED';
+                return (
+                  <li key={task.id} className="wpage__task" data-done={done}>
+                    <input
+                      type="checkbox"
+                      className="wpage__check"
+                      checked={done}
+                      onChange={() => toggle(task)}
+                      aria-label={`Mark "${task.title}" as ${done ? 'not done' : 'done'}`}
+                    />
+                    <div className="wpage__task-body" onClick={() => setModalTask(task)}>
+                      <div className="wpage__task-head">
+                        <span className="wpage__task-title">{task.title}</span>
+                        <span className={`wpage__task-priority wpage__task-priority--${task.priority.toLowerCase()}`}>
+                          {priorityLabels[task.priority]}
+                        </span>
+                      </div>
+                      {task.description && <p className="wpage__task-desc">{task.description}</p>}
+                      <p className="wpage__task-due">{formatDue(task)}</p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </div>
+
+        {detail.type === 'SHARED' && (
+          <aside className="wpage__side">
+            <section className="wpage__members-widget">
+              <h2 className="wpage__subtitle">Members ({detail.members.length})</h2>
+              {memberError && <div className="wpage__error">{memberError}</div>}
+              <ul className="wpage__members">
+                {detail.members.map((member) => {
+                  const isYou = member.userId === user?.id;
+                  return (
+                    <li key={member.id} className="wpage__member">
+                      <span className="wpage__avatar">
+                        {(member.firstName[0] ?? '') + (member.lastName[0] ?? '')}
+                      </span>
+                      <div className="wpage__member-info">
+                        <span className="wpage__member-name">
+                          {member.firstName} {member.lastName}
+                          {isYou && <span className="wpage__you"> (you)</span>}
+                        </span>
+                        <span className="wpage__member-username">@{member.username}</span>
+                      </div>
+                      {canManage && member.role !== 'ADMIN' && (
+                        <button
+                          type="button"
+                          className="wpage__member-remove"
+                          aria-label={`Remove ${member.firstName}`}
+                          onClick={() => kick(member.userId)}
+                        >
+                          <Icon name="close" size={16} />
+                        </button>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+              {canManage && (
+                <form className="wpage__invite" onSubmit={invite}>
+                  <div className="wpage__invite-field">
+                    <input
+                      type="text"
+                      placeholder="Invite by email or username"
+                      autoComplete="off"
+                      value={inviteLogin}
+                      onChange={(event) => {
+                        setInviteLogin(event.target.value);
+                        setShowSuggest(true);
+                      }}
+                      onFocus={() => setShowSuggest(true)}
+                      onBlur={() => setShowSuggest(false)}
+                    />
+                    {showSuggest && (
+                      <UserSuggestions
+                        users={suggestions.filter(
+                          (u) => !detail.members.some((m) => m.username === u.username),
+                        )}
+                        onPick={(u) => {
+                          setInviteLogin(u.username);
+                          setShowSuggest(false);
+                        }}
+                      />
+                    )}
+                  </div>
+                  <button type="submit" disabled={!inviteLogin.trim()}>
+                    Add
+                  </button>
+                </form>
+              )}
+            </section>
+          </aside>
+        )}
+      </div>
+
+      {modalTask !== undefined && (
+        <TaskModal
+          task={modalTask}
+          defaultWorkspaceId={id}
+          onClose={() => setModalTask(undefined)}
+          onCreate={create}
+          onUpdate={update}
+          onDelete={remove}
+        />
+      )}
+
+      {editOpen && (
+        <div className="wmodal" role="dialog" aria-modal="true">
+          <div className="wmodal__scrim" onClick={() => setEditOpen(false)} />
+          <form className="wmodal__card" onSubmit={saveEdit}>
+            <h2 className="wmodal__title">Edit space</h2>
+            <input
+              className="wmodal__input"
+              placeholder="Space name"
+              maxLength={100}
+              autoFocus
+              value={editName}
+              onChange={(event) => setEditName(event.target.value)}
+            />
+            <div className="wmodal__swatches">
+              {WORKSPACE_COLOR_NAMES.map((color) => (
+                <button
+                  key={color}
+                  type="button"
+                  className="wmodal__swatch"
+                  data-active={editColor === color}
+                  style={{ background: colorHex(color) }}
+                  aria-label={color}
+                  title={color}
+                  onClick={() => setEditColor(color)}
+                />
+              ))}
+            </div>
+            <div className="wmodal__actions">
+              {detail.type === 'SHARED' && (
+                <button
+                  type="button"
+                  className="wmodal__btn wmodal__btn--danger"
+                  onClick={() => {
+                    setEditOpen(false);
+                    setDeleteOpen(true);
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+              <span className="wmodal__spacer" />
+              <button type="button" className="wmodal__btn wmodal__btn--ghost" onClick={() => setEditOpen(false)}>
+                Cancel
+              </button>
+              <button type="submit" className="wmodal__btn wmodal__btn--primary" disabled={!editName.trim()}>
+                Save
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {deleteOpen && (
+        <div className="wmodal" role="dialog" aria-modal="true">
+          <div className="wmodal__scrim" onClick={() => setDeleteOpen(false)} />
+          <div className="wmodal__card wmodal__card--confirm">
+            <h2 className="wmodal__title">Delete space?</h2>
+            <p className="wmodal__text">
+              This permanently deletes &ldquo;{detail.name}&rdquo; and all its tasks. This can&rsquo;t be undone.
+            </p>
+            <div className="wmodal__actions">
+              <span className="wmodal__spacer" />
+              <button type="button" className="wmodal__btn wmodal__btn--ghost" onClick={() => setDeleteOpen(false)}>
+                Cancel
+              </button>
+              <button type="button" className="wmodal__btn wmodal__btn--danger-solid" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

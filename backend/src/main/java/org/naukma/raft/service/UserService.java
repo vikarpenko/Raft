@@ -10,6 +10,8 @@ import org.naukma.raft.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -44,6 +46,17 @@ public class UserService {
         user.setAvatar(userRequest.getAvatar());
 
         return mapToResponse(userRepository.save(user));
+    }
+
+    public List<UserResponse> searchUsers(String query, Long excludeUserId){
+        String q = query == null ? "" : query.trim();
+        if(q.isEmpty()) { return List.of(); }
+        return userRepository
+                .findTop8ByUsernameContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(q, q, q)
+                .stream()
+                .filter(user -> !user.getId().equals(excludeUserId))
+                .map(this::mapToResponse)
+                .toList();
     }
 
     public void deleteUser(Long id){
