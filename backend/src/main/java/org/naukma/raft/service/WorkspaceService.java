@@ -54,7 +54,8 @@ public class WorkspaceService {
         return List.copyOf(result.values());
     }
 
-    private void ensurePersonalWorkspace(Long userId) {
+    @Transactional
+    public void ensurePersonalWorkspace(Long userId) {
         if (workspaceRepository.findFirstByOwner_IdAndType(userId, WorkspaceType.PERSONAL).isPresent()) {
             return;
         }

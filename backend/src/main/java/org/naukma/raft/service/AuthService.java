@@ -24,6 +24,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final WorkspaceService workspaceService;
 
     public AuthResponse register(UserRequest userRequest) {
         if(userRepository.existsByEmail(userRequest.getEmail())) {
@@ -42,6 +43,8 @@ public class AuthService {
         user.setAvatar(userRequest.getAvatar());
 
         User saved  = userRepository.save(user);
+        workspaceService.ensurePersonalWorkspace(saved.getId());
+
         CustomUserDetails userDetails = new CustomUserDetails(saved);
         String token = jwtService.generateToken(userDetails);
 
