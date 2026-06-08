@@ -9,6 +9,12 @@ import org.hibernate.validator.constraints.URL;
 
 @Data
 public class UserRequest {
+    @NotBlank(message = "Username is required")
+    @Size(min = 3, max = 30, message = "Username must be between 3 and 30 characters")
+    @Pattern(regexp = "^[A-Za-z0-9._-]+$",
+             message = "Username may contain only letters, digits, dot, underscore and hyphen")
+    private String username;
+
     @NotBlank(message = "Email is required")
     @Email(message = "Invalid email format")
     @Size(max = 100, message = "Email must be at most 100 characters")

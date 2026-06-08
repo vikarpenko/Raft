@@ -29,9 +29,13 @@ public class AuthService {
         if(userRepository.existsByEmail(userRequest.getEmail())) {
             throw new EmailAreadyExsistsException("Email already in use");
         }
+        if(userRepository.existsByUsername(userRequest.getUsername().trim())) {
+            throw new EmailAreadyExsistsException("Username already taken");
+        }
 
         User user = new User();
         user.setEmail(userRequest.getEmail());
+        user.setUsername(userRequest.getUsername().trim());
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setFirstName(userRequest.getFirstName().trim());
         user.setLastName(userRequest.getLastName().trim());
@@ -46,10 +50,10 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest loginRequest) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(loginRequest.getLogin(), loginRequest.getPassword())
         );
 
-        User user = userRepository.findByEmail(loginRequest.getEmail())
+        User user = userRepository.findByEmailOrUsername(loginRequest.getLogin(), loginRequest.getLogin())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         CustomUserDetails userDetails = new CustomUserDetails(user);
@@ -61,6 +65,7 @@ public class AuthService {
     private UserResponse mapToResponse(User user) {
         UserResponse userResponse = new UserResponse();
         userResponse.setId(user.getId().toString());
+        userResponse.setUsername(user.getUsername());
         userResponse.setEmail(user.getEmail());
         userResponse.setFirstName(user.getFirstName());
         userResponse.setLastName(user.getLastName());

@@ -15,6 +15,7 @@ interface NoteModalProps {
 
 const defaultUser: User = {
     id: 'u-current',
+    username: 'current',
     firstName: 'Current',
     lastName: 'User',
     email: 'current@example.com',

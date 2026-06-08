@@ -31,7 +31,13 @@ public class UserService {
             throw new EmailAreadyExsistsException("Email already in use");
         }
 
+        String username = userRequest.getUsername().trim();
+        if(!username.equals(user.getUsername()) && userRepository.existsByUsername(username)){
+            throw new EmailAreadyExsistsException("Username already taken");
+        }
+
         user.setEmail(userRequest.getEmail());
+        user.setUsername(username);
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setFirstName(userRequest.getFirstName().trim());
         user.setLastName(userRequest.getLastName().trim());
@@ -49,6 +55,7 @@ public class UserService {
     private UserResponse mapToResponse(User user){
         UserResponse response = new UserResponse();
         response.setId(user.getId().toString());
+        response.setUsername(user.getUsername());
         response.setEmail(user.getEmail());
         response.setFirstName(user.getFirstName());
         response.setLastName(user.getLastName());

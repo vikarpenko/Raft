@@ -7,6 +7,7 @@ export interface AuthResponse {
 }
 
 export interface RegisterInput {
+  username: string;
   email: string;
   password: string;
   firstName: string;
@@ -14,8 +15,8 @@ export interface RegisterInput {
   avatar?: string;
 }
 
-export async function login(email: string, password: string): Promise<AuthResponse> {
-  return api.post<AuthResponse>('/auth/login', { email, password });
+export async function login(login: string, password: string): Promise<AuthResponse> {
+  return api.post<AuthResponse>('/auth/login', { login, password });
 }
 
 export async function register(input: RegisterInput): Promise<AuthResponse> {

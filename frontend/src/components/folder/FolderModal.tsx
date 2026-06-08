@@ -23,7 +23,7 @@ export function FolderModal({folder, onClose, onCreate, onUpdate, onDelete}: Fol
         const data: Omit<Folder, 'id'> = {
             name: trimmed,
             type,
-            owner: folder?.owner ?? {id: '', firstName: '', lastName: '', email: ''},
+            owner: folder?.owner ?? {id: '', username: '', firstName: '', lastName: '', email: ''},
             created: folder?.created ?? new Date().toISOString(),
         };
         if (folder) onUpdate(folder.id, data);

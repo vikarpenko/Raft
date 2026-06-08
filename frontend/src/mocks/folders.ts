@@ -3,6 +3,7 @@ import type {User} from "@/types/user.ts";
 
 const mockUser: User = {
     id: 'u-001',
+    username: 'mia.carter',
     firstName: 'Mia',
     lastName: 'Carter',
     email: 'mia.carter@gmail.com',
@@ -34,7 +35,7 @@ export const mockFolders: Folder[] = [
         id: 'f-4',
         name: 'Archive',
         type: 'SHARED',
-        owner: { id: 'u-3', firstName: 'Sophia', lastName: 'Chen', email: 'sophia.chen@company.com' },
+        owner: { id: 'u-3', username: 'sophia.chen', firstName: 'Sophia', lastName: 'Chen', email: 'sophia.chen@company.com' },
         created: '2026-04-05T09:00:00Z',
     },
 ];

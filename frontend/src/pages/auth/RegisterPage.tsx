@@ -7,7 +7,7 @@ import './AuthPage.css';
 export function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', username: '', email: '', password: '' });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -23,6 +23,7 @@ export function RegisterPage() {
         ...form,
         firstName: form.firstName.trim(),
         lastName: form.lastName.trim(),
+        username: form.username.trim(),
       });
       navigate('/', { replace: true });
     } catch (err) {
@@ -50,6 +51,21 @@ export function RegisterPage() {
               <label htmlFor="lastName">Last name</label>
               <input id="lastName" required maxLength={50} value={form.lastName} onChange={update('lastName')} />
             </div>
+          </div>
+
+          <div className="auth__field">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              autoComplete="username"
+              required
+              minLength={3}
+              maxLength={30}
+              pattern="[A-Za-z0-9._-]+"
+              title="3–30 characters: letters, digits, dot, underscore or hyphen"
+              value={form.username}
+              onChange={update('username')}
+            />
           </div>
 
           <div className="auth__field">

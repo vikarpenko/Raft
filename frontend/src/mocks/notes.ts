@@ -1,7 +1,7 @@
 import type { Note } from '@/types/note';
 import { mockFolders } from './folders';
 
-const mockUser = { id: 'u-1', firstName: 'Mia', lastName: 'Carter', email: 'mia.carter@gmail.com' };
+const mockUser = { id: 'u-1', username: 'mia.carter', firstName: 'Mia', lastName: 'Carter', email: 'mia.carter@gmail.com' };
 
 export const mockNotes: Note[] = [
     {
