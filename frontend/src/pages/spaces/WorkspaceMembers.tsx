@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Icon } from '@/lib/icons';
 import { errorMessage } from '@/api/http';
 import { addMember, removeMember } from '@/api/workspaces';
@@ -19,6 +19,7 @@ export function WorkspaceMembers({ workspaceId, members, canManage, currentUserI
   const [inviteLogin, setInviteLogin] = useState('');
   const [memberError, setMemberError] = useState('');
   const [showSuggest, setShowSuggest] = useState(false);
+  const inviteInputRef = useRef<HTMLInputElement>(null);
   const suggestions = useUserSuggestions(inviteLogin);
 
   const invite = async (event: FormEvent) => {
@@ -82,6 +83,7 @@ export function WorkspaceMembers({ workspaceId, members, canManage, currentUserI
         <form className="wpage__invite" onSubmit={invite}>
           <div className="wpage__invite-field">
             <input
+              ref={inviteInputRef}
               type="text"
               placeholder="Invite by email or username"
               autoComplete="off"
@@ -95,6 +97,7 @@ export function WorkspaceMembers({ workspaceId, members, canManage, currentUserI
             />
             {showSuggest && (
               <UserSuggestions
+                anchorRef={inviteInputRef}
                 users={suggestions.filter((u) => !members.some((m) => m.username === u.username))}
                 onPick={(u) => {
                   setInviteLogin(u.username);

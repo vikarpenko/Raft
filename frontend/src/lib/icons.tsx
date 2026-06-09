@@ -1,7 +1,7 @@
 import {
   LayoutDashboard, FolderKanban, NotebookPen, ListChecks, Calendar, BarChart3, Boxes, MessagesSquare,
   Wallet, Inbox, Settings, HelpCircle, LogOut, Search, Bell, Plus, ChevronDown, ChevronLeft, ChevronRight,
-  Menu, X, Check, Folder, FolderPlus, FilePlus, Pencil, Pin, PinOff, type LucideIcon,
+  Menu, X, Check, Folder, FolderPlus, FilePlus, Pencil, Pin, PinOff, MoreHorizontal, type LucideIcon,
 } from 'lucide-react';
 
 const icons = {
@@ -33,6 +33,7 @@ const icons = {
   edit: Pencil,
   pin: Pin,
   unpin: PinOff,
+  more: MoreHorizontal,
 } satisfies Record<string, LucideIcon>;
 
 export type IconName = keyof typeof icons;

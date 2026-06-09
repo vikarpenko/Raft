@@ -147,6 +147,7 @@ public class WorkspaceService {
                 .type(workspace.getType())
                 .color(workspace.getColor())
                 .role(role)
+                .created(workspace.getCreated())
                 .members(members)
                 .build();
     }

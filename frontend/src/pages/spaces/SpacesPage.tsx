@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/lib/icons';
 import { errorMessage } from '@/api/http';
@@ -24,6 +24,7 @@ export function SpacesPage() {
   const [loginInput, setLoginInput] = useState('');
   const [error, setError] = useState('');
   const [showSuggest, setShowSuggest] = useState(false);
+  const loginInputRef = useRef<HTMLInputElement>(null);
   const suggestions = useUserSuggestions(loginInput);
 
   const addLogin = (login?: string) => {
@@ -104,59 +105,72 @@ export function SpacesPage() {
       )}
 
       {createOpen && (
-        <div className="smodal" role="dialog" aria-modal="true">
-          <div className="smodal__scrim" onClick={() => setCreateOpen(false)} />
-          <form className="smodal__card" onSubmit={create}>
-            <h2 className="smodal__title">New space</h2>
-            {error && <div className="smodal__error">{error}</div>}
-            <input
-              className="smodal__input"
-              placeholder="Space name"
-              maxLength={100}
-              autoFocus
-              value={newName}
-              onChange={(event) => setNewName(event.target.value)}
-            />
+        <div className="modal" role="dialog" aria-modal="true">
+          <div className="modal__scrim" onClick={() => setCreateOpen(false)} />
+          <form className="modal__card modal__card--scroll" onSubmit={create}>
+            <h2 className="modal__title">New space</h2>
+            {error && <div className="modal__error">{error}</div>}
+            <label className="modal__field">
+              <span>Name</span>
+              <input
+                className="modal__input"
+                placeholder="Space name"
+                maxLength={100}
+                autoFocus
+                value={newName}
+                onChange={(event) => setNewName(event.target.value)}
+              />
+              <span className="modal__counter">{newName.length}/100</span>
+            </label>
 
-            <div className="smodal__types">
-              <button
-                type="button"
-                className="smodal__type"
-                data-active={newType === 'PERSONAL'}
-                onClick={() => setNewType('PERSONAL')}
-              >
-                Private
-              </button>
-              <button
-                type="button"
-                className="smodal__type"
-                data-active={newType === 'SHARED'}
-                onClick={() => setNewType('SHARED')}
-              >
-                Shared
-              </button>
+            <div className="modal__field">
+              <span>Type</span>
+              <div className="modal__types">
+                <button
+                  type="button"
+                  className="modal__type"
+                  data-active={newType === 'PERSONAL'}
+                  onClick={() => setNewType('PERSONAL')}
+                >
+                  Private
+                </button>
+                <button
+                  type="button"
+                  className="modal__type"
+                  data-active={newType === 'SHARED'}
+                  onClick={() => setNewType('SHARED')}
+                >
+                  Shared
+                </button>
+              </div>
             </div>
 
-            <div className="smodal__swatches">
-              {WORKSPACE_COLOR_NAMES.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className="smodal__swatch"
-                  data-active={newColor === color}
-                  style={{ background: colorHex(color) }}
-                  aria-label={color}
-                  title={color}
-                  onClick={() => setNewColor(color)}
-                />
-              ))}
+            <div className="modal__field">
+              <span>Color</span>
+              <div className="modal__swatches">
+                {WORKSPACE_COLOR_NAMES.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    className="modal__swatch"
+                    data-active={newColor === color}
+                    style={{ background: colorHex(color) }}
+                    aria-label={color}
+                    title={color}
+                    onClick={() => setNewColor(color)}
+                  />
+                ))}
+              </div>
             </div>
 
             {newType === 'SHARED' && (
-              <div className="smodal__invite-add">
-                <div className="smodal__email-row">
-                  <div className="smodal__email-field">
+              <div className="modal__field">
+                <span>Members (optional)</span>
+                <div className="modal__invite-add">
+                <div className="modal__email-row">
+                  <div className="modal__email-field">
                     <input
+                      ref={loginInputRef}
                       type="text"
                       placeholder="Add member by email or username"
                       autoComplete="off"
@@ -176,6 +190,7 @@ export function SpacesPage() {
                     />
                     {showSuggest && (
                       <UserSuggestions
+                        anchorRef={loginInputRef}
                         users={suggestions.filter((u) => !memberLogins.includes(u.username))}
                         onPick={(u) => {
                           addLogin(u.username);
@@ -189,10 +204,10 @@ export function SpacesPage() {
                   </button>
                 </div>
                 {memberLogins.length > 0 && (
-                  <div className="smodal__email-chips">
+                  <div className="modal__email-chips">
                     {memberLogins.map((value) => (
-                      <span key={value} className="smodal__email-chip">
-                        {value}
+                      <span key={value} className="modal__email-chip">
+                        <span className="modal__email-chip-text">{value}</span>
                         <button type="button" onClick={() => removeLogin(value)} aria-label={`Remove ${value}`}>
                           <Icon name="close" size={12} />
                         </button>
@@ -200,14 +215,16 @@ export function SpacesPage() {
                     ))}
                   </div>
                 )}
+                </div>
               </div>
             )}
 
-            <div className="smodal__actions">
-              <button type="button" className="smodal__btn smodal__btn--ghost" onClick={() => setCreateOpen(false)}>
+            <div className="modal__actions">
+              <span className="modal__spacer" />
+              <button type="button" className="modal__btn modal__btn--ghost" onClick={() => setCreateOpen(false)}>
                 Cancel
               </button>
-              <button type="submit" className="smodal__btn smodal__btn--primary" disabled={!newName.trim()}>
+              <button type="submit" className="modal__btn modal__btn--primary" disabled={!newName.trim()}>
                 Create
               </button>
             </div>

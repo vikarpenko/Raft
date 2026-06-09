@@ -185,7 +185,8 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
       <form className="modal__card" onSubmit={handleSubmit}>
         <h2 className="modal__title">{task ? 'Edit task' : 'New task'}</h2>
 
-        <div className="modal__field-wrap">
+        <label className="modal__field-wrap">
+          <span className="modal__label">Title</span>
           <input
             className="modal__input"
             placeholder="Task title"
@@ -195,8 +196,9 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
             autoFocus
           />
           <span className="modal__counter">{title.length}/{TITLE_MAX}</span>
-        </div>
-        <div className="modal__field-wrap">
+        </label>
+        <label className="modal__field-wrap">
+          <span className="modal__label">Description</span>
           <input
             className="modal__input"
             placeholder="Description (optional)"
@@ -205,7 +207,7 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
             onChange={(event) => setDescription(event.target.value)}
           />
           <span className="modal__counter">{description.length}/{DESCRIPTION_MAX}</span>
-        </div>
+        </label>
 
         {!task && !defaultWorkspaceId && workspaces.length > 0 && (
           <label className="modal__field modal__field--full">

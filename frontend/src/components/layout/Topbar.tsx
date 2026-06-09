@@ -5,7 +5,7 @@ import { useAuth } from '@/auth/AuthContext';
 import { getWorkspace } from '@/api/workspaces';
 import { colorHex } from '@/lib/workspaceColors';
 import { titleForPath } from '@/config/navigation';
-import type { MemberRole, WorkspaceColor } from '@/types/workspace';
+import type { WorkspaceColor } from '@/types/workspace';
 import './Topbar.css';
 
 interface TopbarProps {
@@ -25,7 +25,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   const { user } = useAuth();
 
   const spaceId = pathname.match(/^\/spaces\/(.+)$/)?.[1] ?? null;
-  const [space, setSpace] = useState<{ name: string; color: WorkspaceColor | null; role: MemberRole } | null>(null);
+  const [space, setSpace] = useState<{ name: string; color: WorkspaceColor | null } | null>(null);
 
   useEffect(() => {
     if (!spaceId) {
@@ -36,7 +36,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
     let active = true;
     getWorkspace(spaceId)
       .then((w) => {
-        if (active) setSpace({ name: w.name, color: w.color, role: w.role });
+        if (active) setSpace({ name: w.name, color: w.color });
       })
       .catch(() => {
         if (active) setSpace(null);
@@ -64,18 +64,16 @@ export function Topbar({ onMenuClick }: TopbarProps) {
     title = space ? (
       <span className="topbar__space">
         <span className="topbar__space-dot" style={{ background: colorHex(space.color) }} />
-        {space.name}
-        {space.role === 'ADMIN' && (
-          <button
-            type="button"
-            className="topbar__space-edit"
-            aria-label="Edit space"
-            title="Edit space"
-            onClick={() => navigate(`/spaces/${spaceId}?edit=1`)}
-          >
-            <Icon name="edit" size={16} />
-          </button>
-        )}
+        <span className="topbar__space-name">{space.name}</span>
+        <button
+          type="button"
+          className="topbar__space-menu"
+          aria-label="Space details"
+          title="Space details"
+          onClick={() => navigate(`/spaces/${spaceId}?edit=1`)}
+        >
+          <Icon name="more" size={18} />
+        </button>
       </span>
     ) : (
       'Space'

@@ -23,5 +23,6 @@ export interface Member {
 }
 
 export interface WorkspaceDetail extends Workspace {
+  created?: string;
   members: Member[];
 }

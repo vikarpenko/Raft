@@ -1,11 +1,13 @@
 package org.naukma.raft.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 import org.naukma.raft.enums.MemberRole;
 import org.naukma.raft.enums.WorkspaceColor;
 import org.naukma.raft.enums.WorkspaceType;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -16,5 +18,9 @@ public class WorkspaceDetailResponse {
     private WorkspaceType type;
     private WorkspaceColor color;
     private MemberRole role;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime created;
+
     private List<MemberResponse> members;
 }
