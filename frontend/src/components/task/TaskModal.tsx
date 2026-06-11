@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { formatTaskDue, priorityLabels, statusLabels, todayISO } from '@/lib/tasks';
 import { useAuth } from '@/auth/AuthContext';
 import { getWorkspaces } from '@/api/workspaces';
+import { Modal } from '@/components/common/Modal';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import type { Task, TaskPriority } from '@/types/task';
 import type { Member, Workspace } from '@/types/workspace';
 import './TaskModal.css';
@@ -94,24 +96,13 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
 
   if (confirmingDelete && task) {
     return (
-      <div className="modal" role="dialog" aria-modal="true">
-        <div className="modal__scrim" onClick={onClose} />
-        <div className="modal__card modal__card--confirm">
-          <h2 className="modal__title">Delete task?</h2>
-          <p className="modal__text">
-            This permanently deletes &ldquo;{task.title}&rdquo;. This can&rsquo;t be undone.
-          </p>
-          <div className="modal__actions">
-            <span className="modal__spacer" />
-            <button type="button" className="modal__btn modal__btn--ghost" onClick={() => setConfirmingDelete(false)}>
-              Cancel
-            </button>
-            <button type="button" className="modal__btn modal__btn--danger-solid" onClick={() => onDelete(task.id)}>
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
+      <ConfirmModal
+        title="Delete task?"
+        text={<>This permanently deletes &ldquo;{task.title}&rdquo;. This can&rsquo;t be undone.</>}
+        confirmLabel="Delete"
+        onConfirm={() => onDelete(task.id)}
+        onCancel={() => setConfirmingDelete(false)}
+      />
     );
   }
 
@@ -121,10 +112,8 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
       ? new Date(task.created).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
       : '';
     return (
-      <div className="modal" role="dialog" aria-modal="true">
-        <div className="modal__scrim" onClick={onClose} />
-        <div className="modal__card">
-          <h2 className="modal__title">{task.title}</h2>
+      <Modal onClose={onClose}>
+        <h2 className="modal__title">{task.title}</h2>
 
           <div className="modal__view">
             <div className="modal__view-row">
@@ -174,16 +163,13 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
               Edit
             </button>
           </div>
-        </div>
-      </div>
+      </Modal>
     );
   }
 
   return (
-    <div className="modal" role="dialog" aria-modal="true">
-      <div className="modal__scrim" onClick={onClose} />
-      <form className="modal__card" onSubmit={handleSubmit}>
-        <h2 className="modal__title">{task ? 'Edit task' : 'New task'}</h2>
+    <Modal onClose={onClose} as="form" onSubmit={handleSubmit}>
+      <h2 className="modal__title">{task ? 'Edit task' : 'New task'}</h2>
 
         <label className="modal__field-wrap">
           <span className="modal__label">Title</span>
@@ -287,7 +273,6 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
             {task ? 'Save' : 'Add'}
           </button>
         </div>
-      </form>
-    </div>
+    </Modal>
   );
 }

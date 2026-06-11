@@ -12,12 +12,12 @@
   position: absolute;
   inset: 0;
   background: var(--color-overlay);
-  animation: modalFade var(--transition);
 }
 
 @keyframes modalFade {
   from {
     opacity: 0;
+    transform: translateY(4px);
   }
 }
 
@@ -32,6 +32,7 @@
   background: var(--color-surface);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
+  animation: modalFade var(--transition);
 }
 
 .modal__card--confirm {

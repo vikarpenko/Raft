@@ -1,18 +1,14 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Icon } from '@/lib/icons';
 import { useAuth } from '@/auth/AuthContext';
-import { deleteWorkspace, getWorkspace, updateWorkspace } from '@/api/workspaces';
+import { deleteWorkspace, getWorkspace, leaveWorkspace } from '@/api/workspaces';
 import { WorkspaceTasks } from './WorkspaceTasks';
 import { WorkspaceMembers } from './WorkspaceMembers';
-import { colorHex, WORKSPACE_COLOR_NAMES } from '@/lib/workspaceColors';
+import { WorkspaceInfoModal } from './WorkspaceInfoModal';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import type { Member, WorkspaceColor, WorkspaceDetail } from '@/types/workspace';
 import './WorkspacePage.css';
-
-function colorLabel(color: WorkspaceColor | null): string {
-  if (!color) return '—';
-  return color.charAt(0) + color.slice(1).toLowerCase();
-}
 
 export function WorkspacePage() {
   const { id } = useParams();
@@ -22,10 +18,8 @@ export function WorkspacePage() {
   const [detail, setDetail] = useState<WorkspaceDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [infoOpen, setInfoOpen] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [editName, setEditName] = useState('');
-  const [editColor, setEditColor] = useState<WorkspaceColor>('ROSE');
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -51,41 +45,29 @@ export function WorkspacePage() {
     if (searchParams.get('edit') === '1' && detail) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setInfoOpen(true);
-      setEditing(false);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, detail, setSearchParams]);
 
-  const startEdit = () => {
+  const onWorkspaceUpdated = (changes: { name: string; color: WorkspaceColor }) => {
     if (!detail) return;
-    setEditName(detail.name);
-    setEditColor(detail.color ?? 'ROSE');
-    setEditing(true);
-  };
-
-  const closeModal = () => {
-    setInfoOpen(false);
-    setEditing(false);
-  };
-
-  const saveEdit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!detail) return;
-    const name = editName.trim();
-    if (!name) return;
-    const updated = await updateWorkspace(detail.id, { name, color: editColor });
-    setDetail({ ...detail, name: updated.name, color: updated.color });
+    setDetail({ ...detail, name: changes.name, color: changes.color });
     window.dispatchEvent(
       new CustomEvent('workspace-updated', {
-        detail: { id: detail.id, name: updated.name, color: updated.color },
+        detail: { id: detail.id, name: changes.name, color: changes.color },
       }),
     );
-    closeModal();
   };
 
   const confirmDelete = async () => {
     if (!detail) return;
     await deleteWorkspace(detail.id);
+    navigate('/spaces');
+  };
+
+  const confirmLeave = async () => {
+    if (!detail) return;
+    await leaveWorkspace(detail.id);
     navigate('/spaces');
   };
 
@@ -138,143 +120,44 @@ export function WorkspacePage() {
       </div>
 
       {infoOpen && (
-        <div className="modal" role="dialog" aria-modal="true">
-          <div className="modal__scrim" onClick={closeModal} />
-          {editing ? (
-          <form className="modal__card" onSubmit={saveEdit}>
-            <h2 className="modal__title">Edit space</h2>
-            <label className="modal__field">
-              <span>Name</span>
-              <input
-                className="modal__input"
-                placeholder="Space name"
-                maxLength={100}
-                autoFocus
-                value={editName}
-                onChange={(event) => setEditName(event.target.value)}
-              />
-              <span className="modal__counter">{editName.length}/100</span>
-            </label>
-            <div className="modal__field">
-              <span>Color</span>
-              <div className="modal__swatches">
-                {WORKSPACE_COLOR_NAMES.map((color) => (
-                  <button
-                    key={color}
-                    type="button"
-                    className="modal__swatch"
-                    data-active={editColor === color}
-                    style={{ background: colorHex(color) }}
-                    aria-label={color}
-                    title={color}
-                    onClick={() => setEditColor(color)}
-                  />
-                ))}
-              </div>
-            </div>
-            <div className="modal__actions">
-              {detail.type === 'SHARED' && (
-                <button
-                  type="button"
-                  className="modal__btn modal__btn--danger"
-                  onClick={() => {
-                    closeModal();
-                    setDeleteOpen(true);
-                  }}
-                >
-                  Delete
-                </button>
-              )}
-              <span className="modal__spacer" />
-              <button type="button" className="modal__btn modal__btn--ghost" onClick={() => setEditing(false)}>
-                Cancel
-              </button>
-              <button type="submit" className="modal__btn modal__btn--primary" disabled={!editName.trim()}>
-                Save
-              </button>
-            </div>
-          </form>
-          ) : (
-          <div className="modal__card">
-            <h2 className="modal__title modal__title--clamp">{detail.name}</h2>
-            <div className="modal__view">
-              <div className="modal__view-row">
-                <span>Type</span>
-                <b>{detail.type === 'PERSONAL' ? 'Private' : 'Shared'}</b>
-              </div>
-              <div className="modal__view-row">
-                <span>Color</span>
-                <b className="modal__view-color">
-                  <span className="modal__view-dot" style={{ background: colorHex(detail.color) }} />
-                  {colorLabel(detail.color)}
-                </b>
-              </div>
-              {detail.type === 'SHARED' && (
-                <div className="modal__view-row">
-                  <span>Members</span>
-                  <b>{detail.members.length}</b>
-                </div>
-              )}
-              {detail.created && (
-                <div className="modal__view-row">
-                  <span>Created</span>
-                  <b>
-                    {new Date(detail.created).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </b>
-                </div>
-              )}
-            </div>
-            <div className="modal__actions">
-              {isAdmin && detail.type === 'SHARED' && (
-                <button
-                  type="button"
-                  className="modal__btn modal__btn--danger"
-                  onClick={() => {
-                    closeModal();
-                    setDeleteOpen(true);
-                  }}
-                >
-                  Delete
-                </button>
-              )}
-              <span className="modal__spacer" />
-              <button type="button" className="modal__btn modal__btn--ghost" onClick={closeModal}>
-                Close
-              </button>
-              {isAdmin && (
-                <button type="button" className="modal__btn modal__btn--primary" onClick={startEdit}>
-                  Edit
-                </button>
-              )}
-            </div>
-          </div>
-          )}
-        </div>
+        <WorkspaceInfoModal
+          detail={detail}
+          canEdit={isAdmin}
+          onClose={() => setInfoOpen(false)}
+          onUpdated={onWorkspaceUpdated}
+          onDelete={() => {
+            setInfoOpen(false);
+            setDeleteOpen(true);
+          }}
+          onLeave={() => {
+            setInfoOpen(false);
+            setLeaveOpen(true);
+          }}
+        />
       )}
 
       {deleteOpen && (
-        <div className="modal" role="dialog" aria-modal="true">
-          <div className="modal__scrim" onClick={() => setDeleteOpen(false)} />
-          <div className="modal__card modal__card--confirm">
-            <h2 className="modal__title">Delete space?</h2>
-            <p className="modal__text">
+        <ConfirmModal
+          title="Delete space?"
+          text={
+            <>
               This permanently deletes &ldquo;{detail.name}&rdquo; and all its tasks. This can&rsquo;t be undone.
-            </p>
-            <div className="modal__actions">
-              <span className="modal__spacer" />
-              <button type="button" className="modal__btn modal__btn--ghost" onClick={() => setDeleteOpen(false)}>
-                Cancel
-              </button>
-              <button type="button" className="modal__btn modal__btn--danger-solid" onClick={confirmDelete}>
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+          confirmLabel="Delete"
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteOpen(false)}
+        />
+      )}
+
+      {leaveOpen && (
+        <ConfirmModal
+          title="Leave space?"
+          text={<>Are you sure you want to leave &ldquo;{detail.name}&rdquo;?</>}
+          confirmLabel="Leave"
+          onConfirm={confirmLeave}
+          onCancel={() => setLeaveOpen(false)}
+        />
       )}
     </div>
   );
