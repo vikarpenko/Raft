@@ -13,7 +13,7 @@ import java.util.List;
 public interface ExpenseMemberRepository extends JpaRepository<ExpenseMember, Long> {
     List<ExpenseMember> findByExpenseId(Long expenseId);
 
-    List<ExpenseMember> findByUserIdAndIsSettled(Long userId);
+    List<ExpenseMember> findByUserIdAndIsSettledFalse(Long userId);
 
     @Query("""
           SELECT s FROM ExpenseMember s
@@ -22,6 +22,4 @@ public interface ExpenseMemberRepository extends JpaRepository<ExpenseMember, Lo
           AND e.workspace.id = :workspaceId
           """)
     List<ExpenseMember> findByUserIdAndWorkspaceId(@Param("userId") Long userId, @Param("workspaceId") Long workspaceId);
-
-    List<ExpenseMember> findByUserIdAndIsSettledFalse(Long currentUserId);
 }
