@@ -3,7 +3,7 @@ import { Icon } from '@/lib/icons';
 import { errorMessage } from '@/api/http';
 import { addMember, removeMember } from '@/api/workspaces';
 import { UserSuggestions } from '@/components/common/UserSuggestions';
-import { useUserSuggestions } from '@/lib/useUserSuggestions';
+import { useUserSuggestions } from '@/hooks/useUserSuggestions';
 import type { Member } from '@/types/workspace';
 import './WorkspaceMembers.css';
 

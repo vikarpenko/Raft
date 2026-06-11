@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Icon } from '@/lib/icons';
-import { createTask, deleteTask, getTasks, updateTask } from '@/api/tasks';
 import { TaskModal } from '@/components/task/TaskModal';
 import { MultiSelectFilter } from '@/components/common/MultiSelectFilter';
 import { SingleSelectFilter } from '@/components/common/SingleSelectFilter';
@@ -10,11 +9,12 @@ import {
   formatTaskDue,
   getTaskState,
   nextStatus,
-  PRIORITIES,
-  priorityColors,
   priorityLabels,
+  priorityOptions,
   statusLabels,
 } from '@/lib/tasks';
+import { useTasks } from '@/hooks/useTasks';
+import { capitalize } from '@/lib/utils';
 import type { Task } from '@/types/task';
 import type { WorkspaceDetail } from '@/types/workspace';
 import './WorkspaceTasks.css';
@@ -29,7 +29,7 @@ interface WorkspaceTasksProps {
 }
 
 export function WorkspaceTasks({ workspaceId, detail, currentUserId }: WorkspaceTasksProps) {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, create, update, remove } = useTasks({ workspaceId });
   const [modalTask, setModalTask] = useState<Task | null | undefined>(undefined);
   const [priorityFilter, setPriorityFilter] = useState<Set<string>>(new Set());
   const [assigneeFilter, setAssigneeFilter] = useState<Set<string>>(new Set());
@@ -37,46 +37,16 @@ export function WorkspaceTasks({ workspaceId, detail, currentUserId }: Workspace
   const [sort, setSort] = useState<SortKey>('deadline');
   const [showCompleted, setShowCompleted] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-    getTasks()
-      .then((all) => {
-        if (active) setTasks(all.filter((task) => task.workspaceId === workspaceId));
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-    };
-  }, [workspaceId]);
+  const cycleStatus = (task: Task) => update(task.id, { status: nextStatus[task.status] });
 
-  const cycleStatus = async (task: Task) => {
-    const updated = await updateTask(task.id, { status: nextStatus[task.status] });
-    setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
-  };
-
-  const assignToMe = async (task: Task) => {
+  const assignToMe = (task: Task) => {
     if (!currentUserId) return;
-    const updated = await updateTask(task.id, { assigneeId: currentUserId });
-    setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
+    return update(task.id, { assigneeId: currentUserId });
   };
 
-  const create = async (input: Omit<Task, 'id'>) => {
-    const created = await createTask(input);
-    if (created.workspaceId === workspaceId) setTasks((prev) => [created, ...prev]);
-    setModalTask(undefined);
-  };
-
-  const update = async (taskId: string, patch: Partial<Task>) => {
-    const updated = await updateTask(taskId, patch);
-    setTasks((prev) => prev.map((t) => (t.id === taskId ? updated : t)));
-    setModalTask(undefined);
-  };
-
-  const remove = async (taskId: string) => {
-    await deleteTask(taskId);
-    setTasks((prev) => prev.filter((t) => t.id !== taskId));
-    setModalTask(undefined);
-  };
+  const handleCreate = (input: Omit<Task, 'id'>) => create(input).then(() => setModalTask(undefined));
+  const handleUpdate = (id: string, patch: Partial<Task>) => update(id, patch).then(() => setModalTask(undefined));
+  const handleDelete = (id: string) => remove(id).then(() => setModalTask(undefined));
 
   const total = tasks.length;
   const doneCount = tasks.filter((t) => t.status === 'COMPLETED').length;
@@ -97,7 +67,6 @@ export function WorkspaceTasks({ workspaceId, detail, currentUserId }: Workspace
   const showsActive = statusFilter !== 'completed' && activeTasks.length > 0;
   const showsCompleted = statusFilter !== 'active' && completedTasks.length > 0;
 
-  const priorityOptions = PRIORITIES.map((p) => ({ id: p, label: priorityLabels[p], color: priorityColors[p] }));
   const assigneeOptions = [
     { id: 'none', label: 'Unassigned' },
     ...detail.members.map((m) => ({
@@ -198,7 +167,7 @@ export function WorkspaceTasks({ workspaceId, detail, currentUserId }: Workspace
                 data-active={statusFilter === value}
                 onClick={() => setStatusFilter(value)}
               >
-                {value[0].toUpperCase() + value.slice(1)}
+                {capitalize(value)}
               </button>
             ))}
           </div>
@@ -266,9 +235,9 @@ export function WorkspaceTasks({ workspaceId, detail, currentUserId }: Workspace
           defaultWorkspaceId={workspaceId}
           members={detail.type === 'SHARED' ? detail.members : undefined}
           onClose={() => setModalTask(undefined)}
-          onCreate={create}
-          onUpdate={update}
-          onDelete={remove}
+          onCreate={handleCreate}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
         />
       )}
     </div>

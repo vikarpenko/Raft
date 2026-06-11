@@ -1,4 +1,5 @@
 import type { Task, TaskPriority, TaskStatus, TaskState } from '@/types/task';
+import type { Workspace } from '@/types/workspace';
 
 export const priorityLabels: Record<TaskPriority, string> = {
   LOW: 'Low',
@@ -7,12 +8,23 @@ export const priorityLabels: Record<TaskPriority, string> = {
 };
 
 export const priorityColors: Record<TaskPriority, string> = {
-  HIGH: '#c73951',
-  MEDIUM: '#e0566a',
-  LOW: '#e5737f',
+  HIGH: 'var(--color-priority-high)',
+  MEDIUM: 'var(--color-priority-medium)',
+  LOW: 'var(--color-priority-low)',
 };
 
 export const PRIORITIES: TaskPriority[] = ['HIGH', 'MEDIUM', 'LOW'];
+
+export const priorityOptions = PRIORITIES.map((p) => ({id: p, label: priorityLabels[p], color: priorityColors[p],}));
+
+export function defaultAssigneeId(
+  workspaceId: string | undefined,
+  workspaces: Workspace[],
+  userId: string | undefined,
+): string | undefined {
+  const space = workspaces.find((w) => w.id === workspaceId);
+  return space?.type === 'SHARED' ? userId : undefined;
+}
 
 export function formatTaskDue(task: Task): string {
   const date = new Date(`${task.dueDate}T${task.dueTime ?? '00:00'}`);

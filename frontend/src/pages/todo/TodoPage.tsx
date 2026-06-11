@@ -1,71 +1,37 @@
-import { useEffect, useMemo, useState } from 'react';
-import { createTask, deleteTask, getTasks, updateTask } from '@/api/tasks';
-import { getWorkspaces } from '@/api/workspaces';
+import { useMemo, useState } from 'react';
 import { TaskModal } from '@/components/task/TaskModal';
 import { MultiSelectFilter } from '@/components/common/MultiSelectFilter';
 import { Icon } from '@/lib/icons';
 import { useAuth } from '@/auth/AuthContext';
-import { byDeadline, formatTaskDue, getTaskState, isDueOn, isMyTask, PRIORITIES, priorityColors, priorityLabels, todayISO } from '@/lib/tasks';
+import { byDeadline, defaultAssigneeId, formatTaskDue, getTaskState, isDueOn, isMyTask, priorityLabels, priorityOptions, todayISO } from '@/lib/tasks';
+import { useTasks } from '@/hooks/useTasks';
+import { useWorkspaces } from '@/hooks/useWorkspaces';
+import { capitalize } from '@/lib/utils';
 import { colorHex } from '@/lib/workspaceColors';
 import type { Task } from '@/types/task';
-import type { Workspace } from '@/types/workspace';
 import './TodoPage.css';
 
 type StatusFilter = 'all' | 'active' | 'completed';
 
 export function TodoPage() {
   const { user } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { tasks, loading, create, update, remove } = useTasks();
+  const { workspaces, spaceOptions } = useWorkspaces();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(() => new Set());
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [selectedSpaces, setSelectedSpaces] = useState<Set<string>>(() => new Set());
   const [modalTask, setModalTask] = useState<Task | null | undefined>(undefined);
 
-  useEffect(() => {
-    let active = true;
-    getTasks().then((all) => {
-      if (active) {
-        setTasks(all);
-        setLoading(false);
-      }
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
+  const toggle = (task: Task) =>
+    update(task.id, { status: task.status === 'COMPLETED' ? 'TODO' : 'COMPLETED' });
 
-  useEffect(() => {
-    getWorkspaces().then(setWorkspaces);
-  }, []);
-
-  const toggle = async (task: Task) => {
-    const next = task.status === 'COMPLETED' ? 'TODO' : 'COMPLETED';
-    const updated = await updateTask(task.id, { status: next });
-    setTasks((prev) => prev.map((item) => (item.id === task.id ? updated : item)));
-  };
-
-  const create = async (input: Omit<Task, 'id'>) => {
-    const space = workspaces.find((w) => w.id === input.workspaceId);
-    const assigneeId = space?.type === 'SHARED' ? user?.id : undefined;
-    const task = await createTask({ ...input, assigneeId });
-    setTasks((prev) => [task, ...prev]);
-    setModalTask(undefined);
-  };
-
-  const update = async (id: string, patch: Partial<Task>) => {
-    const updated = await updateTask(id, patch);
-    setTasks((prev) => prev.map((item) => (item.id === id ? updated : item)));
-    setModalTask(undefined);
-  };
-
-  const remove = async (id: string) => {
-    await deleteTask(id);
-    setTasks((prev) => prev.filter((item) => item.id !== id));
-    setModalTask(undefined);
-  };
+  const handleCreate = (input: Omit<Task, 'id'>) =>
+    create({ ...input, assigneeId: defaultAssigneeId(input.workspaceId, workspaces, user?.id) }).then(() =>
+      setModalTask(undefined),
+    );
+  const handleUpdate = (id: string, patch: Partial<Task>) => update(id, patch).then(() => setModalTask(undefined));
+  const handleDelete = (id: string) => remove(id).then(() => setModalTask(undefined));
 
   const remaining = tasks.filter((task) => isMyTask(task, user?.id) && task.status !== 'COMPLETED').length;
 
@@ -97,9 +63,6 @@ export function TodoPage() {
   }, [tasks, search, statusFilter, selectedPriorities, selectedSpaces, user?.id]);
 
   const visibleSections = sections.filter((section) => section.tasks.length > 0);
-
-  const priorityOptions = PRIORITIES.map((p) => ({ id: p, label: priorityLabels[p], color: priorityColors[p] }));
-  const spaceOptions = workspaces.map((w) => ({ id: w.id, label: w.name, color: colorHex(w.color) }));
 
   return (
     <div className="todo">
@@ -137,7 +100,7 @@ export function TodoPage() {
                 data-active={statusFilter === value}
                 onClick={() => setStatusFilter(value)}
               >
-                {value[0].toUpperCase() + value.slice(1)}
+                {capitalize(value)}
               </button>
             ))}
           </div>
@@ -220,9 +183,9 @@ export function TodoPage() {
         <TaskModal
           task={modalTask}
           onClose={() => setModalTask(undefined)}
-          onCreate={create}
-          onUpdate={update}
-          onDelete={remove}
+          onCreate={handleCreate}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
         />
       )}
     </div>

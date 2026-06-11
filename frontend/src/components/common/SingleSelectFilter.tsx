@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Icon, type IconName } from '@/lib/icons';
-import './MultiSelectFilter.css';
+import './SelectFilter.css';
 
 export interface SingleSelectOption {
   id: string;
@@ -37,32 +37,32 @@ export function SingleSelectFilter({ options, value, onChange, icon }: SingleSel
   const current = options.find((option) => option.id === value);
 
   return (
-    <div className="msfilter" ref={rootRef}>
+    <div className="selectfilter" ref={rootRef}>
       <button
         type="button"
-        className="msfilter__button"
+        className="selectfilter__button"
         onClick={() => setOpen((isOpen) => !isOpen)}
       >
         {icon && <Icon name={icon} size={16} />}
-        <span className="msfilter__current">{current?.label}</span>
+        <span className="selectfilter__current">{current?.label}</span>
         <Icon name="chevron-down" size={16} />
       </button>
 
       {open && (
-        <div className="msfilter__menu">
-          <div className="msfilter__list">
+        <div className="selectfilter__menu">
+          <div className="selectfilter__list">
             {options.map((option) => (
               <button
                 key={option.id}
                 type="button"
-                className="msfilter__option"
+                className="selectfilter__option"
                 data-active={value === option.id}
                 onClick={() => {
                   onChange(option.id);
                   setOpen(false);
                 }}
               >
-                <span className="msfilter__option-name">{option.label}</span>
+                <span className="selectfilter__option-name">{option.label}</span>
                 {value === option.id && <Icon name="check" size={16} />}
               </button>
             ))}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Icon, type IconName } from '@/lib/icons';
-import './MultiSelectFilter.css';
+import './SelectFilter.css';
 
 export interface FilterOption {
   id: string;
@@ -62,27 +62,27 @@ export function MultiSelectFilter({
     : options;
 
   return (
-    <div className="msfilter" ref={rootRef}>
+    <div className="selectfilter" ref={rootRef}>
       <button
         type="button"
-        className="msfilter__button"
+        className="selectfilter__button"
         data-active={selected.size > 0}
         onClick={() => setOpen((value) => !value)}
       >
         {single?.color ? (
-          <span className="msfilter__dot" style={{ background: single.color }} />
+          <span className="selectfilter__dot" style={{ background: single.color }} />
         ) : icon ? (
           <Icon name={icon} size={16} />
         ) : null}
-        <span className="msfilter__current">{label}</span>
+        <span className="selectfilter__current">{label}</span>
         <Icon name="chevron-down" size={16} />
       </button>
 
       {open && (
-        <div className="msfilter__menu">
+        <div className="selectfilter__menu">
           {options.length > 6 && (
             <input
-              className="msfilter__search"
+              className="selectfilter__search"
               placeholder="Filter"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -92,27 +92,27 @@ export function MultiSelectFilter({
 
           <button
             type="button"
-            className="msfilter__option"
+            className="selectfilter__option"
             data-active={selected.size === 0}
             onClick={() => onChange(new Set())}
           >
-            <span className="msfilter__option-name">{allLabel}</span>
+            <span className="selectfilter__option-name">{allLabel}</span>
             {selected.size === 0 && <Icon name="check" size={16} />}
           </button>
 
-          <div className="msfilter__list">
+          <div className="selectfilter__list">
             {filtered.map((option) => (
               <button
                 key={option.id}
                 type="button"
-                className="msfilter__option"
+                className="selectfilter__option"
                 data-active={selected.has(option.id)}
                 onClick={() => toggle(option.id)}
               >
-                {option.color && <span className="msfilter__dot" style={{ background: option.color }} />}
-                <span className="msfilter__option-name">{option.label}</span>
-                {option.sublabel && <span className="msfilter__option-sub">{option.sublabel}</span>}
-                {option.badge && <span className="msfilter__option-badge">{option.badge}</span>}
+                {option.color && <span className="selectfilter__dot" style={{ background: option.color }} />}
+                <span className="selectfilter__option-name">{option.label}</span>
+                {option.sublabel && <span className="selectfilter__option-sub">{option.sublabel}</span>}
+                {option.badge && <span className="selectfilter__option-badge">{option.badge}</span>}
                 {selected.has(option.id) && <Icon name="check" size={16} />}
               </button>
             ))}

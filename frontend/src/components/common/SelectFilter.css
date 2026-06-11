@@ -1,8 +1,8 @@
-.msfilter {
+.selectfilter {
   position: relative;
 }
 
-.msfilter__button {
+.selectfilter__button {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -17,25 +17,25 @@
   transition: border-color var(--transition), background-color var(--transition);
 }
 
-.msfilter__button:hover {
+.selectfilter__button:hover {
   border-color: var(--color-ring);
 }
 
-.msfilter__button[data-active='true'] {
+.selectfilter__button[data-active='true'] {
   background: var(--color-primary-soft);
   border-color: var(--color-primary-soft);
   color: var(--color-primary-hover);
   font-weight: var(--weight-semibold);
 }
 
-.msfilter__current {
+.selectfilter__current {
   max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.msfilter__menu {
+.selectfilter__menu {
   position: absolute;
   top: calc(100% + var(--space-2));
   left: 0;
@@ -48,7 +48,7 @@
   box-shadow: var(--shadow-lg);
 }
 
-.msfilter__search {
+.selectfilter__search {
   width: 100%;
   height: 34px;
   margin-bottom: var(--space-2);
@@ -61,20 +61,20 @@
   background: var(--color-bg);
 }
 
-.msfilter__search:focus {
+.selectfilter__search:focus {
   outline: none;
   border-color: var(--color-ring);
   box-shadow: var(--shadow-focus);
 }
 
-.msfilter__list {
+.selectfilter__list {
   display: flex;
   flex-direction: column;
   max-height: 240px;
   overflow-y: auto;
 }
 
-.msfilter__option {
+.selectfilter__option {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -88,16 +88,16 @@
   transition: background-color var(--transition);
 }
 
-.msfilter__option:hover {
+.selectfilter__option:hover {
   background: var(--color-bg);
 }
 
-.msfilter__option[data-active='true'] {
+.selectfilter__option[data-active='true'] {
   color: var(--color-text);
   font-weight: var(--weight-semibold);
 }
 
-.msfilter__option-name {
+.selectfilter__option-name {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -105,7 +105,7 @@
   white-space: nowrap;
 }
 
-.msfilter__option-sub {
+.selectfilter__option-sub {
   flex-shrink: 1;
   min-width: 0;
   max-width: 45%;
@@ -116,7 +116,7 @@
   color: var(--color-text-muted);
 }
 
-.msfilter__option-badge {
+.selectfilter__option-badge {
   flex-shrink: 0;
   padding: 0 var(--space-2);
   border-radius: var(--radius-full);
@@ -126,11 +126,11 @@
   font-weight: var(--weight-semibold);
 }
 
-.msfilter__option svg {
+.selectfilter__option svg {
   color: var(--color-primary);
 }
 
-.msfilter__dot {
+.selectfilter__dot {
   width: 12px;
   height: 12px;
   border-radius: var(--radius-full);

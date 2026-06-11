@@ -6,7 +6,7 @@ import { createWorkspace, getWorkspaces } from '@/api/workspaces';
 import { WorkspaceCard } from '@/components/workspace/WorkspaceCard';
 import { UserSuggestions } from '@/components/common/UserSuggestions';
 import { colorHex, WORKSPACE_COLOR_NAMES } from '@/lib/workspaceColors';
-import { useUserSuggestions } from '@/lib/useUserSuggestions';
+import { useUserSuggestions } from '@/hooks/useUserSuggestions';
 import type { Workspace, WorkspaceColor, WorkspaceType } from '@/types/workspace';
 import './SpacesPage.css';
 

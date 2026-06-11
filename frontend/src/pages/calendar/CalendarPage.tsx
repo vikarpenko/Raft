@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from 'react';
-import { createTask, deleteTask, getTasks, updateTask } from '@/api/tasks';
-import { getWorkspaces } from '@/api/workspaces';
+import { useMemo, useState } from 'react';
 import { TaskModal } from '@/components/task/TaskModal';
 import { MultiSelectFilter } from '@/components/common/MultiSelectFilter';
 import { monthGridDays, toISODate, weekDays } from '@/lib/calendar';
 import { Icon } from '@/lib/icons';
-import { addDays, byDueTime, isMyTask, PRIORITIES, priorityColors, priorityLabels } from '@/lib/tasks';
+import { addDays, byDueTime, defaultAssigneeId, isMyTask, priorityOptions } from '@/lib/tasks';
+import { useTasks } from '@/hooks/useTasks';
+import { useWorkspaces } from '@/hooks/useWorkspaces';
+import { capitalize } from '@/lib/utils';
 import { colorHex } from '@/lib/workspaceColors';
 import { useAuth } from '@/auth/AuthContext';
 import type { Task } from '@/types/task';
-import type { Workspace } from '@/types/workspace';
 import './CalendarPage.css';
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -115,47 +115,20 @@ function TimeGrid({
 
 export function CalendarPage() {
   const { user } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { tasks, create, update, remove } = useTasks();
+  const { workspaces, spaceOptions } = useWorkspaces();
   const [view, setView] = useState<View>('month');
   const [focus, setFocus] = useState(() => new Date());
   const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(() => new Set());
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [selectedSpaces, setSelectedSpaces] = useState<Set<string>>(() => new Set());
   const [modalTask, setModalTask] = useState<Task | null | undefined>(undefined);
 
-  const create = async (input: Omit<Task, 'id'>) => {
-    const space = workspaces.find((w) => w.id === input.workspaceId);
-    const assigneeId = space?.type === 'SHARED' ? user?.id : undefined;
-    const task = await createTask({ ...input, assigneeId });
-    setTasks((prev) => [task, ...prev]);
-    setModalTask(undefined);
-  };
-
-  const update = async (id: string, patch: Partial<Task>) => {
-    const updated = await updateTask(id, patch);
-    setTasks((prev) => prev.map((item) => (item.id === id ? updated : item)));
-    setModalTask(undefined);
-  };
-
-  const remove = async (id: string) => {
-    await deleteTask(id);
-    setTasks((prev) => prev.filter((item) => item.id !== id));
-    setModalTask(undefined);
-  };
-
-  useEffect(() => {
-    let active = true;
-    getTasks().then((all) => {
-      if (active) setTasks(all);
-    });
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    getWorkspaces().then(setWorkspaces);
-  }, []);
+  const handleCreate = (input: Omit<Task, 'id'>) =>
+    create({ ...input, assigneeId: defaultAssigneeId(input.workspaceId, workspaces, user?.id) }).then(() =>
+      setModalTask(undefined),
+    );
+  const handleUpdate = (id: string, patch: Partial<Task>) => update(id, patch).then(() => setModalTask(undefined));
+  const handleDelete = (id: string) => remove(id).then(() => setModalTask(undefined));
 
   const today = toISODate(new Date());
 
@@ -193,9 +166,6 @@ export function CalendarPage() {
 
   const monthDays = monthGridDays(focus.getFullYear(), focus.getMonth());
 
-  const priorityOptions = PRIORITIES.map((p) => ({ id: p, label: priorityLabels[p], color: priorityColors[p] }));
-  const spaceOptions = workspaces.map((w) => ({ id: w.id, label: w.name, color: colorHex(w.color) }));
-
   return (
     <div className="calendar">
       <header className="calendar__head">
@@ -210,7 +180,7 @@ export function CalendarPage() {
                 data-active={view === value}
                 onClick={() => setView(value)}
               >
-                {value[0].toUpperCase() + value.slice(1)}
+                {capitalize(value)}
               </button>
             ))}
           </div>
@@ -319,9 +289,9 @@ export function CalendarPage() {
           task={modalTask}
           defaultDate={toISODate(focus)}
           onClose={() => setModalTask(undefined)}
-          onCreate={create}
-          onUpdate={update}
-          onDelete={remove}
+          onCreate={handleCreate}
+          onUpdate={handleUpdate}
+          onDelete={handleDelete}
         />
       )}
     </div>
