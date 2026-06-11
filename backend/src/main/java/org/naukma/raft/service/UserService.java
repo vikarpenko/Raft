@@ -1,14 +1,17 @@
 package org.naukma.raft.service;
 
 import lombok.RequiredArgsConstructor;
-import org.naukma.raft.dto.request.UserRequest;
+import org.naukma.raft.dto.request.ProfileUpdateRequest;
 import org.naukma.raft.dto.response.UserResponse;
+import org.naukma.raft.dto.response.UserSummaryResponse;
 import org.naukma.raft.entity.User;
 import org.naukma.raft.errorsHadling.EmailAreadyExsistsException;
 import org.naukma.raft.errorsHadling.NotFoundException;
 import org.naukma.raft.repository.UserRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     public UserResponse getUserById(Long id){
         User user = userRepository.findById(id)
@@ -24,38 +26,41 @@ public class UserService {
         return mapToResponse(user);
     }
 
-    public UserResponse updateUser(Long id, UserRequest userRequest){
+    @Transactional
+    public UserResponse updateUser(Long id, ProfileUpdateRequest request){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        if(!user.getEmail().equals(userRequest.getEmail()) &&
-        userRepository.existsByEmail(userRequest.getEmail())){
+        String email = request.getEmail().trim().toLowerCase();
+        String username = request.getUsername().trim();
+
+        if(!user.getEmail().equals(email) && userRepository.existsByEmail(email)){
             throw new EmailAreadyExsistsException("Email already in use");
         }
-
-        String username = userRequest.getUsername().trim();
         if(!username.equals(user.getUsername()) && userRepository.existsByUsername(username)){
             throw new EmailAreadyExsistsException("Username already taken");
         }
 
-        user.setEmail(userRequest.getEmail());
+        user.setEmail(email);
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        user.setFirstName(userRequest.getFirstName().trim());
-        user.setLastName(userRequest.getLastName().trim());
-        user.setAvatar(userRequest.getAvatar());
+        user.setFirstName(request.getFirstName().trim());
+        user.setLastName(request.getLastName().trim());
+        user.setAvatar(request.getAvatar());
 
-        return mapToResponse(userRepository.save(user));
+        try {
+            return mapToResponse(userRepository.saveAndFlush(user));
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAreadyExsistsException("Email or username already in use");
+        }
     }
 
-    public List<UserResponse> searchUsers(String query, Long excludeUserId){
+    public List<UserSummaryResponse> searchUsers(String query, Long excludeUserId){
         String q = query == null ? "" : query.trim();
         if(q.isEmpty()) { return List.of(); }
-        return userRepository
-                .findTop8ByUsernameContainingIgnoreCaseOrFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(q, q, q)
+        return userRepository.searchByNameOrUsername(q, PageRequest.of(0, 8))
                 .stream()
                 .filter(user -> !user.getId().equals(excludeUserId))
-                .map(this::mapToResponse)
+                .map(this::toSummary)
                 .toList();
     }
 
@@ -74,5 +79,15 @@ public class UserService {
         response.setLastName(user.getLastName());
         response.setAvatar(user.getAvatar());
         return response;
+    }
+
+    private UserSummaryResponse toSummary(User user){
+        return UserSummaryResponse.builder()
+                .id(user.getId().toString())
+                .username(user.getUsername())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .avatar(user.getAvatar())
+                .build();
     }
 }

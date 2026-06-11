@@ -1,8 +1,10 @@
 package org.naukma.raft.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.naukma.raft.dto.request.UserRequest;
+import org.naukma.raft.dto.request.ProfileUpdateRequest;
 import org.naukma.raft.dto.response.UserResponse;
+import org.naukma.raft.dto.response.UserSummaryResponse;
 import org.naukma.raft.security.CustomUserDetails;
 import org.naukma.raft.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -23,24 +25,20 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<UserResponse>> search(@RequestParam String q,
-                                                     @AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<List<UserSummaryResponse>> search(@RequestParam String q,
+                                                            @AuthenticationPrincipal CustomUserDetails user) {
         return ResponseEntity.ok(userService.searchUsers(q, user.getId()));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateCurrentUser(@AuthenticationPrincipal CustomUserDetails user,
+                                                          @Valid @RequestBody ProfileUpdateRequest request) {
+        return ResponseEntity.ok(userService.updateUser(user.getId(), request));
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userService.updateUser(id, userRequest));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<UserResponse> deleteUser(@PathVariable Long id) {
-        userService.deleteUser(id);
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteCurrentUser(@AuthenticationPrincipal CustomUserDetails user) {
+        userService.deleteUser(user.getId());
         return ResponseEntity.noContent().build();
     }
 }
