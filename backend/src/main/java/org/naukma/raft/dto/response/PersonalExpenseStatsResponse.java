@@ -12,6 +12,6 @@ public class PersonalExpenseStatsResponse {
     private BigDecimal totalOwedToMe;
     private BigDecimal totalIOwe;
     private List<DebtSummaryResponse> iOwe;
-    private List<DebtSummaryResponse> iOwedToMe;
+    private List<DebtSummaryResponse> owedToMe;
     private List<ExpenseResponse> history;
 }

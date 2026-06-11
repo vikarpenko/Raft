@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -21,4 +22,6 @@ public interface ExpenseMemberRepository extends JpaRepository<ExpenseMember, Lo
           AND e.workspace.id = :workspaceId
           """)
     List<ExpenseMember> findByUserIdAndWorkspaceId(@Param("userId") Long userId, @Param("workspaceId") Long workspaceId);
+
+    List<ExpenseMember> findByUserIdAndIsSettledFalse(Long currentUserId);
 }
