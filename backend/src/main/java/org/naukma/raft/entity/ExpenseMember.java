@@ -1,24 +1,34 @@
 package org.naukma.raft.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "expense_members")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ExpenseMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "expence_id", nullable = false)
+    @JoinColumn(name = "expense_id", nullable = false)
     private Expense expense;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private Double share;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal share;
 
     @Column(name = "is_settled", nullable = false)
     private boolean isSettled = false;
