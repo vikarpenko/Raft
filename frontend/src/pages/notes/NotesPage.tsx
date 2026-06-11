@@ -5,11 +5,11 @@ import {randomBetween, formatDate} from '@/lib/notes';
 import {NoteCard} from '@/components/note/NoteCard';
 import {NoteModal} from '@/components/note/NoteModal';
 import {FolderModal} from '@/components/folder/FolderModal';
+import { useAuth } from '@/auth/AuthContext';
 import {Icon} from '@/lib/icons';
-import type {Note} from '@/types/note';
+import type {Note, PinnedNote} from '@/types/note';
 import type {Folder} from '@/types/folder';
 import type {PinItem} from '@/types/pin';
-import type {PinnedNote} from '@/types/note';
 import './NotesPage.css';
 
 type SortKey = 'updatedAt' | 'createdAt' | 'title';
@@ -27,12 +27,16 @@ export function NotesPage() {
 
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
     const [modalNote, setModalNote] = useState<Note | null | undefined>(undefined);
+    const [modalDefaultFolderId, setModalDefaultFolderId] = useState<string | undefined>(undefined);
     const [modalFolder, setModalFolder] = useState<Folder | null | undefined>(undefined);
     const [pins, setPins] = useState<PinItem[]>([]);
     const [draggingId, setDraggingId] = useState<string | null>(null);
     const [boardHeight, setBoardHeight] = useState(400);
     const boardRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const { user, loading: authLoading } = useAuth();
+    const currentUserId = user?.id;
 
     useEffect(() => {
         let active = true;
@@ -68,18 +72,21 @@ export function NotesPage() {
         const newNote = await createNote(input);
         setNotes((prev) => [newNote, ...prev]);
         setModalNote(undefined);
+        setModalDefaultFolderId(undefined);
     };
 
     const updateNoteHandler = async (id: string, patch: Partial<Note>) => {
         const updated = await updateNote(id, patch);
         setNotes((prev) => prev.map((n) => (n.id === id ? updated : n)));
         setModalNote(undefined);
+        setModalDefaultFolderId(undefined);
     };
 
     const deleteNoteHandler = async (id: string) => {
         await deleteNote(id);
         setNotes((prev) => prev.filter((n) => n.id !== id));
         setModalNote(undefined);
+        setModalDefaultFolderId(undefined);
     };
 
     //Folder
@@ -234,13 +241,13 @@ export function NotesPage() {
     }, [notes, noteSearch, selectedFolderId, sortKey]);
 
     const personalNotes = useMemo(
-        () => filteredNotes.filter((n) => n.folder.type === 'PERSONAL'),
-        [filteredNotes],
+        () => filteredNotes.filter((n) => n.creator?.id === currentUserId),
+        [filteredNotes, currentUserId]
     );
 
     const sharedNotes = useMemo(
-        () => filteredNotes.filter((n) => n.folder.type === 'SHARED'),
-        [filteredNotes],
+        () => filteredNotes.filter((n) => n.creator?.id !== currentUserId),
+        [filteredNotes, currentUserId]
     );
 
     const pinnedNoteIds = useMemo(
@@ -259,6 +266,13 @@ export function NotesPage() {
         {value: 'PERSONAL', label: 'Personal'},
         {value: 'SHARED', label: 'Shared'},
     ];
+
+    if (authLoading) {
+        return <div className="notes">Loading user...</div>;
+    }
+    if (!user) {
+        return <div className="notes">Please log in to see your notes.</div>;
+    }
 
     return (
         <div className="notes">
@@ -392,7 +406,7 @@ export function NotesPage() {
                             </button>
                         ))}
                     </div>
-                    <button type="button" className="notes__add" onClick={() => setModalNote(null)}>
+                    <button type="button" className="notes__add" onClick={() => { setModalDefaultFolderId(selectedFolderId ?? undefined); setModalNote(null); }}>
                         <Icon name="plus" size={16}/>
                         Add note
                     </button>
@@ -420,7 +434,7 @@ export function NotesPage() {
                                     />
                                 ))}
                                 <button type="button" className="note-card note-card--new"
-                                        onClick={() => setModalNote(null)}>
+                                        onClick={() => { setModalDefaultFolderId(selectedFolderId ?? undefined); setModalNote(null); }}>
                                     <Icon name="file-plus" size={28}/>
                                     <span>New note</span>
                                 </button>
@@ -461,7 +475,9 @@ export function NotesPage() {
                 <NoteModal
                     note={modalNote}
                     folders={folders}
-                    onClose={() => setModalNote(undefined)}
+                    defaultFolderId={modalDefaultFolderId}
+                    currentUser={user}
+                    onClose={() => { setModalNote(undefined); setModalDefaultFolderId(undefined); }}
                     onCreate={createNoteHandler}
                     onUpdate={updateNoteHandler}
                     onDelete={deleteNoteHandler}

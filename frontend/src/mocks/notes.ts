@@ -6,7 +6,7 @@ const mockUser = { id: 'u-1', username: 'mia.carter', firstName: 'Mia', lastName
 export const mockNotes: Note[] = [
     {
         id: 'n-1',
-        folder: mockFolders[0],
+        folder: mockFolders[1],
         creator: mockUser,
         title: 'Project idea',
         content: 'Build a note-taking app with tags and search',

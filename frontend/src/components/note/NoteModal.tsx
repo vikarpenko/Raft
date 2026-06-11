@@ -7,24 +7,18 @@ import '../task/TaskModal.css';
 interface NoteModalProps {
     note: Note | null;
     folders: Folder[];
+    defaultFolderId?: string;
+    currentUser: User;
     onClose: () => void;
     onCreate: (input: Omit<Note, 'id'>) => void;
     onUpdate: (id: string, patch: Partial<Note>) => void;
     onDelete: (id: string) => void;
 }
 
-const defaultUser: User = {
-    id: 'u-current',
-    username: 'current',
-    firstName: 'Current',
-    lastName: 'User',
-    email: 'current@example.com',
-};
-
-export function NoteModal({note, folders, onClose, onCreate, onUpdate, onDelete,}: NoteModalProps) {
+export function NoteModal({note, folders, defaultFolderId, currentUser, onClose, onCreate, onUpdate, onDelete,}: NoteModalProps) {
     const [title, setTitle] = useState(note?.title ?? '');
     const [content, setContent] = useState(note?.content ?? '');
-    const [folderId, setFolderId] = useState(note?.folder.id ?? folders[0]?.id ?? '');
+    const [folderId, setFolderId] = useState(note?.folder.id ?? defaultFolderId ?? folders[0]?.id ?? '');
 
     const handleSubmit = (event: FormEvent) => {
         event.preventDefault();
@@ -49,7 +43,7 @@ export function NoteModal({note, folders, onClose, onCreate, onUpdate, onDelete,
                 title: trimmedTitle,
                 content: content.trim() || '',
                 folder: selectedFolder,
-                creator: defaultUser,
+                creator: currentUser,
                 createdAt: now,
                 updatedAt: now,
             };
