@@ -1,6 +1,7 @@
 package org.naukma.raft.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 import org.naukma.raft.enums.MemberRole;
@@ -18,6 +19,9 @@ public class WorkspaceDetailResponse {
     private WorkspaceType type;
     private WorkspaceColor color;
     private MemberRole role;
+
+    @JsonProperty("isOwner")
+    private boolean isOwner;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime created;

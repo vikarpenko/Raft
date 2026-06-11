@@ -24,5 +24,6 @@ export interface Member {
 
 export interface WorkspaceDetail extends Workspace {
   created?: string;
+  isOwner: boolean;
   members: Member[];
 }

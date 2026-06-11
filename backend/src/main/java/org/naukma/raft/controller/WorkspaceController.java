@@ -69,4 +69,11 @@ public class WorkspaceController {
         workspaceService.removeMember(user.getId(), id, memberUserId);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/{id}/members/me")
+    public ResponseEntity<Void> leaveWorkspace(@AuthenticationPrincipal CustomUserDetails user,
+                                               @PathVariable Long id) {
+        workspaceService.leaveWorkspace(user.getId(), id);
+        return ResponseEntity.noContent().build();
+    }
 }

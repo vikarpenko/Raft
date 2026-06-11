@@ -26,10 +26,8 @@ export async function getWorkspace(id: string): Promise<WorkspaceDetail> {
   return api.get<WorkspaceDetail>(`/workspaces/${id}`);
 }
 
-export async function updateWorkspace(
-  id: string,
-  input: { name?: string; color?: WorkspaceColor },
-): Promise<Workspace> {
+export async function updateWorkspace(id: string, input: { name?: string;
+                                                           color?: WorkspaceColor },): Promise<Workspace> {
   return api.patch<Workspace>(`/workspaces/${id}`, input);
 }
 
@@ -43,4 +41,8 @@ export async function addMember(id: string, login: string, role?: MemberRole): P
 
 export async function removeMember(id: string, userId: string): Promise<void> {
   await api.delete<void>(`/workspaces/${id}/members/${userId}`);
+}
+
+export async function leaveWorkspace(id: string): Promise<void> {
+  await api.delete<void>(`/workspaces/${id}/members/me`);
 }

@@ -166,6 +166,7 @@ public class WorkspaceService {
                 .type(workspace.getType())
                 .color(workspace.getColor())
                 .role(role)
+                .isOwner(workspace.getOwner().getId().equals(userId))
                 .created(workspace.getCreated())
                 .members(members)
                 .build();
@@ -231,6 +232,20 @@ public class WorkspaceService {
                 .findByWorkspace_IdAndUser_Id(workspaceId, memberUserId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
 
+        memberRepository.delete(member);
+    }
+
+    @Transactional
+    public void leaveWorkspace(Long userId, Long workspaceId) {
+        Workspace workspace = getWorkspaceEntity(workspaceId);
+        if (workspace.getOwner().getId().equals(userId)) {
+            throw new ConflictException("Owner can't leave the workspace");
+        }
+        WorkspaceMember member = memberRepository
+                .findByWorkspace_IdAndUser_Id(workspaceId, userId)
+                .orElseThrow(() -> new AccessDeniedException("You are not a member of this workspace"));
+
+        taskRepository.unassignUserFromTasksInWorkspace(workspaceId, userId);
         memberRepository.delete(member);
     }
 
