@@ -33,15 +33,6 @@ public class ExpenseController {
                 .body(expenseService.createExpense(request, userId));
     }
 
-    @GetMapping("/workspaces/{workspaceId}/stats")
-    public ResponseEntity<WorkspaceExpenseStatsResponse> getWorkspaceStats(
-            @PathVariable Long workspaceId,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Long userId = ((CustomUserDetails) userDetails).getId();
-        return ResponseEntity.ok(expenseService.getWorkspaceStats(workspaceId, userId));
-    }
-
     @GetMapping("/my")
     public ResponseEntity<PersonalExpenseStatsResponse> getPersonalStats(
             @RequestParam(required = false)

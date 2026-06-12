@@ -1,5 +1,6 @@
 package org.naukma.raft.repository;
 
+import org.naukma.raft.entity.Expense;
 import org.naukma.raft.entity.WorkspaceMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

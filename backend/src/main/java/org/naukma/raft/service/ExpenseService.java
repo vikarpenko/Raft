@@ -216,4 +216,14 @@ public class ExpenseService {
                 .avatar(user.getAvatar())
                 .build();
     }
+
+    public List<ExpenseResponse> getWorkspaceExpenses(Long workspaceId, Long userId) {
+        memberRepository.findByWorkspace_IdAndUser_Id(workspaceId, userId)
+                .orElseThrow(() -> new AccessDeniedException("Not a member of this workspace"));
+
+        return expenseRepository.findByWorkspaceIdOrderByCreatedAtDesc(workspaceId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 }
