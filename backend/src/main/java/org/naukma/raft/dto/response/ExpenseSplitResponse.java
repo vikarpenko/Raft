@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Data
 @Builder
 public class ExpenseSplitResponse {
+    private String id;
     private UserSummaryResponse user;
     private BigDecimal share;
     private boolean isSettled;

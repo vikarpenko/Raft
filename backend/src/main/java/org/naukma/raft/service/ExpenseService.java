@@ -192,6 +192,7 @@ public class ExpenseService {
     }
 
     private ExpenseResponse mapToResponse(Expense expense) {
+
         return ExpenseResponse.builder()
                 .id(expense.getId())
                 .title(expense.getTitle())
@@ -199,6 +200,7 @@ public class ExpenseService {
                 .paidBy(mapUserToSummary(expense.getPaidBy()))
                 .splits(expense.getSplits().stream()
                         .map(s -> ExpenseSplitResponse.builder()
+                                .id(s.getId().toString())
                                 .user(mapUserToSummary(s.getUser()))
                                 .share(s.getShare())
                                 .isSettled(s.isSettled())
