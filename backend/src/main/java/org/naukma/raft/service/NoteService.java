@@ -1,6 +1,7 @@
 package org.naukma.raft.service;
 
 import lombok.RequiredArgsConstructor;
+import org.naukma.raft.dto.request.NotePatchRequest;
 import org.naukma.raft.dto.request.NoteRequest;
 import org.naukma.raft.dto.response.NoteResponse;
 import org.naukma.raft.dto.response.UserSummaryResponse;
@@ -76,7 +77,7 @@ public class NoteService {
     }
 
     @Transactional
-    public NoteResponse updateNote(Long userId, Long noteId, NoteRequest request) {
+    public NoteResponse updateNote(Long userId, Long noteId, NotePatchRequest request) {
         Note note = getAccessibleNote(userId, noteId);
 
         if (request.getTitle() != null) {
@@ -85,11 +86,6 @@ public class NoteService {
         if (request.getContent() != null) {
             note.setContent(request.getContent());
         }
-        if (request.getFolderId() != null && !request.getFolderId().equals(note.getFolder().getId())) {
-            Folder newFolder = getAccessibleFolder(userId, request.getFolderId());
-            note.setFolder(newFolder);
-        }
-        // updatedAt оновиться автоматично через @UpdateTimestamp
         Note updated = noteRepository.save(note);
         return mapToResponse(updated);
     }

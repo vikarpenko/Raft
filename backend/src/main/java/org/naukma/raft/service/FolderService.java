@@ -1,6 +1,7 @@
 package org.naukma.raft.service;
 
 import lombok.RequiredArgsConstructor;
+import org.naukma.raft.dto.request.FolderPatchRequest;
 import org.naukma.raft.dto.request.FolderRequest;
 import org.naukma.raft.dto.response.FolderResponse;
 import org.naukma.raft.dto.response.UserSummaryResponse;
@@ -64,7 +65,7 @@ public class FolderService {
     }
 
     @Transactional
-    public FolderResponse updateFolder(Long userId, Long folderId, FolderRequest request) {
+    public FolderResponse updateFolder(Long userId, Long folderId, FolderPatchRequest request) {
         Folder folder = getAccessibleFolder(userId, folderId);
 
         if (request.getName() != null && !request.getName().equals(folder.getName())) {
@@ -100,7 +101,7 @@ public class FolderService {
             throw new IllegalArgumentException("Workspace ID is required for folder creation");
         }
         Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new NotFoundException("Workspace not found"));
-        if (!canAccess(user.getId(), workspace)) {
+        if (cantAccess(user.getId(), workspace)) {
             throw new AccessDeniedException("You do not have access to this workspace");
         }
         return workspace;
@@ -108,14 +109,14 @@ public class FolderService {
 
     private Folder getAccessibleFolder(Long userId, Long folderId) {
         Folder folder = folderRepository.findById(folderId).orElseThrow(() -> new NotFoundException("Folder not found"));
-        if (!canAccess(userId, folder.getWorkspace())) {
+        if (cantAccess(userId, folder.getWorkspace())) {
             throw new AccessDeniedException("You do not have access to this folder");
         }
         return folder;
     }
 
-    private boolean canAccess(Long userId, Workspace workspace) {
-        return workspace.getOwner().getId().equals(userId) || memberRepository.existsByWorkspace_IdAndUser_Id(workspace.getId(), userId);
+    private boolean cantAccess(Long userId, Workspace workspace) {
+        return !workspace.getOwner().getId().equals(userId) && !memberRepository.existsByWorkspace_IdAndUser_Id(workspace.getId(), userId);
     }
 
     private FolderResponse mapToResponse(Folder folder) {
