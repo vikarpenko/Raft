@@ -13,3 +13,13 @@ export interface Folder {
     workspaceType: WorkspaceType;
     owner: UserSummary;
 }
+
+export type CreateFolderInput = {
+    name: string;
+    type: FolderType;
+    workspaceId: string;
+};
+
+export type UpdateFolderInput = {
+    name?: string;
+};

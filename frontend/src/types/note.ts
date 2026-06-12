@@ -12,3 +12,14 @@ export interface Note {
     folderType: FolderType;
     creator: UserSummary;
 }
+
+export type CreateNoteInput = {
+    title: string;
+    content?: string;
+    folderId: string;
+};
+
+export type UpdateNoteInput = {
+    title?: string;
+    content?: string;
+};
