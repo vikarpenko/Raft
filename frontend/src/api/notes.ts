@@ -1,19 +1,15 @@
 import { api } from '@/api/http';
-import type { Note } from '@/types/note';
+import type { Note, CreateNoteInput, UpdateNoteInput } from '@/types/note';
 
 export async function getNotes(): Promise<Note[]> {
     return api.get<Note[]>('/notes');
 }
 
-export async function createNote(data: {
-    title: string;
-    content?: string;
-    folderId: string;
-}): Promise<Note> {
+export async function createNote(data: CreateNoteInput): Promise<Note> {
     return api.post<Note>('/notes', data);
 }
 
-export async function updateNote(id: string, data: { title?: string; content?: string }): Promise<Note> {
+export async function updateNote(id: string, data: UpdateNoteInput): Promise<Note> {
     return api.patch<Note>(`/notes/${id}`, data);
 }
 
