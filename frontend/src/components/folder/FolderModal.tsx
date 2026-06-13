@@ -70,37 +70,39 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
                     <span className="modal__counter">{nameLength}/{NAME_MAX}</span>
                 </label>
 
-                <div className="modal__row">
-                    {!isEditing && (
-                        <div className="modal__row">
-                            <label className="modal__field">
-                                <span>Workspace</span>
-                                <select
-                                    className="modal__select"
-                                    value={workspaceId}
-                                    onChange={(e) => setWorkspaceId(e.target.value)}
-                                >
-                                    {workspaces.map((ws) => (
-                                        <option key={ws.id} value={ws.id}>
-                                            {ws.name} {ws.type === 'PERSONAL' && '(Personal)'}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                        </div>
-                    )}
+                {!isEditing && (
+                    <div className="modal__row">
+                        <label className="modal__field">
+                            <span>Workspace</span>
+                            <select
+                                className="modal__select"
+                                value={workspaceId}
+                                onChange={(e) => setWorkspaceId(e.target.value)}
+                            >
+                                {workspaces.map((ws) => (
+                                    <option key={ws.id} value={ws.id}>
+                                        {ws.name} {ws.type === 'PERSONAL' && '(Personal)'}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
 
-                    <label className="modal__field">
-                        <span>Type</span>
-                        <select value={type} onChange={(e) => setType(e.target.value as FolderType)}>
-                            {TYPES.map((value) => (
-                                <option key={value} value={value}>
-                                    {value === 'PERSONAL' ? 'Personal' : 'Shared'}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                </div>
+                        <label className="modal__field">
+                            <span>Type</span>
+                            <select
+                                value={type}
+                                onChange={(e) => setType(e.target.value as FolderType)}
+                            >
+                                {TYPES.map((value) => (
+                                    <option key={value} value={value}>
+                                        {value === 'PERSONAL' ? 'Personal' : 'Shared'}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                )}
+
 
                 <div className="modal__actions">
                     {isEditing && (
