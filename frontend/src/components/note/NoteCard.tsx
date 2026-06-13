@@ -2,7 +2,7 @@ import {Icon} from '@/lib/icons';
 import {formatDate} from '@/lib/notes';
 import type {Note} from '@/types/note';
 import '@/pages/notes/NotesPage.css';
-import type {User} from "@/types/user.ts";
+import type { UserSummary } from '@/types/user';
 
 interface NoteCardProps {
     note: Note;
@@ -15,7 +15,7 @@ interface NoteCardProps {
     onUnpin: () => void;
 }
 
-function CreatorBadge({user}: { user: User }) {
+function CreatorBadge({user}: { user: UserSummary }) {
     const initials = user.firstName[0].toUpperCase() + user.lastName[0].toUpperCase();
     return (
         <span className="note-card__creator">
@@ -62,7 +62,7 @@ export function NoteCard({note, isPinned, showFolder, showCreator, onView, onEdi
                 )}
 
                 {showFolder && (
-                    <span className="note-card__folder">{note.folder.name}</span>
+                    <span className="note-card__folder">{note.folderName}</span>
                 )}
 
                 <button type="button" className={`note-card__pin-btn${isPinned ? ' note-card__pin-btn--active' : ''}`}
