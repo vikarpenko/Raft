@@ -18,7 +18,7 @@ export function NoteViewModal({ note, onClose, onEdit, isPersonal }: NoteViewMod
             <div className="modal__card note-view-modal">
                 <div className="note-view-modal__header">
                     <div className="note-view-modal__meta">
-                        <span className="note-view-modal__folder">{note.folder.name}</span>
+                        <span className="note-view-modal__folder">{note.folderName}</span>
                         <span className="note-view-modal__date">
                             {formatDate(note.updatedAt)}
                         </span>

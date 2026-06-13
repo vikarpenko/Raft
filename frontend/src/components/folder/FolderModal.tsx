@@ -1,33 +1,49 @@
 import {useState, type FormEvent} from 'react';
-import type {Folder, FolderType} from '@/types/folder';
+import type {Folder, FolderType, CreateFolderInput, UpdateFolderInput} from '@/types/folder';
+import type {Workspace} from '@/types/workspace';
 import '../task/TaskModal.css';
 
 const TYPES: FolderType[] = ['PERSONAL', 'SHARED'];
 
 interface FolderModalProps {
     folder: Folder | null;
+    workspaces: Workspace[];
     onClose: () => void;
-    onCreate: (input: Omit<Folder, 'id'>) => void;
-    onUpdate: (id: string, patch: Partial<Folder>) => void;
+    onCreate: (input: CreateFolderInput) => Promise<void>;
+    onUpdate: (id: string, input: UpdateFolderInput) => Promise<void>;
     onDelete: (id: string) => void;
 }
 
-export function FolderModal({folder, onClose, onCreate, onUpdate, onDelete}: FolderModalProps) {
+export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, onDelete}: FolderModalProps) {
     const [name, setName] = useState(folder?.name ?? '');
-    const [type, setType] = useState<FolderType>(folder?.type ?? 'PERSONAL');
+    const [type, setType] = useState<FolderType>(folder?.folderType ?? 'PERSONAL');
+    const [workspaceId, setWorkspaceId] = useState(folder?.workspaceId ?? workspaces[0]?.id ?? '');
+    const [submitting, setSubmitting] = useState(false);
 
-    const handleSubmit = (event: FormEvent) => {
+    const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const trimmed = name.trim();
-        if (!trimmed) return;
-        const data: Omit<Folder, 'id'> = {
-            name: trimmed,
-            type,
-            owner: folder?.owner ?? {id: '', username: '', firstName: '', lastName: '', email: ''},
-            created: folder?.created ?? new Date().toISOString(),
-        };
-        if (folder) onUpdate(folder.id, data);
-        else onCreate(data);
+        if (!trimmed || submitting) return;
+        setSubmitting(true);
+        try {
+            if (folder) {
+                await onUpdate(folder.id, {name: trimmed});
+            } else {
+                await onCreate({name: trimmed, type, workspaceId});
+            }
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!folder || !window.confirm('Delete this folder?')) return;
+        setSubmitting(true);
+        try {
+            await onDelete(folder.id);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -41,6 +57,21 @@ export function FolderModal({folder, onClose, onCreate, onUpdate, onDelete}: Fol
                        autoFocus/>
 
                 <div className="modal__row">
+                    <div className="modal__row">
+                        <label className="modal__field">
+                            <span>Workspace</span>
+                            <select
+                                className="modal__select"
+                                value={workspaceId}
+                                onChange={(e) => setWorkspaceId(e.target.value)}
+                            >
+                                {workspaces.map((ws) => (
+                                    <option key={ws.id} value={ws.id}>{ws.name}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+
                     <label className="modal__field">
                         <span>Type</span>
                         <select value={type} onChange={(e) => setType(e.target.value as FolderType)}>
@@ -55,8 +86,8 @@ export function FolderModal({folder, onClose, onCreate, onUpdate, onDelete}: Fol
 
                 <div className="modal__actions">
                     {folder && (
-                        <button type="button" className="modal__btn modal__btn--danger"
-                                onClick={() => onDelete(folder.id)}>
+                        <button type="button" className="modal__btn modal__btn--danger" onClick={handleDelete}
+                                disabled={submitting}>
                             Delete
                         </button>
                     )}

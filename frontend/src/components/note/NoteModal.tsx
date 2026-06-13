@@ -1,81 +1,84 @@
 import {useState, type FormEvent} from 'react';
-import type {Note} from '@/types/note';
+import type { Note, CreateNoteInput, UpdateNoteInput } from '@/types/note';
 import type {Folder} from '@/types/folder';
-import type {User} from '@/types/user';
-import '../note/NoteModal.css';
+import '../task/TaskModal.css';
+import './NoteModal.css';
 
 interface NoteModalProps {
     note: Note | null;
     folders: Folder[];
     defaultFolderId?: string;
-    currentUser: User;
     onClose: () => void;
-    onCreate: (input: Omit<Note, 'id'>) => void;
-    onUpdate: (id: string, patch: Partial<Note>) => void;
-    onDelete: (id: string) => void;
+    onCreate: (input: CreateNoteInput) => Promise<void>;
+    onUpdate: (id: string, input: UpdateNoteInput) => Promise<void>;
+    onDelete: (id: string) => Promise<void>;
 }
 
-export function NoteModal({note, folders, defaultFolderId, currentUser, onClose, onCreate, onUpdate, onDelete,}: NoteModalProps) {
+export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, onUpdate, onDelete,}: NoteModalProps) {
     const [title, setTitle] = useState(note?.title ?? '');
     const [content, setContent] = useState(note?.content ?? '');
-    const [folderId, setFolderId] = useState(note?.folder.id ?? defaultFolderId ?? folders[0]?.id ?? '');
+    const [folderId, setFolderId] = useState(note?.folderId ?? defaultFolderId ?? folders[0]?.id ?? '');
+    const [submitting, setSubmitting] = useState(false);
 
-    const handleSubmit = (event: FormEvent) => {
+    const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const trimmedTitle = title.trim();
-        if (!trimmedTitle) return;
-        if (!folderId) return;
+        if (!trimmedTitle || !folderId || submitting) return;
 
-        const selectedFolder = folders.find((f) => f.id === folderId);
-        if (!selectedFolder) return;
-
-        const now = new Date().toISOString();
-
-        if (note) {
-            onUpdate(note.id, {
-                title: trimmedTitle,
-                content: content.trim() || '',
-                folder: selectedFolder,
-                updatedAt: now,
-            });
-        } else {
-            const newNote: Omit<Note, 'id'> = {
-                title: trimmedTitle,
-                content: content.trim() || '',
-                folder: selectedFolder,
-                creator: currentUser,
-                createdAt: now,
-                updatedAt: now,
-            };
-            onCreate(newNote);
+        setSubmitting(true);
+        try {
+            if (note) {
+                await onUpdate(note.id, { title: trimmedTitle, content: content.trim() || '' });
+            } else {
+                await onCreate({ title: trimmedTitle, content: content.trim() || '', folderId });
+            }
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    const handleDelete = () => {
-        if (note && window.confirm('Delete this note?')) {
-            onDelete(note.id);
+    const handleDelete = async () => {
+        if (!note || !window.confirm('Delete this note?')) return;
+        setSubmitting(true);
+        try {
+            await onDelete(note.id);
+        } finally {
+            setSubmitting(false);
         }
     };
 
     return (
         <div className="modal" role="dialog" aria-modal="true">
-            <div className="modal__scrim" onClick={onClose}/>
+            <div className="modal__scrim" onClick={onClose} />
             <form className="modal__card note-modal" onSubmit={handleSubmit}>
                 <h2 className="modal__title">{note ? 'Edit note' : 'New note'}</h2>
 
-                <input className="modal__input" placeholder="Note title" value={title} onChange={(e) => setTitle(e.target.value)} autoFocus/>
+                <input
+                    className="modal__input"
+                    placeholder="Note title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    autoFocus
+                />
 
-                <textarea className="note-modal__textarea" placeholder="Content (optional)" value={content}
-                          onChange={(e) => setContent(e.target.value)} rows={5}/>
+                <textarea
+                    className="note-modal__textarea"
+                    placeholder="Content (optional)"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    rows={5}
+                />
 
                 <div className="modal__row">
                     <label className="modal__field">
                         <span>Folder</span>
-                        <select className="modal__select" value={folderId} onChange={(e) => setFolderId(e.target.value)}>
-                            {folders.map((folder) => (
-                                <option key={folder.id} value={folder.id}>
-                                    {folder.name}
-                                </option>
+                        <select
+                            className="modal__select"
+                            value={folderId}
+                            onChange={(e) => setFolderId(e.target.value)}
+                        >
+                            {folders.map((f) => (
+                                <option key={f.id} value={f.id}>{f.name}</option>
                             ))}
                         </select>
                     </label>
@@ -83,15 +86,24 @@ export function NoteModal({note, folders, defaultFolderId, currentUser, onClose,
 
                 <div className="modal__actions">
                     {note && (
-                        <button type="button" className="modal__btn modal__btn--danger" onClick={handleDelete}>
+                        <button
+                            type="button"
+                            className="modal__btn modal__btn--danger"
+                            onClick={handleDelete}
+                            disabled={submitting}
+                        >
                             Delete
                         </button>
                     )}
-                    <span className="modal__spacer"/>
+                    <span className="modal__spacer" />
                     <button type="button" className="modal__btn modal__btn--ghost" onClick={onClose}>
                         Cancel
                     </button>
-                    <button type="submit" className="modal__btn modal__btn--primary" disabled={!title.trim() || !folderId}>
+                    <button
+                        type="submit"
+                        className="modal__btn modal__btn--primary"
+                        disabled={!title.trim() || !folderId || submitting}
+                    >
                         {note ? 'Save' : 'Add'}
                     </button>
                 </div>
