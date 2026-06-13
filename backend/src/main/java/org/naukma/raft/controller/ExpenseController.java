@@ -47,7 +47,7 @@ public class ExpenseController {
 
 
         Long userId = ((CustomUserDetails) userDetails).getId();
-        return ResponseEntity.ok(expenseService.getPersonalStats(userId, from, to));
+        return ResponseEntity.ok(expenseService.getPersonalStats(userId, from, to, page, size));
     }
 
     @PatchMapping("/splits/{splitId}/settle")
