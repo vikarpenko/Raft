@@ -3,6 +3,7 @@ import type {Folder, FolderType, CreateFolderInput, UpdateFolderInput} from '@/t
 import type {Workspace} from '@/types/workspace';
 import '../task/TaskModal.css';
 
+const NAME_MAX = 120;
 const TYPES: FolderType[] = ['PERSONAL', 'SHARED'];
 
 interface FolderModalProps {
@@ -46,15 +47,26 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
         }
     };
 
+    const nameLength = name.length;
+
     return (
         <div className="modal" role="dialog" aria-modal="true">
             <div className="modal__scrim" onClick={onClose}/>
             <form className="modal__card" onSubmit={handleSubmit}>
                 <h2 className="modal__title">{folder ? 'Edit folder' : 'New folder'}</h2>
 
-                <input className="modal__input" placeholder="Folder name" value={name}
-                       onChange={(e) => setName(e.target.value)}
-                       autoFocus/>
+                <label className="modal__field modal__field--full">
+                    <span>Name</span>
+                    <input
+                        className="modal__input"
+                        placeholder="Folder name"
+                        maxLength={NAME_MAX}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        autoFocus
+                    />
+                    <span className="modal__counter">{nameLength}/{NAME_MAX}</span>
+                </label>
 
                 <div className="modal__row">
                     <div className="modal__row">
