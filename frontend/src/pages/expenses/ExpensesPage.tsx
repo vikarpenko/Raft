@@ -42,7 +42,6 @@ export function ExpensesPage() {
 
     return (
         <div className="exp-page">
-            <h1 className="exp-page__title">Expenses</h1>
 
             <PersonalExpenseSummary
                 totalOwedToMe={stats?.totalOwedToMe ?? 0}
