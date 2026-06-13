@@ -10,6 +10,7 @@ import { PlaceholderPage } from '@/pages/placeholder/PlaceholderPage';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { ProtectedRoute } from '@/auth/ProtectedRoute';
+import { ExpensesPage } from '@/pages/expenses/ExpensesPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="spaces" element={<SpacesPage />} />
           <Route path="spaces/:id" element={<WorkspacePage />} />
           <Route path="*" element={<PlaceholderPage />} />
+          <Route path="expenses" element={<ExpensesPage />} />
         </Route>
       </Route>
     </Routes>
