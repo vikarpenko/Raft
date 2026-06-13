@@ -161,6 +161,15 @@
   border-radius: var(--radius-full);
 }
 
+.modal__view-desc {
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  overflow-wrap: anywhere;
+}
+
 .modal__types {
   display: flex;
   gap: var(--space-2);

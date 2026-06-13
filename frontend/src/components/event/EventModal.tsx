@@ -21,14 +21,16 @@ function formatTime(raw: string, prev: string): string {
 interface EventModalProps {
   event: Event | null;
   defaultDate?: string;
+  defaultWorkspaceId?: string;
   onClose: () => void;
   onCreate: (input: Omit<Event, 'id'>) => void;
   onUpdate: (id: string, patch: Partial<Event>) => void;
   onDelete: (id: string) => void;
 }
 
-export function EventModal({ event, defaultDate, onClose, onCreate, onUpdate, onDelete }: EventModalProps) {
+export function EventModal({ event, defaultDate, defaultWorkspaceId, onClose, onCreate, onUpdate, onDelete }: EventModalProps) {
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [mode, setMode] = useState<'view' | 'edit'>(event ? 'view' : 'edit');
   const [title, setTitle] = useState(event?.title ?? '');
   const [description, setDescription] = useState(event?.description ?? '');
   const [startDate, setStartDate] = useState(event ? event.startTime.slice(0, 10) : defaultDate ?? todayISO());
@@ -36,17 +38,17 @@ export function EventModal({ event, defaultDate, onClose, onCreate, onUpdate, on
   const [endDate, setEndDate] = useState(event ? event.endTime.slice(0, 10) : defaultDate ?? todayISO());
   const [endTime, setEndTime] = useState(event ? event.endTime.slice(11, 16) : '');
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [workspaceId, setWorkspaceId] = useState('');
+  const [workspaceId, setWorkspaceId] = useState(defaultWorkspaceId ?? '');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (event) return;
+    if (event || defaultWorkspaceId) return;
     getWorkspaces().then((all) => {
       setWorkspaces(all);
       const preferred = all.find((w) => w.type === 'PERSONAL') ?? all[0];
       if (preferred) setWorkspaceId(preferred.id);
     });
-  }, [event]);
+  }, [event, defaultWorkspaceId]);
 
   const handleSubmit = (submitEvent: FormEvent) => {
     submitEvent.preventDefault();
@@ -72,6 +74,21 @@ export function EventModal({ event, defaultDate, onClose, onCreate, onUpdate, on
     else onCreate({ ...data, workspaceId: workspaceId || undefined });
   };
 
+  const cancelEdit = () => {
+    if (!event) {
+      onClose();
+      return;
+    }
+    setTitle(event.title);
+    setDescription(event.description ?? '');
+    setStartDate(event.startTime.slice(0, 10));
+    setStartTime(event.startTime.slice(11, 16));
+    setEndDate(event.endTime.slice(0, 10));
+    setEndTime(event.endTime.slice(11, 16));
+    setError('');
+    setMode('view');
+  };
+
   if (confirmingDelete && event) {
     return (
       <ConfirmModal
@@ -81,6 +98,49 @@ export function EventModal({ event, defaultDate, onClose, onCreate, onUpdate, on
         onConfirm={() => onDelete(event.id)}
         onCancel={() => setConfirmingDelete(false)}
       />
+    );
+  }
+
+  if (mode === 'view' && event) {
+    const sDate = event.startTime.slice(0, 10);
+    const eDate = event.endTime.slice(0, 10);
+    const sTime = event.startTime.slice(11, 16);
+    const eTime = event.endTime.slice(11, 16);
+    const fmtDate = (iso: string) =>
+      new Date(`${iso}T00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const when =
+      sDate === eDate
+        ? `${fmtDate(sDate)} · ${sTime}–${eTime}`
+        : `${fmtDate(sDate)} ${sTime} → ${fmtDate(eDate)} ${eTime}`;
+    return (
+      <Modal onClose={onClose}>
+        <h2 className="modal__title">{event.title}</h2>
+        <div className="modal__view">
+          <div className="modal__view-row">
+            <span>When</span>
+            <b>{when}</b>
+          </div>
+          {event.workspaceName && (
+            <div className="modal__view-row">
+              <span>Space</span>
+              <b>{event.workspaceName}</b>
+            </div>
+          )}
+          {event.description && <p className="modal__view-desc">{event.description}</p>}
+        </div>
+        <div className="modal__actions">
+          <button type="button" className="modal__btn modal__btn--danger" onClick={() => setConfirmingDelete(true)}>
+            Delete
+          </button>
+          <span className="modal__spacer" />
+          <button type="button" className="modal__btn modal__btn--ghost" onClick={onClose}>
+            Close
+          </button>
+          <button type="button" className="modal__btn modal__btn--primary" onClick={() => setMode('edit')}>
+            Edit
+          </button>
+        </div>
+      </Modal>
     );
   }
 
@@ -114,7 +174,7 @@ export function EventModal({ event, defaultDate, onClose, onCreate, onUpdate, on
         <span className="modal__counter">{description.length}/{DESCRIPTION_MAX}</span>
       </label>
 
-      {!event && workspaces.length > 0 && (
+      {!event && !defaultWorkspaceId && workspaces.length > 0 && (
         <label className="modal__field modal__field--full">
           <span>Space</span>
           <select value={workspaceId} onChange={(e) => setWorkspaceId(e.target.value)}>
@@ -170,7 +230,7 @@ export function EventModal({ event, defaultDate, onClose, onCreate, onUpdate, on
           </button>
         )}
         <span className="modal__spacer" />
-        <button type="button" className="modal__btn modal__btn--ghost" onClick={onClose}>
+        <button type="button" className="modal__btn modal__btn--ghost" onClick={cancelEdit}>
           Cancel
         </button>
         <button type="submit" className="modal__btn modal__btn--primary" disabled={!title.trim()}>
