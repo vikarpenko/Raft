@@ -87,13 +87,13 @@ export function WorkspaceExpenses({workspaceId, members}: Props) {
     return (
         <div className="we">
             <div className="we__header">
-                <h2 className="we__title">Expenses</h2>
+                <h2 className="wpage__subtitle">Expenses</h2>
                 <button
                     type="button"
-                    className="wpage__add-btn"
+                    className="wpage__add"
                     onClick={() => setAddOpen(true)}
                 >
-                    + Add expense
+                    Add expense
                 </button>
             </div>
 

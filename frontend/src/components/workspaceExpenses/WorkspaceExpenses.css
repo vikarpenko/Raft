@@ -49,8 +49,6 @@
     .we__columns { grid-template-columns: 1fr; }
 }
 
-
-.we__detail-card,
 .we__list-card {
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -97,22 +95,6 @@
     font-weight: var(--weight-bold);
     color: var(--color-primary);
     margin: 0;
-}
-
-.we__detail-close {
-    background: none;
-    border: none;
-    color: var(--color-text-muted);
-    font-size: var(--text-xs);
-    cursor: pointer;
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-sm);
-    transition: background var(--transition);
-}
-
-.we__detail-close:hover {
-    background: var(--color-priority-low);
-    color: var(--color-primary);
 }
 
 .we__detail-meta {
@@ -270,13 +252,15 @@
 
 .we__member-toggle {
     display: flex;
+    width: 100%;
+    height: var(--control-height);
     align-items: center;
     gap: var(--space-1);
-    padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1);
+    padding: var(--space-2);
     border-radius: var(--radius-sm);
     border: 1px solid var(--color-border);
     background: var(--color-bg);
-    font-size: var(--text-sm);
+    font-size: var(--text-base);
     font-weight: var(--weight-medium);
     color: var(--color-text-secondary);
     cursor: pointer;
@@ -288,10 +272,21 @@
     border-color: var(--color-primary);
 }
 
-.we__member-toggle--active {
+.we__member-toggle:active {
     background: var(--color-priority-low);
     border-color: var(--color-primary);
     color: var(--color-primary);
+}
+
+.we__member-toggle:has(input:checked) {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.we__member-toggle input[type="checkbox"] {
+    display: none;
+    align-self: center;
 }
 
 .we__toggle-avatar {
@@ -346,4 +341,32 @@
     font-weight: var(--weight-medium);
     color: var(--color-text);
     margin-left: var(--space-2);
+}
+
+.expenses__add {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    height: var(--control-height);
+    padding: 0 var(--space-2);
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    cursor: pointer;
+    transition: background-color var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.expenses__add:hover {
+    background: var(--color-primary-hover);
+}
+
+.we__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-4);
 }

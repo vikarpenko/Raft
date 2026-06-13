@@ -73,23 +73,25 @@ export function AddExpenseModal({ workspaceId, members, onClose, onAdd }: AddMod
                 />
             </label>
 
-            <div className="we__add-members">
-                <h3 className="modal__title">Participants</h3>
+            <div className="modal__field-wrap">
+                <span className="modal__label">Participants</span>
 
-                {members.map(member => (
-                    <label
-                        className="modal__label"
-                        key={member.userId}>
-                        <input
-                            className="modal__input"
-                            type="checkbox"
-                            checked={selectedMembers.includes(member.userId)}
-                            onChange={() => toggleMember(member.userId)}
-                            />
+                <div className="we__member-toggles">
+                    {members.map(member => (
+                        <label
+                            className="we__member-toggle"
+                            key={member.userId}>
+                            <input
+                                className="we__member-toggle__input"
+                                type="checkbox"
+                                checked={selectedMembers.includes(member.userId)}
+                                onChange={() => toggleMember(member.userId)}
+                                />
 
-                        {member.firstName} {member.lastName}
-                    </label>
-                ))}
+                            {member.firstName} {member.lastName}
+                        </label>
+                    ))}
+                </div>
             </div>
 
             <div className="modal__actions">
@@ -105,11 +107,7 @@ export function AddExpenseModal({ workspaceId, members, onClose, onAdd }: AddMod
                 <button
                     type="submit"
                     className="modal__btn modal__btn--ghost"
-                    disabled={
-                        !title.trim() ||
-                        !amount ||
-                        selectedMembers.length === 0
-                    }
+                    
                 >
                     Save
                 </button>
