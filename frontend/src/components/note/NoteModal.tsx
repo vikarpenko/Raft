@@ -4,6 +4,9 @@ import type {Folder} from '@/types/folder';
 import '../task/TaskModal.css';
 import './NoteModal.css';
 
+const TITLE_MAX = 120;
+const CONTENT_MAX = 10000;
+
 interface NoteModalProps {
     note: Note | null;
     folders: Folder[];
@@ -47,27 +50,40 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
         }
     };
 
+    const titleLength = title.length;
+    const contentLength = content.length;
+
     return (
         <div className="modal" role="dialog" aria-modal="true">
             <div className="modal__scrim" onClick={onClose} />
             <form className="modal__card note-modal" onSubmit={handleSubmit}>
                 <h2 className="modal__title">{note ? 'Edit note' : 'New note'}</h2>
 
-                <input
-                    className="modal__input"
-                    placeholder="Note title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    autoFocus
-                />
+                <label className="modal__field modal__field--full">
+                    <span>Title</span>
+                    <input
+                        className="modal__input"
+                        placeholder="Note title"
+                        maxLength={TITLE_MAX}
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        autoFocus
+                    />
+                    <span className="modal__counter">{titleLength}/{TITLE_MAX}</span>
+                </label>
 
-                <textarea
-                    className="note-modal__textarea"
-                    placeholder="Content (optional)"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    rows={5}
-                />
+                <label className="modal__field modal__field--full">
+                    <span>Content</span>
+                    <textarea
+                        className="note-modal__textarea"
+                        placeholder="Content (optional)"
+                        maxLength={CONTENT_MAX}
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        rows={5}
+                    />
+                    <span className="modal__counter">{contentLength}/{CONTENT_MAX}</span>
+                </label>
 
                 <div className="modal__row">
                     <label className="modal__field">
