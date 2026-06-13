@@ -23,6 +23,8 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
     const [folderId, setFolderId] = useState(note?.folderId ?? defaultFolderId ?? folders[0]?.id ?? '');
     const [submitting, setSubmitting] = useState(false);
 
+    const isEditing = !!note;
+
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
         const trimmedTitle = title.trim();
@@ -57,7 +59,7 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
         <div className="modal" role="dialog" aria-modal="true">
             <div className="modal__scrim" onClick={onClose} />
             <form className="modal__card note-modal" onSubmit={handleSubmit}>
-                <h2 className="modal__title">{note ? 'Edit note' : 'New note'}</h2>
+                <h2 className="modal__title">{!isEditing ? 'Edit note' : 'New note'}</h2>
 
                 <label className="modal__field modal__field--full">
                     <span>Title</span>
@@ -85,23 +87,25 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
                     <span className="modal__counter">{contentLength}/{CONTENT_MAX}</span>
                 </label>
 
-                <div className="modal__row">
-                    <label className="modal__field">
-                        <span>Folder</span>
-                        <select
-                            className="modal__select"
-                            value={folderId}
-                            onChange={(e) => setFolderId(e.target.value)}
-                        >
-                            {folders.map((f) => (
-                                <option key={f.id} value={f.id}>{f.name}</option>
-                            ))}
-                        </select>
-                    </label>
-                </div>
+                {!isEditing && (
+                    <div className="modal__row">
+                        <label className="modal__field">
+                            <span>Folder</span>
+                            <select
+                                className="modal__select"
+                                value={folderId}
+                                onChange={(e) => setFolderId(e.target.value)}
+                            >
+                                {folders.map((f) => (
+                                    <option key={f.id} value={f.id}>{f.name}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                )}
 
                 <div className="modal__actions">
-                    {note && (
+                    {!isEditing && (
                         <button
                             type="button"
                             className="modal__btn modal__btn--danger"
@@ -120,7 +124,7 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
                         className="modal__btn modal__btn--primary"
                         disabled={!title.trim() || !folderId || submitting}
                     >
-                        {note ? 'Save' : 'Add'}
+                        {!isEditing ? 'Save' : 'Add'}
                     </button>
                 </div>
             </form>
