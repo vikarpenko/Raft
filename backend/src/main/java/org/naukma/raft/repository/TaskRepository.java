@@ -60,4 +60,28 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             @Param("today") LocalDate today
     );
 
+    @Query("""
+        select count(distinct t)
+        from Task t
+        where (t.creator.id = :userId or t.assignee.id = :userId)
+        and t.status <> org.naukma.raft.enums.TaskStatus.COMPLETED
+        and t.dueDate = :today
+        """)
+    long countDueTodayUserTasks(
+            @Param("userId") Long userId,
+            @Param("today") LocalDate today
+    );
+
+    @Query("""
+        select count(distinct t)
+        from Task t
+        where (t.creator.id = :userId or t.assignee.id = :userId)
+        and t.status <> org.naukma.raft.enums.TaskStatus.COMPLETED
+        and t.dueDate between :today and :weekEnd
+        """)
+    long countDueThisWeekUserTasks(
+            @Param("userId") Long userId,
+            @Param("today") LocalDate today,
+            @Param("weekEnd") LocalDate weekEnd
+    );
 }
