@@ -23,7 +23,7 @@ export function NotesPage() {
     const { user, loading: authLoading } = useAuth();
     const { workspaces, spaceOptions } = useWorkspaces();
 
-    const { notes, loading: notesLoading, create: createNote, update: updateNote, remove: removeNote, removeByFolderId } = useNotes();
+    const { notes, loading: notesLoading, create: createNote, update: updateNote, remove: removeNote, removeByFolderId, updateFolderMeta } = useNotes();
     const { folders, loading: foldersLoading, create: createFolder, update: updateFolder, remove: removeFolder } = useFolders();
     const {
         pins,
@@ -352,7 +352,11 @@ export function NotesPage() {
                     workspaces={workspaces}
                     onClose={() => setFolderModal(null)}
                     onCreate={async (input) => { await createFolder(input); setFolderModal(null); }}
-                    onUpdate={async (id, input) => { await updateFolder(id, input); setFolderModal(null); }}
+                    onUpdate={async (id, input) => {
+                        const updated = await updateFolder(id, input);
+                        updateFolderMeta(id, updated.name);
+                        setFolderModal(null);
+                    }}
                     onDelete={async (id) => {
                         const affectedNoteIds = notes
                             .filter((n) => n.folderId === id)
