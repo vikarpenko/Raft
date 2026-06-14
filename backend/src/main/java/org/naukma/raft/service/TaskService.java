@@ -9,6 +9,7 @@ import org.naukma.raft.entity.Task;
 import org.naukma.raft.entity.User;
 import org.naukma.raft.entity.Workspace;
 import org.naukma.raft.enums.TaskStatus;
+import org.naukma.raft.enums.WorkspaceType;
 import org.naukma.raft.errorsHadling.AccessDeniedException;
 import org.naukma.raft.errorsHadling.ConflictException;
 import org.naukma.raft.errorsHadling.NotFoundException;
@@ -50,6 +51,11 @@ public class TaskService {
         User user = getUser(userId);
         Workspace workspace = resolveWorkspace(user, request.getWorkspaceId());
 
+        User assignee = resolveAssignee(workspace, request.getAssigneeId());
+        if (assignee == null && workspace.getType() == WorkspaceType.PERSONAL) {
+            assignee = user;
+        }
+
         Task task = Task.builder()
                 .creator(user)
                 .workspace(workspace)
@@ -59,7 +65,7 @@ public class TaskService {
                 .status(request.getStatus())
                 .dueDate(request.getDueDate())
                 .dueTime(request.getDueTime())
-                .assignee(resolveAssignee(workspace, request.getAssigneeId()))
+                .assignee(assignee)
                 .build();
 
         Task savedTask = taskRepository.save(task);
