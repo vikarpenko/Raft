@@ -22,6 +22,9 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
     const [submitting, setSubmitting] = useState(false);
 
     const isEditing = !!folder;
+    const selectedWorkspace = workspaces.find(w => w.id === workspaceId);
+    const isPersonalWorkspace = selectedWorkspace?.type === 'PERSONAL';
+    const effectiveType = isPersonalWorkspace ? 'PERSONAL' : type;
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
@@ -32,7 +35,7 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
             if (folder) {
                 await onUpdate(folder.id, {name: trimmed});
             } else {
-                await onCreate({name: trimmed, type, workspaceId});
+                await onCreate({name: trimmed, type: effectiveType, workspaceId});
             }
         } finally {
             setSubmitting(false);
@@ -87,19 +90,21 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
                             </select>
                         </label>
 
-                        <label className="modal__field">
-                            <span>Type</span>
-                            <select
-                                value={type}
-                                onChange={(e) => setType(e.target.value as FolderType)}
-                            >
-                                {TYPES.map((value) => (
-                                    <option key={value} value={value}>
-                                        {value === 'PERSONAL' ? 'Personal' : 'Shared'}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
+                        {!isPersonalWorkspace && (
+                            <label className="modal__field">
+                                <span>Type</span>
+                                <select
+                                    value={type}
+                                    onChange={(e) => setType(e.target.value as FolderType)}
+                                >
+                                    {TYPES.map((value) => (
+                                        <option key={value} value={value}>
+                                            {value === 'PERSONAL' ? 'Personal' : 'Shared'}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
+                        )}
                     </div>
                 )}
 
@@ -115,7 +120,7 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
                     <button type="button" className="modal__btn modal__btn--ghost" onClick={onClose}>
                         Cancel
                     </button>
-                    <button type="submit" className="modal__btn modal__btn--primary" disabled={!name.trim()}>
+                    <button type="submit" className="modal__btn modal__btn--primary" disabled={!name.trim() || submitting}>
                         {folder ? 'Save' : 'Add'}
                     </button>
                 </div>
