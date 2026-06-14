@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getWorkspaces } from '@/api/workspaces';
 import { WorkspaceCard } from '@/components/workspace/WorkspaceCard';
-import { Icon } from '@/lib/icons';
 import type { Workspace } from '@/types/workspace';
 import './SpacesWidget.css';
 
@@ -37,24 +36,24 @@ export function SpacesWidget() {
     <section className="dash-spaces">
       <header className="dash-spaces__head">
         <h2 className="dash-spaces__title">Spaces</h2>
-        <button
-          type="button"
-          className="dash-spaces__add"
-          onClick={() => navigate('/spaces')}
-          aria-label="New space"
-        >
-          <Icon name="plus" size={20} />
-        </button>
+        {workspaces.length > 0 && (
+          <Link to="/spaces" className="dash-spaces__view-all">
+            Show all ({workspaces.length})
+          </Link>
+        )}
       </header>
 
       {loading ? (
         <p className="dash-spaces__muted">Loading&hellip;</p>
       ) : error ? (
         <p className="dash-spaces__muted">Couldn&rsquo;t load spaces.</p>
-      ) : recent.length === 0 ? (
+      ) : workspaces.length === 0 ? (
         <p className="dash-spaces__muted">No spaces yet.</p>
       ) : (
-        <div className="dash-spaces__grid">
+        <div
+          className="dash-spaces__grid"
+          style={{ gridTemplateColumns: `repeat(${recent.length}, minmax(0, 1fr))` }}
+        >
           {recent.map((ws) => (
             <WorkspaceCard key={ws.id} workspace={ws} onOpen={(id) => navigate(`/spaces/${id}`)} />
           ))}

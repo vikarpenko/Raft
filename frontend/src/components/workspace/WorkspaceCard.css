@@ -57,3 +57,11 @@
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
+
+@media (max-width: 600px) {
+  .scard__top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+}
