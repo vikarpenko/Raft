@@ -113,6 +113,19 @@ export function usePinboard() {
         [pins]
     );
 
+    const removePinByNoteId = (noteId: string) => {
+        setPins((prev) => prev.filter((p) => p.noteId !== noteId));
+    };
+
+    const updatePinByNote = (note: Note) => {
+        setPins((prev) => prev.map((p) =>
+            p.noteId === note.id
+                ? { ...p, title: note.title, text: note.content }
+                : p
+        ));
+    };
+
+
     return {
         pins,
         loading,
@@ -121,6 +134,8 @@ export function usePinboard() {
         boardRef,
         fileInputRef,
         pinnedNoteIds,
+        removePinByNoteId,
+        updatePinByNote,
         pinNote,
         unpinByNoteId,
         unpinItem,
