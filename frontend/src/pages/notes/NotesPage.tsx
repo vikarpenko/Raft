@@ -23,7 +23,7 @@ export function NotesPage() {
     const { user, loading: authLoading } = useAuth();
     const { workspaces, spaceOptions } = useWorkspaces();
 
-    const { notes, loading: notesLoading, create: createNote, update: updateNote, remove: removeNote } = useNotes();
+    const { notes, loading: notesLoading, create: createNote, update: updateNote, remove: removeNote, removeByFolderId } = useNotes();
     const { folders, loading: foldersLoading, create: createFolder, update: updateFolder, remove: removeFolder } = useFolders();
     const {
         pins,
@@ -35,6 +35,7 @@ export function NotesPage() {
         pinnedNoteIds,
         removePinByNoteId,
         updatePinByNote,
+        removePinsByNoteIds,
         pinNote,
         unpinByNoteId,
         unpinItem,
@@ -352,7 +353,16 @@ export function NotesPage() {
                     onClose={() => setFolderModal(null)}
                     onCreate={async (input) => { await createFolder(input); setFolderModal(null); }}
                     onUpdate={async (id, input) => { await updateFolder(id, input); setFolderModal(null); }}
-                    onDelete={async (id) => { await removeFolder(id); setFolderModal(null); }}
+                    onDelete={async (id) => {
+                        const affectedNoteIds = notes
+                            .filter((n) => n.folderId === id)
+                            .map((n) => n.id);
+
+                        await removeFolder(id);
+                        removeByFolderId(id);
+                        removePinsByNoteIds(affectedNoteIds);
+                        setFolderModal(null);
+                    }}
                 />
             )}
         </div>

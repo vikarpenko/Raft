@@ -43,7 +43,7 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
     };
 
     const handleDelete = async () => {
-        if (!folder || !window.confirm('Delete this folder?')) return;
+        if (!folder || !window.confirm('Are you sure you want to delete this folder? All notes inside this folder will be permanently deleted.')) return;
         setSubmitting(true);
         try {
             onDelete(folder.id);

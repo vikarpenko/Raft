@@ -36,5 +36,9 @@ export function useNotes() {
         setNotes((prev) => prev.filter((n) => n.id !== id));
     };
 
-    return { notes, loading, create, update, remove };
+    const removeByFolderId = (folderId: string) => {
+        setNotes((prev) => prev.filter((n) => n.folderId !== folderId));
+    };
+
+    return { notes, loading, create, update, remove, removeByFolderId };
 }
