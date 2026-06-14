@@ -11,24 +11,24 @@ export function ExpenseSummary({ stats, currentUserId }: Props) {
     return (
         <div className="we__summary">
             <div className="we__summary-item">
-                <span className="we__summary-label">Total spent</span>
-                <span className="we__summary-value">{fmt(stats.totalAmount)}</span>
+                <span className="we__summary-label" title="Total spent">Total spent</span>
+                <span className="we__summary-value" title={fmt(stats.totalAmount)}>{fmt(stats.totalAmount)}</span>
             </div>
 
             {myBalance && (
                 <div className={`we__summary-item ${myBalance.balance < 0 ? 'we__summary-item--owe' : ''}`}>
-                    <span className="we__summary-label">
+                    <span className="we__summary-label" title={myBalance.balance >= 0 ? 'Owed to me' : 'I owe'}>
                         {myBalance.balance >= 0 ? 'Owed to me' : 'I owe'}
                     </span>
-                    <span className="we__summary-value">
+                    <span className="we__summary-value" title={fmt(Math.abs(myBalance.balance))}>
                         {fmt(Math.abs(myBalance.balance))}
                     </span>
                 </div>
             )}
 
             <div className="we__summary-item">
-                <span className="we__summary-label">Transactions</span>
-                <span className="we__summary-value">{stats.recentExpenses.length}</span>
+                <span className="we__summary-label" title="Transactions">Transactions</span>
+                <span className="we__summary-value" title="stats.recentExpenses.length">{stats.recentExpenses.length}</span>
             </div>
         </div>
     );

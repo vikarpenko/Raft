@@ -5,6 +5,16 @@
     border-radius: var(--radius-xl);
     overflow: hidden;
     margin-bottom: var(--space-4);
+    container-type: inline-size;
+}
+
+@container (max-width: 420px) {
+    .we__summary-value {
+        font-size: var(--text-xs);
+    }
+    .we__summary-item {
+        padding: var(--space-2) var(--space-3);
+    }
 }
 
 .we__summary-item {
@@ -31,6 +41,9 @@
 
 .we__summary-value {
     font-size: var(--text-lg);
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.2;
     font-weight: var(--weight-bold);
     color: var(--color-text);
 }
@@ -40,6 +53,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: default;
 }
 
 .we__summary-item--owe .we__summary-value {
