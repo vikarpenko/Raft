@@ -1,6 +1,7 @@
 export interface Achievement {
     id: string;
-    name: string;
+    code: string;
+    title: string;
     description: string;
     icon: string;
     earned: boolean;
