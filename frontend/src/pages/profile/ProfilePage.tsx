@@ -1,12 +1,9 @@
 import { useProfile } from '@/hooks/profile/useProfile';
-import { useAchievements } from '@/hooks/profile/useAchievements';
-import { formatDate } from '@/lib/notes';
-import type { Achievement } from '@/types/achievement';
+import { AchievementsList } from '@/components/achievements/AchievementsList';
 import './ProfilePage.css';
 
 export function ProfilePage() {
     const { user, remove } = useProfile();
-    const { earned, locked, loading: achievementsLoading } = useAchievements();
 
     if (!user) return null;
 
@@ -35,38 +32,7 @@ export function ProfilePage() {
                 </div>
             </div>
 
-            <section className="profile-section">
-                <h2 className="profile-section__title">
-                    Achievements{!achievementsLoading && <> — {earned.length} earned</>}
-                </h2>
-                {achievementsLoading ? (
-                    <p className="profile__muted">Loading…</p>
-                ) : (
-                    <div className="profile-achievements">
-                        {earned.map((a: Achievement) => (
-                            <div key={a.id} className="achievement-card achievement-card--earned">
-                                <span className="achievement-card__icon">{a.icon}</span>
-                                <div className="achievement-card__body">
-                                    <p className="achievement-card__name">{a.name}</p>
-                                    <p className="achievement-card__desc">{a.description}</p>
-                                    {a.earnedAt && (
-                                        <p className="achievement-card__date">Earned {formatDate(a.earnedAt)}</p>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                        {locked.map((a: Achievement) => (
-                            <div key={a.id} className="achievement-card achievement-card--locked">
-                                <span className="achievement-card__icon">{a.icon}</span>
-                                <div className="achievement-card__body">
-                                    <p className="achievement-card__name">{a.name}</p>
-                                    <p className="achievement-card__desc">{a.description}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </section>
+            <AchievementsList />
 
             <section className="profile-section">
                 <h2 className="profile-section__title">Account</h2>
