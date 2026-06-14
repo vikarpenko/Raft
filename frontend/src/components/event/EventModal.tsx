@@ -8,15 +8,6 @@ import type { Workspace } from '@/types/workspace';
 
 const TITLE_MAX = 120;
 const DESCRIPTION_MAX = 255;
-const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
-
-function formatTime(raw: string, prev: string): string {
-  const digits = raw.replace(/\D/g, '').slice(0, 4);
-  const deleting = raw.length < prev.length;
-  if (digits.length >= 3) return `${digits.slice(0, 2)}:${digits.slice(2)}`;
-  if (digits.length === 2 && !deleting) return `${digits}:`;
-  return digits;
-}
 
 interface EventModalProps {
   event: Event | null;
@@ -54,8 +45,8 @@ export function EventModal({ event, defaultDate, defaultWorkspaceId, onClose, on
     submitEvent.preventDefault();
     const trimmed = title.trim();
     if (!trimmed) return;
-    if (!TIME_PATTERN.test(startTime) || !TIME_PATTERN.test(endTime)) {
-      setError('Enter start and end time as HH:mm');
+    if (!startTime || !endTime) {
+      setError('Enter start and end time');
       return;
     }
     const start = `${startDate}T${startTime}`;
@@ -194,14 +185,7 @@ export function EventModal({ event, defaultDate, defaultWorkspaceId, onClose, on
         </label>
         <label className="modal__field">
           <span>Start time</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="HH:mm"
-            maxLength={5}
-            value={startTime}
-            onChange={(e) => setStartTime(formatTime(e.target.value, startTime))}
-          />
+          <input type="time" lang="en-GB" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
         </label>
       </div>
 
@@ -212,14 +196,7 @@ export function EventModal({ event, defaultDate, defaultWorkspaceId, onClose, on
         </label>
         <label className="modal__field">
           <span>End time</span>
-          <input
-            type="text"
-            inputMode="numeric"
-            placeholder="HH:mm"
-            maxLength={5}
-            value={endTime}
-            onChange={(e) => setEndTime(formatTime(e.target.value, endTime))}
-          />
+          <input type="time" lang="en-GB" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
         </label>
       </div>
 

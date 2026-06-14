@@ -52,18 +52,6 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
     });
   }, [task, defaultWorkspaceId]);
 
-  const handleTimeChange = (raw: string) => {
-    const digits = raw.replace(/\D/g, '').slice(0, 4);
-    const deleting = raw.length < dueTime.length;
-    if (digits.length >= 3) {
-      setDueTime(`${digits.slice(0, 2)}:${digits.slice(2)}`);
-    } else if (digits.length === 2 && !deleting) {
-      setDueTime(`${digits}:`);
-    } else {
-      setDueTime(digits);
-    }
-  };
-
   const cancelEdit = () => {
     if (!task) {
       onClose();
@@ -247,14 +235,10 @@ export function TaskModal({ task, defaultDate, defaultWorkspaceId, members, onCl
           <label className="modal__field">
             <span>Time</span>
             <input
-              type="text"
-              inputMode="numeric"
-              placeholder="HH:mm"
-              maxLength={5}
-              pattern="([01][0-9]|2[0-3]):[0-5][0-9]"
-              title="24-hour time, e.g. 14:30"
+              type="time"
+              lang="en-GB"
               value={dueTime}
-              onChange={(event) => handleTimeChange(event.target.value)}
+              onChange={(event) => setDueTime(event.target.value)}
             />
           </label>
         </div>
