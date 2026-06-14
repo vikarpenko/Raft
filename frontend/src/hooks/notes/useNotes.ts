@@ -36,5 +36,15 @@ export function useNotes() {
         setNotes((prev) => prev.filter((n) => n.id !== id));
     };
 
-    return { notes, loading, create, update, remove };
+    const removeByFolderId = (folderId: string) => {
+        setNotes((prev) => prev.filter((n) => n.folderId !== folderId));
+    };
+
+    const updateFolderMeta = (folderId: string, folderName: string) => {
+        setNotes((prev) => prev.map((n) =>
+            n.folderId === folderId ? { ...n, folderName } : n
+        ));
+    };
+
+    return { notes, loading, create, update, remove, removeByFolderId, updateFolderMeta};
 }

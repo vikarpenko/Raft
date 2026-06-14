@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.naukma.raft.enums.FolderType;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "folders")
@@ -39,4 +41,7 @@ public class Folder {
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime created;
+
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Note> notes = new ArrayList<>();
 }

@@ -125,6 +125,10 @@ export function usePinboard() {
         ));
     };
 
+    const removePinsByNoteIds = (noteIds: string[]) => {
+        const noteIdSet = new Set(noteIds);
+        setPins((prev) => prev.filter((p) => !p.noteId || !noteIdSet.has(p.noteId)));
+    };
 
     return {
         pins,
@@ -136,6 +140,7 @@ export function usePinboard() {
         pinnedNoteIds,
         removePinByNoteId,
         updatePinByNote,
+        removePinsByNoteIds,
         pinNote,
         unpinByNoteId,
         unpinItem,
