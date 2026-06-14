@@ -89,3 +89,39 @@ export function byDueTime(a: Task, b: Task): number {
 export function byDeadline(a: Task, b: Task): number {
   return taskDueAt(a).getTime() - taskDueAt(b).getTime();
 }
+
+export interface TaskGroup {
+  key: string;
+  title: string;
+  overdue: boolean;
+  tasks: Task[];
+}
+
+export function groupByDateState(tasks: Task[], now: Date, sortFn: (a: Task, b: Task) => number): TaskGroup[] {
+  const today = todayISO(now);
+  const withState = tasks.map((task) => ({ task, state: getTaskState(task, now) }));
+  const pick = (fn: (x: { task: Task; state: TaskState }) => boolean) =>
+    withState.filter(fn).map((x) => x.task).sort(sortFn);
+  return [
+    { key: 'overdue', title: 'Overdue', overdue: true, tasks: pick((x) => x.state === 'overdue') },
+    { key: 'today', title: 'Today', overdue: false, tasks: pick((x) => x.state === 'upcoming' && isDueOn(x.task, today)) },
+    { key: 'upcoming', title: 'Upcoming', overdue: false, tasks: pick((x) => x.state === 'upcoming' && !isDueOn(x.task, today)) },
+  ];
+}
+
+export type TaskStatusFilter = 'all' | 'active' | 'completed';
+export type TaskSort = 'deadline' | 'priority';
+
+export function taskSorter(sort: TaskSort): (a: Task, b: Task) => number {
+  return sort === 'priority' ? byPriority : byDeadline;
+}
+
+export function buildTaskSections(active: Task[], completed: Task[], now: Date, sortFn: (a: Task, b: Task) => number, statusFilter: TaskStatusFilter,
+): TaskGroup[] {
+  return [
+    ...(statusFilter !== 'completed' ? groupByDateState(active, now, sortFn) : []),
+    ...(statusFilter !== 'active' && completed.length > 0
+      ? [{ key: 'completed', title: 'Completed', overdue: false, tasks: [...completed].sort(sortFn) }]
+      : []),
+  ].filter((section) => section.tasks.length > 0);
+}
