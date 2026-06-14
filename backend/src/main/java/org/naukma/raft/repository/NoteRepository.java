@@ -29,5 +29,5 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
 
     long countByFolder_Id(Long folderId);
 
-    long countByCreatedById(Long userId);
+    long countByCreator_Id(Long userId);
 }

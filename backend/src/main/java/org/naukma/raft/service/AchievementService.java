@@ -85,7 +85,7 @@ public class AchievementService {
     private void checkNotesCreated(User user, int threshold, String code) {
         if (alreadyEarned(user, code)) return;
 
-        long count = noteRepository.countByCreatedById(user.getId());
+        long count = noteRepository.countByCreator_Id(user.getId());
         if (count >= threshold) {
             grantAchievement(user, code);
         }
