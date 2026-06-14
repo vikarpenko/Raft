@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { addDays, byDueTime, getTaskState, isDueOn, priorityLabels, todayISO } from '@/lib/tasks';
 import { colorHex } from '@/lib/workspaceColors';
+import { Icon } from '@/lib/icons';
 import type { Task, TaskState } from '@/types/task';
 import './TodayTasksWidget.css';
 
@@ -14,9 +15,10 @@ interface TodayTasksWidgetProps {
   tasks: Task[];
   loading: boolean;
   error?: boolean;
+  onComplete?: (id: string) => void;
 }
 
-export function TodayTasksWidget({ tasks, loading, error }: TodayTasksWidgetProps) {
+export function TodayTasksWidget({ tasks, loading, error, onComplete }: TodayTasksWidgetProps) {
   const now = new Date();
 
   const activeOn = (isoDate: string): Row[] =>
@@ -52,20 +54,31 @@ export function TodayTasksWidget({ tasks, loading, error }: TodayTasksWidgetProp
                 <span className="timeline__rail" />
               </div>
               <div className={`timeline__card${overdue ? ' timeline__card--overdue' : ''}`}>
-                <span className={`timeline__priority timeline__priority--${task.priority.toLowerCase()}`}>
-                  {priorityLabels[task.priority]}
-                </span>
-                <p className="timeline__name">
-                  {task.title}
-                  {overdue && <span className="timeline__tag">Overdue</span>}
-                </p>
-                {task.description && <p className="timeline__desc">{task.description}</p>}
-                {task.workspaceName && (
-                  <p className="timeline__space">
-                    <span className="timeline__space-dot" style={{ background: colorHex(task.workspaceColor) }} />
-                    {task.workspaceName}
+                <button
+                  type="button"
+                  className="timeline__check"
+                  onClick={() => onComplete?.(task.id)}
+                  aria-label={`Mark "${task.title}" as done`}
+                  title="Mark as done"
+                >
+                  <Icon name="check" size={13} />
+                </button>
+                <div className="timeline__content">
+                  <span className={`timeline__priority timeline__priority--${task.priority.toLowerCase()}`}>
+                    {priorityLabels[task.priority]}
+                  </span>
+                  <p className="timeline__name">
+                    {task.title}
+                    {overdue && <span className="timeline__tag">Overdue</span>}
                   </p>
-                )}
+                  {task.description && <p className="timeline__desc">{task.description}</p>}
+                  {task.workspaceName && (
+                    <p className="timeline__space">
+                      <span className="timeline__space-dot" style={{ background: colorHex(task.workspaceColor) }} />
+                      {task.workspaceName}
+                    </p>
+                  )}
+                </div>
               </div>
             </li>
           </Fragment>
