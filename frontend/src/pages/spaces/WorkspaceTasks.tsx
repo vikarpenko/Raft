@@ -21,7 +21,14 @@ export function WorkspaceTasks({ workspaceId, detail, currentUserId }: Workspace
 
   const shared = detail.type === 'SHARED';
 
-  const cycleStatus = (task: Task) => update(task.id, { status: nextStatus[task.status] });
+  const cycleStatus = (task: Task) => {
+    const next = nextStatus[task.status];
+    const patch: Partial<Task> = { status: next };
+    if ((next === 'IN_PROGRESS' || next === 'COMPLETED') && !task.assignee && currentUserId) {
+      patch.assigneeId = currentUserId;
+    }
+    return update(task.id, patch);
+  };
   const assignToMe = (task: Task) => {
     if (currentUserId) update(task.id, { assigneeId: currentUserId });
   };
