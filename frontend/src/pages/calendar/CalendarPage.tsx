@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { TaskModal } from '@/components/task/TaskModal';
 import { EventModal } from '@/components/event/EventModal';
 import { MultiSelectFilter } from '@/components/common/MultiSelectFilter';
@@ -28,8 +29,16 @@ export function CalendarPage() {
   const { tasks, create, update, remove } = useTasks();
   const { events, create: createEvent, update: updateEvent, remove: removeEvent } = useEvents();
   const { workspaces, spaceOptions } = useWorkspaces();
-  const [view, setView] = useState<View>('month');
-  const [focus, setFocus] = useState(() => new Date());
+  const [searchParams] = useSearchParams();
+  const dateParam = searchParams.get('date');
+  const [view, setView] = useState<View>(dateParam ? 'day' : 'month');
+  const [focus, setFocus] = useState(() => {
+    if (dateParam) {
+      const parsed = new Date(`${dateParam}T00:00`);
+      if (!Number.isNaN(parsed.getTime())) return parsed;
+    }
+    return new Date();
+  });
   const [selectedPriorities, setSelectedPriorities] = useState<Set<string>>(() => new Set());
   const [selectedSpaces, setSelectedSpaces] = useState<Set<string>>(() => new Set());
   const [modalTask, setModalTask] = useState<Task | null | undefined>(undefined);

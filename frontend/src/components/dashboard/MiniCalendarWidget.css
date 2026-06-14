@@ -6,13 +6,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-md);
-  text-decoration: none;
   color: inherit;
-  transition: box-shadow var(--transition);
-}
-
-.mini-cal:hover {
-  box-shadow: var(--shadow-lg);
 }
 
 .mini-cal__head {
@@ -20,6 +14,13 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-4);
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.mini-cal__head:hover .mini-cal__chevron {
+  color: var(--color-text-secondary);
 }
 
 .mini-cal__title {
@@ -56,6 +57,12 @@
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: background-color var(--transition);
+}
+
+a.mini-cal__day:not(.mini-cal__day--today):hover {
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
 }
 
 .mini-cal__day--muted {
