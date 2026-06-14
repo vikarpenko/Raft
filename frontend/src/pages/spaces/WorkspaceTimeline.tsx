@@ -99,8 +99,8 @@ export function WorkspaceTimeline({ workspaceId, color }: WorkspaceTimelineProps
                   onClick={() => setModalEvent(item.event)}
                   title={`${eventTimeRange(item.event)} ${item.event.title}`}
                 >
-                  <span className="wtl__event-time">{eventTimeRange(item.event)}</span>
                   <span className="wtl__event-title">{item.event.title}</span>
+                  <span className="wtl__event-time">{eventTimeRange(item.event)}</span>
                 </button>
               );
             })}

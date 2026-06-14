@@ -159,8 +159,8 @@ export function TimeGrid({
                     onClick={() => onSelectEvent(item.event)}
                     title={`${eventTimeRange(item.event)} ${item.event.title}`}
                   >
-                    {showTime && <span className="tg__event-time">{eventTimeRange(item.event)}</span>}
                     <span className="tg__event-title">{item.event.title}</span>
+                    {showTime && <span className="tg__event-time">{eventTimeRange(item.event)}</span>}
                   </button>
                 );
               })}
