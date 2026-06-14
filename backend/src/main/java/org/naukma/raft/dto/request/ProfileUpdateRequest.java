@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import org.hibernate.validator.constraints.URL;
 
 @Data
 public class ProfileUpdateRequest {
@@ -28,6 +27,6 @@ public class ProfileUpdateRequest {
     @Size(max = 50, message = "Last name must be at most 50 characters")
     private String lastName;
 
-    @URL(message = "Invalid URL")
+    @Pattern(regexp = "^(https?://.+|/[A-Za-z0-9._\\-/]+)?$", message = "Avatar must be a valid path or URL")
     private String avatar;
 }
