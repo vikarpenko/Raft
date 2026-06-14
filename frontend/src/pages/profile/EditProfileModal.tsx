@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Modal } from '@/components/common/Modal';
 import { updateUser } from '@/api/user';
+import { PRESET_AVATARS } from '@/lib/avatars';
 import type { User, ProfileUpdateRequest } from '@/types/user';
 
 interface Props {
@@ -89,15 +90,31 @@ export function EditProfileModal({ user, onClose, onSave }: Props) {
                 />
             </label>
 
-            <label className="modal__field-wrap">
-                <span className="modal__label">Avatar URL</span>
-                <input
-                    className="modal__input"
-                    value={avatar}
-                    onChange={(e) => setAvatar(e.target.value)}
-                    placeholder="https://…"
-                />
-            </label>
+            <div className="modal__field-wrap">
+                <span className="modal__label">Avatar</span>
+                <div className="modal__avatars">
+                    <button
+                        type="button"
+                        className="modal__avatar modal__avatar--none"
+                        data-active={!avatar}
+                        onClick={() => setAvatar('')}
+                        title="No avatar"
+                    >
+                        {(firstName[0] ?? '') + (lastName[0] ?? '')}
+                    </button>
+                    {PRESET_AVATARS.map((src) => (
+                        <button
+                            type="button"
+                            key={src}
+                            className="modal__avatar"
+                            data-active={avatar === src}
+                            onClick={() => setAvatar(src)}
+                        >
+                            <img src={src} alt="" />
+                        </button>
+                    ))}
+                </div>
+            </div>
 
             {error && <p className="modal__error">{error}</p>}
 
