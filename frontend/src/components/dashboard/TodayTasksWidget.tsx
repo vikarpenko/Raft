@@ -6,7 +6,7 @@ import { Icon } from '@/lib/icons';
 import type { Task, TaskState } from '@/types/task';
 import './TodayTasksWidget.css';
 
-const MAX_TODAY = 5;
+const MAX_TODAY = 3;
 const MAX_TOMORROW = 3;
 
 type Row = { task: Task; state: TaskState };
