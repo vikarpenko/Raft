@@ -43,7 +43,7 @@ public class NoteService {
         }
         return noteRepository.findByFolder_IdInOrderByUpdatedAtDesc(accessibleFolderIds)
                 .stream()
-                .map(this::mapToResponse)
+                .map(note -> mapToResponse(note, userId))
                 .toList();
     }
 
@@ -56,7 +56,7 @@ public class NoteService {
         List<Note> found = noteRepository.searchByTitleOrContent(query.trim(), PageRequest.of(0, maxResults));
         return found.stream()
                 .filter(note -> accessibleFolderIds.contains(note.getFolder().getId()))
-                .map(this::mapToResponse)
+                .map(note -> mapToResponse(note, userId))
                 .toList();
     }
 
@@ -73,12 +73,12 @@ public class NoteService {
                 .build();
 
         Note saved = noteRepository.save(note);
-        return mapToResponse(saved);
+        return mapToResponse(saved, userId);
     }
 
     @Transactional
     public NoteResponse updateNote(Long userId, Long noteId, NotePatchRequest request) {
-        Note note = getAccessibleNote(userId, noteId);
+        Note note = getMutableNote(userId, noteId);
 
         if (request.getTitle() != null) {
             note.setTitle(request.getTitle());
@@ -87,12 +87,12 @@ public class NoteService {
             note.setContent(request.getContent());
         }
         Note updated = noteRepository.save(note);
-        return mapToResponse(updated);
+        return mapToResponse(updated, userId);
     }
 
     @Transactional
     public void deleteNote(Long userId, Long noteId) {
-        Note note = getAccessibleNote(userId, noteId);
+        Note note = getMutableNote(userId, noteId);
         noteRepository.delete(note);
     }
 
@@ -113,12 +113,21 @@ public class NoteService {
         return folder;
     }
 
-    private Note getAccessibleNote(Long userId, Long noteId) {
+    private Note getMutableNote(Long userId, Long noteId) {
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() -> new NotFoundException("Note not found"));
+
         if (cantAccessWorkspace(userId, note.getFolder().getWorkspace())) {
             throw new AccessDeniedException("You do not have access to this note");
         }
+
+        boolean isCreator = note.getCreator().getId().equals(userId);
+        boolean isWorkspaceOwner = note.getFolder().getWorkspace().getOwner().getId().equals(userId);
+
+        if (!isCreator && !isWorkspaceOwner) {
+            throw new AccessDeniedException("Only the note creator can modify this note");
+        }
+
         return note;
     }
 
@@ -142,7 +151,9 @@ public class NoteService {
                 .collect(Collectors.toSet());
     }
 
-    private NoteResponse mapToResponse(Note note) {
+    private NoteResponse mapToResponse(Note note, Long userId) {
+        boolean canEdit = note.getCreator().getId().equals(userId)
+                || note.getFolder().getWorkspace().getOwner().getId().equals(userId);
         return NoteResponse.builder()
                 .id(note.getId().toString())
                 .title(note.getTitle())
@@ -152,6 +163,7 @@ public class NoteService {
                 .folderId(note.getFolder().getId().toString())
                 .folderName(note.getFolder().getName())
                 .folderType(note.getFolder().getType())
+                .canEdit(canEdit)
                 .creator(UserSummaryResponse.builder()
                         .id(note.getCreator().getId().toString())
                         .username(note.getCreator().getUsername())

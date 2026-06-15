@@ -24,5 +24,6 @@ public class FolderResponse {
     private WorkspaceColor workspaceColor;
     private WorkspaceType workspaceType;
 
+    private boolean canEdit;
     private UserSummaryResponse owner;
 }

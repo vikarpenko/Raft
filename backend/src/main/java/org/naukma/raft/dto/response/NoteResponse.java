@@ -25,5 +25,6 @@ public class NoteResponse {
     private String folderName;
     private FolderType folderType;
 
+    private boolean canEdit;
     private UserSummaryResponse creator;
 }
