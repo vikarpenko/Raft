@@ -111,13 +111,6 @@
   );
 }
 
-.wtl__event-bell {
-  position: absolute;
-  top: 1px;
-  right: 1px;
-  z-index: 3;
-}
-
 .wtl__event {
   position: absolute;
   z-index: 2;

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '@/lib/icons';
 import { EventModal } from '@/components/event/EventModal';
-import { ReminderBell } from '@/components/reminder/ReminderBell';
 import { toISODate } from '@/lib/calendar';
 import { addDays } from '@/lib/tasks';
 import { colorHex, colorTint } from '@/lib/workspaceColors';
@@ -87,8 +86,9 @@ export function WorkspaceTimeline({ workspaceId, color }: WorkspaceTimelineProps
               if (item.kind !== 'event') return null;
               const { left, width } = columnBox(item.col, item.cols, item.reserve);
               return (
-                <div
+                <button
                   key={item.key}
+                  type="button"
                   className="wtl__event"
                   style={{
                     top: minutesToPx(item.startMin),
@@ -103,16 +103,7 @@ export function WorkspaceTimeline({ workspaceId, color }: WorkspaceTimelineProps
                 >
                   <span className="wtl__event-title">{item.event.title}</span>
                   <span className="wtl__event-time">{eventTimeRange(item.event)}</span>
-                  <span className="wtl__event-bell">
-                    <ReminderBell
-                      compact
-                      reminder={reminderForEvent(item.event.id)}
-                      anchorISO={item.event.startTime.slice(0, 16)}
-                      onSet={(time) => setEventReminder(item.event.id, time)}
-                      onClear={removeReminder}
-                    />
-                  </span>
-                </div>
+                </button>
               );
             })}
             {dayEvents.length === 0 && <p className="wtl__empty">No events this day</p>}
@@ -125,10 +116,13 @@ export function WorkspaceTimeline({ workspaceId, color }: WorkspaceTimelineProps
           event={modalEvent}
           defaultDate={iso}
           defaultWorkspaceId={workspaceId}
+          reminder={modalEvent ? reminderForEvent(modalEvent.id) : null}
           onClose={() => setModalEvent(undefined)}
           onCreate={handleCreate}
           onUpdate={handleUpdate}
           onDelete={handleDelete}
+          onSetReminder={modalEvent ? (time) => setEventReminder(modalEvent.id, time) : undefined}
+          onClearReminder={removeReminder}
         />
       )}
     </section>
