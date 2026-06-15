@@ -12,8 +12,8 @@ export const WORKSPACE_COLORS: Record<WorkspaceColor, string> = {
   INDIGO: '#6b6fd4',
   VIOLET: '#9579d4',
   PINK: '#d977a8',
-  ROSE: '#e55973',
-  GRAY: '#a8a8a8',
+  ROSE: '#deabb0',
+  GRAY: '#8a7f83',
 };
 
 export const WORKSPACE_COLOR_NAMES = Object.keys(WORKSPACE_COLORS) as WorkspaceColor[];

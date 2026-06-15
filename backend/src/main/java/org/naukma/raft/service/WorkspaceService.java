@@ -110,7 +110,7 @@ public class WorkspaceService {
                 Workspace.builder()
                         .name("Personal")
                         .type(WorkspaceType.PERSONAL)
-                        .color(WorkspaceColor.YELLOW)
+                        .color(WorkspaceColor.ROSE)
                         .owner(user)
                         .build()
         );

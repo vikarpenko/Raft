@@ -13,7 +13,7 @@ export const ACCENT_PRESETS: AccentPreset[] = [
   { name: 'Indigo', value: '#6b6fd4' },
   { name: 'Violet', value: '#9579d4' },
   { name: 'Pink', value: '#d977a8' },
-  { name: 'Grey', value: '#626262' },
+  { name: 'Grey', value: '#605a5a' },
 ];
 
 export const DEFAULT_ACCENT = ACCENT_PRESETS[0].value;
