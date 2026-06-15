@@ -7,6 +7,10 @@ export const priorityLabels: Record<TaskPriority, string> = {
   HIGH: 'High',
 };
 
+export function taskAnchorISO(task: Task): string {
+  return `${task.dueDate}T${task.dueTime ?? '09:00'}`;
+}
+
 export const priorityColors: Record<TaskPriority, string> = {
   HIGH: 'var(--color-priority-high)',
   MEDIUM: 'var(--color-priority-medium)',

@@ -2,6 +2,11 @@ export function toISODate(date: Date): string {
   return date.toLocaleDateString('en-CA');
 }
 
+export function toDateTimeLocal(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
 export function monthGridDays(year: number, month: number): Date[] {
   const first = new Date(year, month, 1);
   const offset = (first.getDay() + 6) % 7;

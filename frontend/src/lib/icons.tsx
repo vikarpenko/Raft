@@ -2,7 +2,7 @@ import {
   LayoutDashboard, FolderKanban, NotebookPen, ListChecks, Calendar, BarChart3, Boxes, MessagesSquare,
   Wallet, Inbox, Settings, HelpCircle, LogOut, Search, Bell, Plus, ChevronDown, ChevronLeft, ChevronRight,
   Menu, X, Check, Folder, FolderPlus, FilePlus, Pencil, Pin, PinOff, MoreHorizontal, Trash2, MailCheck,
-  Award, Sun, Moon, Monitor, Send, CircleStar, CircleUserRound, type LucideIcon,
+  Award, Sun, Moon, Monitor, Send, CircleStar, CircleUserRound, BellRing, type LucideIcon,
 } from 'lucide-react';
 
 const icons = {
@@ -21,6 +21,7 @@ const icons = {
   logout: LogOut,
   search: Search,
   bell: Bell,
+  'bell-ring': BellRing,
   plus: Plus,
   'chevron-down': ChevronDown,
   'chevron-left': ChevronLeft,
