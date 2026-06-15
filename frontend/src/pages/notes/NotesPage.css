@@ -525,7 +525,7 @@
 
 .note-card__folder {
     font-size: var(--text-xs);
-    background: rgba(255, 255, 255, 0.55);
+    background: var(--color-surface);
     padding: 2px 8px;
     border-radius: var(--radius-full);
     color: var(--color-primary);
@@ -587,7 +587,7 @@
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
-    background: rgba(255, 255, 255, 0.55);
+    background: var(--color-surface);
     border-radius: var(--radius-full);
     padding: 2px 8px 2px 3px;
     max-width: 130px;
