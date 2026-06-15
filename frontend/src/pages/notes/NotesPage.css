@@ -201,12 +201,12 @@
     width: 40px;
     height: 4px;
     border-radius: var(--radius-full);
-    background: rgba(193, 77, 99, 0.35);
+    background: var(--color-primary-soft);
     transition: background var(--transition), width var(--transition);
 }
 
 .pinboard-resize-handle:hover::before {
-    background: rgba(193, 77, 99, 0.7);
+    background: var(--color-primary);
     width: 56px;
 }
 
@@ -233,7 +233,7 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #ef6677, #8a0b29);
+    background: radial-gradient(circle at 35% 35%, var(--color-primary), var(--color-primary-hover));
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     z-index: 2;
 }
