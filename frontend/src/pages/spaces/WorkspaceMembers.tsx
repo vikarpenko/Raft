@@ -3,6 +3,7 @@ import { Icon } from '@/lib/icons';
 import { errorMessage } from '@/api/http';
 import { addMember, removeMember } from '@/api/workspaces';
 import { UserSuggestions } from '@/components/common/UserSuggestions';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { useUserSuggestions } from '@/hooks/common/useUserSuggestions';
 import type { Member } from '@/types/workspace';
 import './WorkspaceMembers.css';
@@ -19,6 +20,7 @@ export function WorkspaceMembers({ workspaceId, members, canManage, currentUserI
   const [inviteLogin, setInviteLogin] = useState('');
   const [memberError, setMemberError] = useState('');
   const [showSuggest, setShowSuggest] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState<Member | null>(null);
   const inviteInputRef = useRef<HTMLInputElement>(null);
   const suggestions = useUserSuggestions(inviteLogin);
 
@@ -74,7 +76,7 @@ export function WorkspaceMembers({ workspaceId, members, canManage, currentUserI
                   type="button"
                   className="wpage__member-remove"
                   aria-label={`Remove ${member.firstName}`}
-                  onClick={() => kick(member.userId)}
+                  onClick={() => setConfirmRemove(member)}
                 >
                   <Icon name="close" size={16} />
                 </button>
@@ -114,6 +116,27 @@ export function WorkspaceMembers({ workspaceId, members, canManage, currentUserI
             Add
           </button>
         </form>
+      )}
+
+      {confirmRemove && (
+        <ConfirmModal
+          title="Remove member?"
+          text={
+            <>
+              Are you sure you want to remove{' '}
+              <b>
+                {confirmRemove.firstName} {confirmRemove.lastName}
+              </b>{' '}
+              from this space?
+            </>
+          }
+          confirmLabel="Remove"
+          onConfirm={() => {
+            kick(confirmRemove.userId);
+            setConfirmRemove(null);
+          }}
+          onCancel={() => setConfirmRemove(null)}
+        />
       )}
     </section>
   );
