@@ -15,6 +15,7 @@ import { ExpensesPage } from '@/pages/expenses/ExpensesPage';
 import { HelpPage } from '@/pages/help/HelpPage';
 import { InboxPage } from '@/pages/inbox/InboxPage';
 import { SettingsPage } from '@/pages/settings/SettingsPage';
+import { ChatsPage } from '@/pages/chat/ChatsPage';
 
 function App() {
     return (
@@ -36,6 +37,7 @@ function App() {
                     <Route path="help" element={<HelpPage />} />
                     <Route path="inbox" element={<InboxPage />} />
                     <Route path="settings" element={<SettingsPage />} />
+                    <Route path="chats" element={<ChatsPage />} />
         </Route>
             </Route>
         </Routes>
