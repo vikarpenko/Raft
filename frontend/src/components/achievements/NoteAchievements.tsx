@@ -1,5 +1,5 @@
-import { Icon } from '@/lib/icons';
-import { useAchievements } from '@/hooks/profile/useAchievements';
+import { Icon } from '@/lib/icons.tsx';
+import { useAchievements } from '@/hooks/profile/useAchievements.ts';
 import '@/components/achievements/TaskAchievements.css';
 
 const NOTE_THRESHOLDS: Record<string, number> = {

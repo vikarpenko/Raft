@@ -15,7 +15,7 @@ import { FolderModal } from '@/components/folder/FolderModal';
 import type { Note } from '@/types/note';
 import type { Folder } from '@/types/folder';
 import './NotesPage.css';
-import {NoteAchievements} from "@/components/note/NoteAchievements.tsx";
+import {NoteAchievements} from "@/components/achievements/NoteAchievements.tsx";
 
 type NoteModalState = { note: Note | null; defaultFolderId?: string } | null;
 type FolderModalState = { folder: Folder | null } | null;

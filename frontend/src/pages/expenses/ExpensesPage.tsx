@@ -5,6 +5,7 @@ import './ExpensesPage.css';
 import {DebtSection} from "@/pages/expenses/DebtSection.tsx";
 import {ExpenseHistoryList} from "@/pages/expenses/ExpenseHistoryList.tsx";
 import {PersonalExpenseSummary} from "@/pages/expenses/PersonalExpenseSummary.tsx";
+import { ExpenseAchievements } from '@/components/achievements/ExpenseAchievements';
 import {useEffect, useState} from "react";
 import { useAuth } from '@/auth/AuthContext';
 
@@ -52,6 +53,8 @@ export function ExpensesPage() {
 
     if (loading) return <p className="wpage__muted">Loading…</p>;
 
+    const totalExpenses = stats?.historyTotal ?? 0;
+
     return (
         <div className="exp-page">
 
@@ -81,14 +84,17 @@ export function ExpensesPage() {
                     />
                 </div>
 
-                <ExpenseHistoryList
-                    expenses={stats?.history ?? []}
-                    currentUserId={user?.id ?? ''}
-                    currentPage={page}
-                    totalPages={stats?.historyTotalPages ?? 0}
-                    onPageChange={setPage}
-                    onSettle={handleSettle}
-                />
+                <div className="exp-page__right">
+                    <ExpenseAchievements expensesCount={totalExpenses} />
+                    <ExpenseHistoryList
+                        expenses={stats?.history ?? []}
+                        currentUserId={user?.id ?? ''}
+                        currentPage={page}
+                        totalPages={stats?.historyTotalPages ?? 0}
+                        onPageChange={setPage}
+                        onSettle={handleSettle}
+                    />
+                </div>
             </div>
         </div>
     );
