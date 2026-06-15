@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +29,7 @@ public class UserAchievement {
     @JoinColumn(name = "achievement_id", nullable = false)
     private Achievement achievement;
 
-    @Column(name = "earned_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "earned_at", nullable = false, updatable = false)
     private LocalDateTime earnedAt;
 }

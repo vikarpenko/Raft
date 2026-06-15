@@ -33,7 +33,7 @@ public class AchievementService {
     private final WorkspaceRepository workspaceRepository;
     private final NotificationService notificationService;
 
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 0 5 * * *")
     public void checkAllUsers() {
         log.info("Starting daily achievement check");
         List<User> users = userRepository.findAll();
@@ -56,7 +56,9 @@ public class AchievementService {
     private void checkTasksCompleted(User user, int threshold, String code) {
         if (alreadyEarned(user, code)) return;
 
-        long completedCount = taskRepository.countByAssigneeIdAndStatus(user.getId(), TaskStatus.COMPLETED);
+        long completedCount = taskRepository.countByAssignee_IdAndStatus(user.getId(), TaskStatus.COMPLETED);
+        System.out.println("User " + user.getId() + " completed tasks: " + completedCount + ", threshold: " + threshold);
+
         if (completedCount >= threshold) {
             grantAchievement(user, code);
         }
@@ -76,7 +78,7 @@ public class AchievementService {
         if (alreadyEarned(user, code)) return;
 
         boolean hasSharedWorkspace = workspaceRepository
-                .existsByOwnerIdAndType(user.getId(), WorkspaceType.SHARED);
+                .existsByOwner_IdAndType(user.getId(), WorkspaceType.SHARED);
         if (hasSharedWorkspace) {
             grantAchievement(user, code);
         }
