@@ -6,6 +6,7 @@ import org.naukma.raft.dto.request.ChatMessagePatchRequest;
 import org.naukma.raft.dto.request.ChatMessageRequest;
 import org.naukma.raft.dto.response.ChatMessageResponse;
 import org.naukma.raft.dto.response.ChatUnreadCountResponse;
+import org.naukma.raft.dto.response.ChatSummaryResponse;
 import org.naukma.raft.security.CustomUserDetails;
 import org.naukma.raft.service.ChatService;
 import org.springframework.http.HttpStatus;
@@ -74,5 +75,12 @@ public class ChatController {
             @AuthenticationPrincipal CustomUserDetails user
     ) {
         return ResponseEntity.ok(chatService.getUnreadCounts(user.getId()));
+    }
+
+    @GetMapping("/workspaces")
+    public ResponseEntity<List<ChatSummaryResponse>> getWorkspaceChats(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return ResponseEntity.ok(chatService.getWorkspaceChatSummaries(user.getId()));
     }
 }

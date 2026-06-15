@@ -6,6 +6,7 @@ import org.naukma.raft.dto.request.ChatMessageRequest;
 import org.naukma.raft.dto.response.ChatMessageResponse;
 import org.naukma.raft.dto.response.UserSummaryResponse;
 import org.naukma.raft.dto.response.ChatUnreadCountResponse;
+import org.naukma.raft.dto.response.ChatSummaryResponse;
 import org.naukma.raft.entity.ChatMessage;
 import org.naukma.raft.entity.User;
 import org.naukma.raft.entity.Workspace;
@@ -27,6 +28,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import java.time.LocalDateTime;
 
@@ -210,5 +212,39 @@ public class ChatService {
         }
 
         return workspaces;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatSummaryResponse> getWorkspaceChatSummaries(Long userId) {
+        return getAccessibleWorkspaces(userId)
+                .values()
+                .stream()
+                .map(workspace -> {
+                    Optional<ChatMessage> lastMessage =
+                            chatMessageRepository.findTopByWorkspace_IdOrderByCreatedAtDesc(workspace.getId());
+
+                    return ChatSummaryResponse.builder()
+                            .workspaceId(workspace.getId().toString())
+                            .workspaceName(workspace.getName())
+                            .lastMessageId(lastMessage
+                                    .map(message -> message.getId().toString())
+                                    .orElse(null))
+                            .lastMessageContent(lastMessage
+                                    .map(ChatMessage::getContent)
+                                    .orElse(null))
+                            .lastMessageSender(lastMessage
+                                    .map(message -> toUserSummary(message.getSender()))
+                                    .orElse(null))
+                            .lastMessageAt(lastMessage
+                                    .map(ChatMessage::getCreatedAt)
+                                    .orElse(null))
+                            .unreadCount(countUnreadMessages(userId, workspace.getId()))
+                            .build();
+                })
+                .sorted(Comparator.comparing(
+                        ChatSummaryResponse::getLastMessageAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
+                .toList();
     }
 }

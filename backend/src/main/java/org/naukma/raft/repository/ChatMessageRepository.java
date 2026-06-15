@@ -18,6 +18,9 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findByWorkspace_IdOrderByCreatedAtDesc(Long workspaceId, Pageable pageable);
 
     @EntityGraph(attributePaths = {"workspace", "sender"})
+    Optional<ChatMessage> findTopByWorkspace_IdOrderByCreatedAtDesc(Long workspaceId);
+
+    @EntityGraph(attributePaths = {"workspace", "sender"})
     @Query("select m from ChatMessage m where m.id = :id")
     Optional<ChatMessage> findDetailedById(@Param("id") Long id);
 
