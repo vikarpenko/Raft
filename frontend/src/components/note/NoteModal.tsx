@@ -62,7 +62,7 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
         <div className="modal" role="dialog" aria-modal="true">
             <div className="modal__scrim" onClick={onClose} />
             <form className="modal__card note-modal" onSubmit={handleSubmit}>
-                <h2 className="modal__title">{!isEditing ? 'Edit note' : 'New note'}</h2>
+                <h2 className="modal__title">{!isEditing ? 'New note' : 'Edit note'}</h2>
 
                 <label className="modal__field modal__field--full">
                     <span>Title</span>
