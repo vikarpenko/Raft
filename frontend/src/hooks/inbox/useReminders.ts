@@ -32,5 +32,27 @@ export function useReminders() {
         setReminders((prev) => prev.filter((r) => r.id !== id));
     };
 
-    return { reminders, loading, create, update, remove };
+    const reminderForTask = (taskId: string) => reminders.find((r) => r.taskId === taskId) ?? null;
+    const reminderForEvent = (eventId: string) => reminders.find((r) => r.eventId === eventId) ?? null;
+
+    const setTaskReminder = (taskId: string, reminderTime: string) => {
+        const existing = reminderForTask(taskId);
+        return existing ? update(existing.id, { reminderTime }) : create({ taskId, reminderTime });
+    };
+    const setEventReminder = (eventId: string, reminderTime: string) => {
+        const existing = reminderForEvent(eventId);
+        return existing ? update(existing.id, { reminderTime }) : create({ eventId, reminderTime });
+    };
+
+    return {
+        reminders,
+        loading,
+        create,
+        update,
+        remove,
+        reminderForTask,
+        reminderForEvent,
+        setTaskReminder,
+        setEventReminder,
+    };
 }
