@@ -1,3 +1,11 @@
+/**
+ * One-off dev script: generates the preset avatar SVGs into `public/avatars`
+ * (referenced by `PRESET_AVATARS` in `src/lib/avatars.ts`).
+ *
+ * Not part of the app build — run manually only when you want to regenerate
+ * the avatars: `node scripts/gen-avatars.mjs`.
+ */
+
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import Avatar from 'boring-avatars';
