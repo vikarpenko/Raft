@@ -5,10 +5,11 @@ import type { Reminder } from '@/types/reminder';
 
 interface ReminderRowProps {
     reminder: Reminder;
+    title?: string;
     onDelete: (id: string) => void;
 }
 
-export function ReminderRow({ reminder, onDelete }: ReminderRowProps) {
+export function ReminderRow({ reminder, title, onDelete }: ReminderRowProps) {
     const [swiped, setSwiped] = useState(false);
     const overdue = new Date(reminder.reminderTime) < new Date() && !reminder.sent;
     const sent = reminder.sent;
@@ -24,7 +25,7 @@ export function ReminderRow({ reminder, onDelete }: ReminderRowProps) {
                 <div className="inbox-row__body">
                     <div className="inbox-row__top">
                         <span className="inbox-row__title">
-                            {reminder.taskId ? 'Task reminder' : reminder.eventId ? 'Event reminder' : 'Reminder'}
+                            {title ?? (reminder.taskId ? 'Task reminder' : reminder.eventId ? 'Event reminder' : 'Reminder')}
                         </span>
                         {sent && <span className="inbox-row__badge inbox-row__badge--sent">Sent</span>}
                         {overdue && !sent && <span className="inbox-row__badge inbox-row__badge--overdue">Overdue</span>}

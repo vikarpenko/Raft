@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useNotifications } from '@/hooks/inbox/useNotifications';
 import { useReminders } from '@/hooks/inbox/useReminders';
+import { useTasks } from '@/hooks/tasks/useTasks';
+import { useEvents } from '@/hooks/events/useEvents';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { Icon } from '@/lib/icons';
 import { NotificationRow } from '@/components/inbox/NotificationRow';
@@ -17,6 +19,11 @@ type SortKey = 'date' | 'type';
 export function InboxPage() {
     const { notifications, unreadCount, loading: nLoading, markOne, markAll, remove: removeNotif } = useNotifications();
     const { reminders, loading: rLoading, remove: removeReminder } = useReminders();
+    const { tasks } = useTasks();
+    const { events } = useEvents();
+
+    const taskTitles = useMemo(() => new Map(tasks.map((t) => [t.id, t.title])), [tasks]);
+    const eventTitles = useMemo(() => new Map(events.map((e) => [e.id, e.title])), [events]);
 
     const TYPE_OPTIONS = [
         { id: 'REMINDER', label: 'Reminder' },
@@ -191,6 +198,7 @@ export function InboxPage() {
                             <ReminderRow
                                 key={r.id}
                                 reminder={r}
+                                title={r.taskId ? taskTitles.get(r.taskId) : r.eventId ? eventTitles.get(r.eventId) : undefined}
                                 onDelete={id => setDeleteTarget({ id, kind: 'reminder' })}
                             />
                         ))
