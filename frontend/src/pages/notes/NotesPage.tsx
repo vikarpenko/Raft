@@ -15,6 +15,7 @@ import { FolderModal } from '@/components/folder/FolderModal';
 import type { Note } from '@/types/note';
 import type { Folder } from '@/types/folder';
 import './NotesPage.css';
+import {NoteAchievements} from "@/components/note/NoteAchievements.tsx";
 
 type NoteModalState = { note: Note | null; defaultFolderId?: string } | null;
 type FolderModalState = { folder: Folder | null } | null;
@@ -70,6 +71,8 @@ export function NotesPage() {
     if (!hasWorkspaces && folders.length === 0) {
         console.warn('No workspace available to create folders');
     }
+
+    const userNotesCount = notes.filter(note => note.creator?.id === user?.id).length;
 
     return (
         <div className="notes">
@@ -132,93 +135,103 @@ export function NotesPage() {
                 </div>
             </section>
 
-            {/* Folders */}
-            <section className="notes-section">
-                <div className="notes-section__head">
-                    <h2 className="notes-section__title">Folders</h2>
-                </div>
-                <div className="notes-filter-bar">
-                    <div className="notes-filter-bar__search">
-                        <Icon name="search" size={14} />
-                        <input
-                            type="search"
-                            placeholder="Search folders"
-                            value={filters.folderSearch}
-                            onChange={(e) => filters.setFolderSearch(e.target.value)}
-                        />
+            {/* Folders and Achievements widget */}
+            <div className="folders-achievements-row">
+                <section className="notes-section folders-section">
+                    <div className="notes-section__head">
+                        <h2 className="notes-section__title">Folders</h2>
                     </div>
-                    {spaceOptions.length > 0 && (
-                        <MultiSelectFilter
-                            options={spaceOptions}
-                            selected={filters.selectedSpaceIds}
-                            onChange={filters.setSelectedSpaceIds}
-                            allLabel="All spaces"
-                            countNoun="spaces"
-                            icon="spaces"
-                        />
-                    )}
-                    <div className="notes-chips">
-                        {FOLDER_TYPE_OPTIONS.map(({ value, label }) => (
-                            <button
-                                key={value}
-                                type="button"
-                                className="notes-chip"
-                                data-active={filters.folderTypeFilter === value}
-                                onClick={() => filters.setFolderTypeFilter(value)}
-                            >
-                                {label}
-                            </button>
-                        ))}
-                    </div>
-                    <button
-                        type="button"
-                        className="notes__add"
-                        onClick={() => setFolderModal({ folder: null })}
-                        disabled={!hasWorkspaces}
-                    >
-                        <Icon name="plus" size={16} />
-                        Add folder
-                    </button>
-                </div>
-                {foldersLoading ? (
-                    <p className="notes__muted">Loading folders…</p>
-                ) : (
-                    <div className="folder-grid">
-                        {filters.filteredFolders.map((folder) => (
-                            <div
-                                key={folder.id}
-                                className={`folder-card${filters.selectedFolderId === folder.id ? ' folder-card--active' : ''}`}
-                                onClick={() => filters.toggleFolder(folder.id)}
-                            >
-                                {folder.canEdit && <button
+                    <div className="notes-filter-bar">
+                        <div className="notes-filter-bar__search">
+                            <Icon name="search" size={14} />
+                            <input
+                                type="search"
+                                placeholder="Search folders"
+                                value={filters.folderSearch}
+                                onChange={(e) => filters.setFolderSearch(e.target.value)}
+                            />
+                        </div>
+                        {spaceOptions.length > 0 && (
+                            <MultiSelectFilter
+                                options={spaceOptions}
+                                selected={filters.selectedSpaceIds}
+                                onChange={filters.setSelectedSpaceIds}
+                                allLabel="All spaces"
+                                countNoun="spaces"
+                                icon="spaces"
+                            />
+                        )}
+                        <div className="notes-chips">
+                            {FOLDER_TYPE_OPTIONS.map(({ value, label }) => (
+                                <button
+                                    key={value}
                                     type="button"
-                                    className="folder-card__edit-btn"
-                                    aria-label="Edit folder"
-                                    onClick={(e) => { e.stopPropagation(); setFolderModal({ folder }); }}
+                                    className="notes-chip"
+                                    data-active={filters.folderTypeFilter === value}
+                                    onClick={() => filters.setFolderTypeFilter(value)}
                                 >
-                                    <Icon name="edit" size={13} />
-                                </button>}
-                                <div className="folder-card__body">
-                                    <p className="folder-card__name">{folder.name}</p>
-                                    <p className="folder-card__meta">
-                                        {folder.workspaceName} · {folder.folderType === 'SHARED' ? 'Shared' : 'Personal'}
-                                    </p>
-                                    <p className="folder-card__date">{formatDate(folder.created)}</p>
-                                </div>
-                            </div>
-                        ))}
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
                         <button
                             type="button"
-                            className="folder-card folder-card--new"
+                            className="notes__add"
                             onClick={() => setFolderModal({ folder: null })}
                             disabled={!hasWorkspaces}
                         >
-                            <Icon name="folder-plus" size={24} />
-                            <span>New folder</span>
+                            <Icon name="plus" size={16} />
+                            Add folder
                         </button>
                     </div>
-                )}
-            </section>
+                    {foldersLoading ? (
+                        <p className="notes__muted">Loading folders…</p>
+                    ) : (
+                        <div className="folder-grid">
+                            {filters.filteredFolders.map((folder) => (
+                                <div
+                                    key={folder.id}
+                                    className={`folder-card${filters.selectedFolderId === folder.id ? ' folder-card--active' : ''}`}
+                                    onClick={() => filters.toggleFolder(folder.id)}
+                                >
+                                    {folder.canEdit && <button
+                                        type="button"
+                                        className="folder-card__edit-btn"
+                                        aria-label="Edit folder"
+                                        onClick={(e) => { e.stopPropagation(); setFolderModal({ folder }); }}
+                                    >
+                                        <Icon name="edit" size={13} />
+                                    </button>}
+                                    <div className="folder-card__body">
+                                        <p className="folder-card__name">{folder.name}</p>
+                                        <p className="folder-card__meta">
+                                            {folder.workspaceName} · {folder.folderType === 'SHARED' ? 'Shared' : 'Personal'}
+                                        </p>
+                                        <p className="folder-card__date">{formatDate(folder.created)}</p>
+                                    </div>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                className="folder-card folder-card--new"
+                                onClick={() => setFolderModal({ folder: null })}
+                                disabled={!hasWorkspaces}
+                            >
+                                <Icon name="folder-plus" size={24} />
+                                <span>New folder</span>
+                            </button>
+                        </div>
+                    )}
+                </section>
+
+
+                <section className="notes-section achievements-section">
+                    <div className="notes-section__head">
+                        <h2 className="notes-section__title">Your progress</h2>
+                    </div>
+                    <NoteAchievements createdCount={userNotesCount} />
+                </section>
+            </div>
 
             {/* Notes */}
             <section className="notes-section">

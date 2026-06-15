@@ -6,6 +6,7 @@ import org.naukma.raft.dto.request.UserRequest;
 import org.naukma.raft.dto.response.AuthResponse;
 import org.naukma.raft.dto.response.UserResponse;
 import org.naukma.raft.entity.User;
+import org.naukma.raft.enums.NotificationType;
 import org.naukma.raft.errorsHadling.EmailAreadyExsistsException;
 import org.naukma.raft.errorsHadling.NotFoundException;
 import org.naukma.raft.repository.UserRepository;
@@ -26,6 +27,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final WorkspaceService workspaceService;
+    private final NotificationService notificationService;
 
     @Transactional
     public AuthResponse register(UserRequest userRequest) {
@@ -56,7 +58,7 @@ public class AuthService {
         }
 
         workspaceService.ensurePersonalWorkspace(saved.getId());
-
+        createWelcomeNotification(saved);
         CustomUserDetails userDetails = new CustomUserDetails(saved);
         String token = jwtService.generateToken(userDetails);
 
@@ -76,6 +78,17 @@ public class AuthService {
         String token = jwtService.generateToken(userDetails);
 
         return new AuthResponse(token, mapToResponse(user));
+    }
+
+
+    private void createWelcomeNotification(User user) {
+        notificationService.createNotification(
+                user.getId(),
+                NotificationType.SYSTEM,
+                "Welcome to Raft",
+                "Your account was created successfully. You can now organize your tasks, workspaces and reminders in Raft.",
+                user.getId()
+        );
     }
 
     private UserResponse mapToResponse(User user) {
