@@ -6,6 +6,7 @@ import { Icon } from '@/lib/icons';
 import { NotificationRow } from '@/components/inbox/NotificationRow';
 import { ReminderRow } from '@/components/inbox/ReminderRow';
 import { EmptyState } from '@/components/inbox/EmptyState';
+import { SingleSelectFilter } from '@/components/common/SingleSelectFilter';
 import './InboxPage.css';
 
 type Tab = 'all' | 'unread' | 'read';
@@ -125,17 +126,14 @@ export function InboxPage() {
                         </button>
                     </div>
 
-                    <div className="inbox__sort">
-                        <select
-                            value={sort}
-                            onChange={e => setSort(e.target.value as SortKey)}
-                            aria-label="Sort by"
-                        >
-                            <option value="date">By date</option>
-                            <option value="type">By type</option>
-                        </select>
-                        <Icon name="chevron-down" size={14} />
-                    </div>
+                    <SingleSelectFilter
+                        options={[
+                            { id: 'date', label: 'By date' },
+                            { id: 'type', label: 'By type' },
+                        ]}
+                        value={sort}
+                        onChange={id => setSort(id as SortKey)}
+                    />
                 </div>
             </div>
 
