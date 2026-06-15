@@ -4,6 +4,7 @@ import { getEvents } from '@/api/events';
 import { TodayTasksWidget } from '@/components/dashboard/TodayTasksWidget';
 import { MiniCalendarWidget } from '@/components/dashboard/MiniCalendarWidget';
 import { UpcomingEventsWidget } from '@/components/dashboard/UpcomingEventsWidget';
+import { PinnedNotesWidget } from '@/components/dashboard/PinnedNotesWidget';
 import { SpacesWidget } from '@/components/dashboard/SpacesWidget';
 import { useAuth } from '@/auth/AuthContext';
 import { isMyTask } from '@/lib/tasks';
@@ -65,6 +66,7 @@ export function DashboardPage() {
         <TodayTasksWidget tasks={myTasks} loading={loading} error={error} onComplete={handleComplete} />
         <UpcomingEventsWidget events={events} />
         <MiniCalendarWidget tasks={myTasks} events={events} />
+        <PinnedNotesWidget />
       </div>
 
       <SpacesWidget />
