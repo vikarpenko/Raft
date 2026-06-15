@@ -5,6 +5,7 @@ import {
   Award, Sun, Moon, Monitor, Send, CircleStar, CircleUserRound, BellRing, type LucideIcon,
 } from 'lucide-react';
 
+/** Central icon registry: maps a stable app name to its lucide icon, so the rest of the app never imports lucide directly. */
 const icons = {
   dashboard: LayoutDashboard,
   projects: FolderKanban,
@@ -47,6 +48,7 @@ const icons = {
   profile: CircleUserRound,
 } satisfies Record<string, LucideIcon>;
 
+/** Names of every icon available through the {@link Icon} component. */
 export type IconName = keyof typeof icons;
 
 interface IconProps {
@@ -55,6 +57,7 @@ interface IconProps {
   className?: string;
 }
 
+/** Renders a named icon from the central icon set, with the app's default stroke width. */
 export function Icon({ name, size = 20, className }: IconProps) {
   const Glyph = icons[name];
   return <Glyph size={size} strokeWidth={1.8} className={className} />;

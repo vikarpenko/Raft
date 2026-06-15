@@ -1,3 +1,4 @@
+/** Built-in avatar image paths a user can choose from in their profile. */
 export const PRESET_AVATARS = [
   '/avatars/avatar-1.svg',
   '/avatars/avatar-2.svg',

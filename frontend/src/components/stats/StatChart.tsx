@@ -7,6 +7,7 @@ import {
     Tooltip,
 } from 'chart.js';
 import type { ChartPointResponse } from '@/types/statistics';
+import {useTheme} from "@/theme/ThemeContext.tsx";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
 
@@ -15,10 +16,13 @@ interface Props {
     data: ChartPointResponse[];
     valueKey: 'count' | 'amount';
     yLabel: string;
-    color: string;
+    color?: string;
 }
 
 export function StatChart({ title, data, valueKey, yLabel, color }: Props) {
+    const { accent } = useTheme();
+    const chartColor = color ?? accent;
+
     const labels = data.map((d) => d.label);
     const values = data.map((d) => (valueKey === 'amount' ? d.amount ?? 0 : d.count));
 
@@ -32,7 +36,7 @@ export function StatChart({ title, data, valueKey, yLabel, color }: Props) {
                         datasets: [
                             {
                                 data: values,
-                                backgroundColor: color,
+                                backgroundColor: chartColor,
                                 borderRadius: 6,
                             },
                         ],

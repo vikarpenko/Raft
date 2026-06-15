@@ -104,7 +104,15 @@ export function WorkspacePage() {
 
   return (
     <div className="wpage">
-      <div className="wpage__top">{back}</div>
+      <div className="wpage__top">
+        {back}
+        {detail.type === 'SHARED' && (
+          <button type="button" className="wpage__chat" onClick={() => navigate(`/chats?space=${detail.id}`)}>
+            <Icon name="chats" size={16} />
+            Open chat
+          </button>
+        )}
+      </div>
 
       <div className="wpage__columns">
         <WorkspaceTasks workspaceId={detail.id} detail={detail} currentUserId={user?.id} />

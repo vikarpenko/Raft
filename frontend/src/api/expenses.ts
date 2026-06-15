@@ -6,18 +6,23 @@ import type {
     PersonalExpenseStatsResponse
 } from "@/types/expense.ts";
 
+/** Lists all expenses of a shared workspace. */
 export const getWorkspaceExpenses = (workspaceId: string)=>
     api.get<ExpenseResponse[]>(`/workspaces/${workspaceId}/expenses`,);
 
+/** Returns a workspace's expense summary (balances per member). */
 export const getWorkspaceStats = (workspaceId: string) =>
     api.get<WorkspaceExpenseStatsResponse>(`/workspaces/${workspaceId}/expenses/stats`,);
 
+/** Creates an expense and its splits. */
 export const createExpense = (request: CreateExpenseRequest)=>
     api.post<ExpenseResponse>('/expenses', request,);
 
+/** Marks one split (one person's share) as settled. */
 export const settleSplit = (splitId: string) =>
     api.patch(`/expenses/splits/${splitId}/settle`);
 
+/** Fetches the user's personal expense stats and paged history, optionally filtered by date range. */
 export const getPersonalStats = (params?: {
     from?: string;
     to?: string;

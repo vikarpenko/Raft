@@ -1,6 +1,13 @@
+/**
+ * Thin HTTP layer over `fetch`: attaches the JWT, parses JSON, normalizes
+ * errors into {@link ApiError}, and forces a re-login on `401`.
+ * Every other `api/*` module builds on the exported {@link api} object.
+ */
+
 const BASE_URL = '/api';
 const TOKEN_KEY = 'raft_token';
 
+/** Error thrown for any non-OK response; carries the HTTP `status`. */
 export class ApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -10,22 +17,31 @@ export class ApiError extends Error {
   }
 }
 
+/** Extracts a user-facing message from an unknown error (falls back to a generic one). */
 export function errorMessage(err: unknown): string {
   return err instanceof ApiError ? err.message : 'Something went wrong. Try again.';
 }
 
+/** Reads the stored JWT, or `null` if the user isn't logged in. */
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+/** Persists the JWT (called after login). */
 export function setToken(token: string): void {
   localStorage.setItem(TOKEN_KEY, token);
 }
 
+/** Removes the stored JWT (called on logout or `401`). */
 export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+/**
+ * Performs a request: adds the `Authorization` header and JSON content type,
+ * redirects to `/login` on `401`, throws {@link ApiError} on failure, and
+ * returns the parsed JSON body (or `undefined` for `204 No Content`).
+ */
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getToken();
   const res = await fetch(`${BASE_URL}${path}`, {
@@ -60,6 +76,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** Typed helpers for each HTTP method; pass the path (without `/api`) and an optional body. */
 export const api = {
   get: <T>(path: string) => request<T>(path, { method: 'GET' }),
   post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(body) }),

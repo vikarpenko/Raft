@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { getWorkspaces } from '@/api/workspaces';
 import { getWorkspaceChats } from '@/api/chat';
 import { useAuth } from '@/auth/AuthContext';
@@ -10,6 +11,8 @@ import './ChatsPage.css';
 
 export function ChatsPage() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const spaceParam = searchParams.get('space');
   const [sharedMap, setSharedMap] = useState<Record<string, Workspace>>({});
   const [summaries, setSummaries] = useState<ChatSummary[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -23,13 +26,15 @@ export function ChatsPage() {
         if (!active) return;
         const shared = all.filter((workspace) => workspace.type === 'SHARED');
         setSharedMap(Object.fromEntries(shared.map((workspace) => [workspace.id, workspace])));
-        setSelectedId((current) => current ?? shared[0]?.id ?? null);
+        const target = spaceParam && shared.some((workspace) => workspace.id === spaceParam) ? spaceParam : null;
+        setSelectedId((current) => target ?? current ?? shared[0]?.id ?? null);
+        if (target) setChatOpen(true);
       })
       .catch(() => {});
     return () => {
       active = false;
     };
-  }, []);
+  }, [spaceParam]);
 
   useEffect(() => {
     let active = true;

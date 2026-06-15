@@ -1,13 +1,12 @@
 import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { addDays, byDueTime, getTaskState, isDueOn, priorityLabels, todayISO } from '@/lib/tasks';
+import { byDueTime, getTaskState, isDueOn, priorityLabels, todayISO } from '@/lib/tasks';
 import { colorHex } from '@/lib/workspaceColors';
 import { Icon } from '@/lib/icons';
 import type { Task, TaskState } from '@/types/task';
 import './TodayTasksWidget.css';
 
-const MAX_TODAY = 3;
-const MAX_TOMORROW = 3;
+const MAX_TODAY = 5;
 
 type Row = { task: Task; state: TaskState };
 
@@ -30,7 +29,6 @@ export function TodayTasksWidget({ tasks, loading, error, onComplete }: TodayTas
   const todayRows = activeOn(todayISO(now));
   const visibleToday = todayRows.slice(0, MAX_TODAY);
   const moreToday = todayRows.length - visibleToday.length;
-  const tomorrowRows = activeOn(todayISO(addDays(now, 1))).slice(0, MAX_TOMORROW);
 
   const firstUpcoming = visibleToday.findIndex(({ state }) => state === 'upcoming');
   const nowAt = firstUpcoming > 0 ? firstUpcoming : -1;
@@ -106,15 +104,7 @@ export function TodayTasksWidget({ tasks, loading, error, onComplete }: TodayTas
           {moreToday > 0 && <p className="today-tasks__more">+{moreToday} more today</p>}
         </>
       ) : (
-        <>
-          <p className="today-tasks__muted">All done for today &mdash; nice work!</p>
-          {tomorrowRows.length > 0 && (
-            <>
-              <p className="today-tasks__subhead">Tomorrow</p>
-              {renderRows(tomorrowRows, -1)}
-            </>
-          )}
-        </>
+        <p className="today-tasks__muted">All done for today &mdash; nice work!</p>
       )}
 
       <Link to="/todo" className="today-tasks__view-all">
