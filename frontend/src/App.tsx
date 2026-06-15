@@ -13,6 +13,7 @@ import {ProfilePage} from "@/pages/profile/ProfilePage";
 import {ProtectedRoute} from '@/auth/ProtectedRoute';
 import { ExpensesPage } from '@/pages/expenses/ExpensesPage';
 import { HelpPage } from '@/pages/help/HelpPage';
+import { InboxPage } from '@/pages/inbox/InboxPage';
 
 function App() {
     return (
@@ -32,6 +33,7 @@ function App() {
                     <Route path="*" element={<PlaceholderPage />} />
                     <Route path="expenses" element={<ExpensesPage />} />
                     <Route path="help" element={<HelpPage />} />
+                    <Route path="inbox" element={<InboxPage />} />
         </Route>
             </Route>
         </Routes>
