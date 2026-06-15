@@ -39,7 +39,7 @@ public class FolderService {
         }
         return folderRepository.findByWorkspace_IdInOrderByCreatedDesc(workspaceIds)
                 .stream()
-                .map(this::mapToResponse)
+                .map(folder -> mapToResponse(folder, userId))
                 .toList();
     }
 
@@ -61,12 +61,12 @@ public class FolderService {
                 .build();
 
         Folder saved = folderRepository.save(folder);
-        return mapToResponse(saved);
+        return mapToResponse(saved, userId);
     }
 
     @Transactional
     public FolderResponse updateFolder(Long userId, Long folderId, FolderPatchRequest request) {
-        Folder folder = getAccessibleFolder(userId, folderId);
+        Folder folder = getMutableFolder(userId, folderId);
 
         if (request.getName() != null && !request.getName().equals(folder.getName())) {
             if (folderRepository.existsByWorkspace_IdAndName(folder.getWorkspace().getId(), request.getName())) {
@@ -76,12 +76,12 @@ public class FolderService {
         }
 
         Folder updated = folderRepository.save(folder);
-        return mapToResponse(updated);
+        return mapToResponse(updated, userId);
     }
 
     @Transactional
     public void deleteFolder(Long userId, Long folderId) {
-        Folder folder = getAccessibleFolder(userId, folderId);
+        Folder folder = getMutableFolder(userId, folderId);
         folderRepository.delete(folder);
     }
 
@@ -107,10 +107,17 @@ public class FolderService {
         return workspace;
     }
 
-    private Folder getAccessibleFolder(Long userId, Long folderId) {
-        Folder folder = folderRepository.findById(folderId).orElseThrow(() -> new NotFoundException("Folder not found"));
+    private Folder getMutableFolder(Long userId, Long folderId) {
+        Folder folder = folderRepository.findById(folderId)
+                .orElseThrow(() -> new NotFoundException("Folder not found"));
         if (cantAccess(userId, folder.getWorkspace())) {
             throw new AccessDeniedException("You do not have access to this folder");
+        }
+
+        boolean isOwner = folder.getOwner().getId().equals(userId);
+        boolean isWorkspaceOwner = folder.getWorkspace().getOwner().getId().equals(userId);
+        if (!isOwner && !isWorkspaceOwner) {
+            throw new AccessDeniedException("Only the folder owner can modify this folder");
         }
         return folder;
     }
@@ -119,9 +126,11 @@ public class FolderService {
         return !workspace.getOwner().getId().equals(userId) && !memberRepository.existsByWorkspace_IdAndUser_Id(workspace.getId(), userId);
     }
 
-    private FolderResponse mapToResponse(Folder folder) {
+    private FolderResponse mapToResponse(Folder folder, Long userId) {
         Workspace workspace = folder.getWorkspace();
         User owner = folder.getOwner();
+        boolean canEdit = folder.getOwner().getId().equals(userId)
+                || folder.getWorkspace().getOwner().getId().equals(userId);
 
         return FolderResponse.builder()
                 .id(folder.getId().toString())
@@ -132,6 +141,7 @@ public class FolderService {
                 .workspaceName(workspace.getName())
                 .workspaceColor(workspace.getColor())
                 .workspaceType(workspace.getType())
+                .canEdit(canEdit)
                 .owner(UserSummaryResponse.builder()
                         .id(owner.getId().toString())
                         .username(owner.getUsername())
