@@ -12,6 +12,7 @@ export interface Folder {
     workspaceColor?: WorkspaceColor | null;
     workspaceType: WorkspaceType;
     owner: UserSummary;
+    canEdit: boolean;
 }
 
 export type CreateFolderInput = {

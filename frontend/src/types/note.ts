@@ -11,6 +11,7 @@ export interface Note {
     folderName: string;
     folderType: FolderType;
     creator: UserSummary;
+    canEdit: boolean;
 }
 
 export type CreateNoteInput = {

@@ -25,7 +25,7 @@ export function NoteViewModal({ note, onClose, onEdit, isPersonal, editLabel = '
                         </span>
                     </div>
                     <div className="note-view-modal__actions">
-                        {isPersonal && <button type="button" className="note-view-modal__btn note-view-modal__btn--edit" onClick={onEdit} title={editLabel}>
+                        {note.canEdit && <button type="button" className="note-view-modal__btn note-view-modal__btn--edit" onClick={onEdit} title={editLabel}>
                             <Icon name="edit" size={15} />
                             {editLabel}
                         </button>}
