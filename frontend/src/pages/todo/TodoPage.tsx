@@ -3,6 +3,8 @@ import { TaskModal } from '@/components/task/TaskModal';
 import { MultiSelectFilter } from '@/components/common/MultiSelectFilter';
 import { TaskBoard } from '@/components/common/TaskBoard';
 import { TaskAchievements } from '@/components/achievements/TaskAchievements';
+import { TaskProgressRing } from '@/components/tasks/TaskProgressRing';
+import { QuoteCard } from '@/components/tasks/QuoteCard';
 import { useAuth } from '@/auth/AuthContext';
 import { defaultAssigneeId, isMyTask, nextStatus } from '@/lib/tasks';
 import { useTasks } from '@/hooks/tasks/useTasks';
@@ -62,7 +64,9 @@ export function TodoPage() {
       </div>
 
       <aside className="todo__side">
+        <QuoteCard />
         <TaskAchievements completedCount={completed} />
+        <TaskProgressRing tasks={myTasks} />
       </aside>
 
       {modalTask !== undefined && (
