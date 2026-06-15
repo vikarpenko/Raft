@@ -2,16 +2,15 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getFolders } from '@/api/folders';
 import { getNotes, createNote } from '@/api/notes';
-import { formatDate } from '@/lib/notes';
 import { Icon } from '@/lib/icons';
 import { NoteViewModal } from '@/components/note/NoteViewModal';
 import { NoteModal } from '@/components/note/NoteModal';
+import { StickyNotes } from '@/components/note/StickyNotes';
 import type { Note, CreateNoteInput } from '@/types/note';
 import type { Folder } from '@/types/folder';
 import './WorkspaceNotes.css';
 
-const MAX = 3;
-
+const MAX = 4;
 const notUsed = async () => {};
 
 interface WorkspaceNotesProps {
@@ -74,22 +73,14 @@ export function WorkspaceNotes({ workspaceId }: WorkspaceNotesProps) {
       {loading ? (
         <p className="wnotes__muted">Loading&hellip;</p>
       ) : visible.length > 0 ? (
-        <>
-          <ul className="wnotes__list">
-            {visible.map((note) => (
-              <li key={note.id}>
-                <button type="button" className="wnotes__row" onClick={() => setViewNote(note)}>
-                  <span className="wnotes__row-title">{note.title}</span>
-                  <span className="wnotes__row-meta">
-                    <span className="wnotes__folder">{note.folderName}</span>
-                    <span className="wnotes__date">{formatDate(note.updatedAt)}</span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-          {more > 0 && <p className="wnotes__more">+{more} more</p>}
-        </>
+        <StickyNotes
+          items={visible.map((note) => ({ id: note.id, title: note.title, text: note.content }))}
+          more={more}
+          onOpen={(id) => {
+            const note = notes.find((item) => item.id === id);
+            if (note) setViewNote(note);
+          }}
+        />
       ) : (
         <p className="wnotes__muted">No notes yet.</p>
       )}
