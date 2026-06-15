@@ -1,5 +1,6 @@
 import type { Notification } from '@/types/notification';
 
+/** Formats a past timestamp as a short relative label (`just now`, `5m ago`, `yesterday`, …). */
 export function formatDate(iso: string): string {
     const date = new Date(iso);
     const now = new Date();
@@ -16,6 +17,7 @@ export function formatDate(iso: string): string {
     return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
+/** Formats a future reminder time as a short label (`overdue`, `in 10m`, `tomorrow`, …). */
 export function formatReminderTime(iso: string): string {
     const date = new Date(iso);
     const now = new Date();
@@ -36,6 +38,7 @@ export function formatReminderTime(iso: string): string {
     });
 }
 
+/** Human-readable label for a notification type. */
 export function typeLabel(type: Notification['type']): string {
     switch (type) {
         case 'REMINDER': return 'Reminder';
@@ -45,6 +48,7 @@ export function typeLabel(type: Notification['type']): string {
     }
 }
 
+/** Picks the icon name used to render a notification of the given type. */
 export function getNotificationIcon(type: Notification['type']): 'bell' | 'achievement' | 'settings' {
     switch (type) {
         case 'ACHIEVEMENT': return 'achievement';
