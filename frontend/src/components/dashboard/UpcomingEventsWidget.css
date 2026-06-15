@@ -1,0 +1,114 @@
+.upcoming-events {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-6);
+  max-width: 480px;
+}
+
+.upcoming-events__head {
+  margin-bottom: var(--space-4);
+}
+
+.upcoming-events__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}
+
+.upcoming-events__muted {
+  padding: var(--space-2) 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.upcoming-events__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.upcoming-events__row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  gap: var(--space-3);
+}
+
+.upcoming-events__when {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.upcoming-events__day {
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.upcoming-events__time {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.upcoming-events__card {
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-primary-soft);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
+  border-radius: var(--radius-md);
+}
+
+.upcoming-events__name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.upcoming-events__space {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.upcoming-events__space-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.upcoming-events__more {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.upcoming-events__view-all {
+  display: block;
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-align: center;
+  text-decoration: none;
+  transition: background-color var(--transition);
+}
+
+.upcoming-events__view-all:hover {
+  background: var(--color-primary-hover);
+}
