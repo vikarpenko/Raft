@@ -625,6 +625,17 @@
     text-overflow: ellipsis;
 }
 
+.folders-achievements-row {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: var(--space-6);
+    align-items: start;
+}
+
+.achievements-section .notes-section__title {
+    margin-bottom: var(--space-3);
+}
+
 @media (max-width: 900px) {
     .notes__columns {
         grid-template-columns: 1fr;
@@ -632,6 +643,11 @@
 
     .notes-pinboard {
         height: 280px;
+    }
+
+    .folders-achievements-row {
+        grid-template-columns: 1fr;
+        gap: var(--space-6);
     }
 }
 
