@@ -5,6 +5,7 @@ import { getUser } from '@/api/user';
 import type { RegisterInput } from '@/api/auth';
 import type { User } from '@/types/user';
 
+/** Auth state and actions exposed through {@link useAuth}. */
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
@@ -16,6 +17,13 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+/**
+ * Holds the logged-in user and auth actions for the whole app.
+ *
+ * On mount it restores the session: if a token exists it fetches the user,
+ * clearing the token if that fails (expired/invalid). `loading` stays true
+ * until this check finishes, so the app can avoid flashing the login screen.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/** Accesses the auth context; throws if used outside an {@link AuthProvider}. */
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
