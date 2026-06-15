@@ -13,6 +13,7 @@ import org.naukma.raft.entity.Workspace;
 import org.naukma.raft.entity.WorkspaceMember;
 import org.naukma.raft.entity.ChatReadState;
 import org.naukma.raft.enums.MemberRole;
+import org.naukma.raft.enums.NotificationType;
 import org.naukma.raft.errorsHadling.AccessDeniedException;
 import org.naukma.raft.errorsHadling.NotFoundException;
 import org.naukma.raft.repository.ChatMessageRepository;
@@ -41,6 +42,7 @@ public class ChatService {
     private final WorkspaceMemberRepository memberRepository;
     private final UserRepository userRepository;
     private final ChatReadStateRepository chatReadStateRepository;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public List<ChatMessageResponse> getWorkspaceMessages(Long userId, Long workspaceId, int limit) {
@@ -69,6 +71,10 @@ public class ChatService {
                 .sender(sender)
                 .content(request.getContent().trim())
                 .build();
+
+        ChatMessage savedMessage = chatMessageRepository.save(message);
+
+        notifyWorkspaceMembersAboutNewMessage(workspace, sender, savedMessage);
 
         return mapToResponse(chatMessageRepository.save(message), userId);
     }
@@ -246,5 +252,61 @@ public class ChatService {
                         Comparator.nullsLast(Comparator.reverseOrder())
                 ))
                 .toList();
+    }
+
+    private void notifyWorkspaceMembersAboutNewMessage(
+            Workspace workspace,
+            User sender,
+            ChatMessage message
+    ) {
+        String senderName = buildSenderName(sender);
+
+        String notificationTitle = "New message in " + workspace.getName();
+        String notificationMessage = senderName + ": " + shortenMessage(message.getContent());
+
+        Long ownerId = workspace.getOwner().getId();
+
+        if (!ownerId.equals(sender.getId())) {
+            notificationService.createNotification(
+                    ownerId,
+                    NotificationType.CHAT_MESSAGE,
+                    notificationTitle,
+                    notificationMessage,
+                    message.getId()
+            );
+        }
+
+        memberRepository.findByWorkspace_Id(workspace.getId())
+                .stream()
+                .map(WorkspaceMember::getUser)
+                .filter(user -> !user.getId().equals(sender.getId()))
+                .filter(user -> !user.getId().equals(ownerId))
+                .forEach(user -> notificationService.createNotification(
+                        user.getId(),
+                        NotificationType.CHAT_MESSAGE,
+                        notificationTitle,
+                        notificationMessage,
+                        message.getId()
+                ));
+    }
+
+    private String buildSenderName(User sender) {
+        if (sender.getFirstName() != null && !sender.getFirstName().isBlank()) {
+            return sender.getFirstName();
+        }
+
+        if (sender.getUsername() != null && !sender.getUsername().isBlank()) {
+            return sender.getUsername();
+        }
+
+        return "Someone";
+    }
+
+    private String shortenMessage(String content) {
+        if (content.length() <= 80) {
+            return content;
+        }
+
+        return content.substring(0, 77) + "...";
     }
 }
