@@ -5,10 +5,12 @@ import org.naukma.raft.dto.request.ChatMessagePatchRequest;
 import org.naukma.raft.dto.request.ChatMessageRequest;
 import org.naukma.raft.dto.response.ChatMessageResponse;
 import org.naukma.raft.dto.response.UserSummaryResponse;
+import org.naukma.raft.dto.response.ChatUnreadCountResponse;
 import org.naukma.raft.entity.ChatMessage;
 import org.naukma.raft.entity.User;
 import org.naukma.raft.entity.Workspace;
 import org.naukma.raft.entity.WorkspaceMember;
+import org.naukma.raft.entity.ChatReadState;
 import org.naukma.raft.enums.MemberRole;
 import org.naukma.raft.errorsHadling.AccessDeniedException;
 import org.naukma.raft.errorsHadling.NotFoundException;
@@ -16,12 +18,17 @@ import org.naukma.raft.repository.ChatMessageRepository;
 import org.naukma.raft.repository.UserRepository;
 import org.naukma.raft.repository.WorkspaceMemberRepository;
 import org.naukma.raft.repository.WorkspaceRepository;
+import org.naukma.raft.repository.ChatReadStateRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +38,7 @@ public class ChatService {
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final ChatReadStateRepository chatReadStateRepository;
 
     @Transactional(readOnly = true)
     public List<ChatMessageResponse> getWorkspaceMessages(Long userId, Long workspaceId, int limit) {
@@ -142,5 +150,65 @@ public class ChatService {
                 .lastName(user.getLastName())
                 .avatar(user.getAvatar())
                 .build();
+    }
+
+    @Transactional
+    public void markWorkspaceAsRead(Long userId, Long workspaceId) {
+        Workspace workspace = getWorkspace(workspaceId);
+        requireMember(workspace, userId);
+
+        User user = getUser(userId);
+
+        ChatReadState readState = chatReadStateRepository
+                .findByWorkspace_IdAndUser_Id(workspaceId, userId)
+                .orElseGet(() -> ChatReadState.builder()
+                        .workspace(workspace)
+                        .user(user)
+                        .build());
+
+        readState.setLastReadAt(LocalDateTime.now());
+
+        chatReadStateRepository.save(readState);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ChatUnreadCountResponse> getUnreadCounts(Long userId) {
+        Map<Long, Workspace> workspaces = getAccessibleWorkspaces(userId);
+
+        return workspaces.values()
+                .stream()
+                .map(workspace -> ChatUnreadCountResponse.builder()
+                        .workspaceId(workspace.getId().toString())
+                        .workspaceName(workspace.getName())
+                        .unreadCount(countUnreadMessages(userId, workspace.getId()))
+                        .build())
+                .toList();
+    }
+
+    private long countUnreadMessages(Long userId, Long workspaceId) {
+        return chatReadStateRepository.findByWorkspace_IdAndUser_Id(workspaceId, userId)
+                .map(readState -> chatMessageRepository
+                        .countByWorkspace_IdAndCreatedAtAfterAndSender_IdNot(
+                                workspaceId,
+                                readState.getLastReadAt(),
+                                userId
+                        ))
+                .orElseGet(() -> chatMessageRepository
+                        .countByWorkspace_IdAndSender_IdNot(workspaceId, userId));
+    }
+
+    private Map<Long, Workspace> getAccessibleWorkspaces(Long userId) {
+        Map<Long, Workspace> workspaces = new LinkedHashMap<>();
+
+        for (Workspace workspace : workspaceRepository.findByOwner_Id(userId)) {
+            workspaces.put(workspace.getId(), workspace);
+        }
+
+        for (WorkspaceMember member : memberRepository.findByUser_Id(userId)) {
+            Workspace workspace = member.getWorkspace();
+            workspaces.putIfAbsent(workspace.getId(), workspace);
+        }
+
+        return workspaces;
     }
 }

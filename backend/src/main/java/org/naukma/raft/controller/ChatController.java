@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.naukma.raft.dto.request.ChatMessagePatchRequest;
 import org.naukma.raft.dto.request.ChatMessageRequest;
 import org.naukma.raft.dto.response.ChatMessageResponse;
+import org.naukma.raft.dto.response.ChatUnreadCountResponse;
 import org.naukma.raft.security.CustomUserDetails;
 import org.naukma.raft.service.ChatService;
 import org.springframework.http.HttpStatus;
@@ -57,5 +58,21 @@ public class ChatController {
     ) {
         chatService.deleteMessage(user.getId(), messageId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/workspaces/{workspaceId}/read")
+    public ResponseEntity<Void> markAsRead(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long workspaceId
+    ) {
+        chatService.markWorkspaceAsRead(user.getId(), workspaceId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/workspaces/unread-counts")
+    public ResponseEntity<List<ChatUnreadCountResponse>> getUnreadCounts(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return ResponseEntity.ok(chatService.getUnreadCounts(user.getId()));
     }
 }

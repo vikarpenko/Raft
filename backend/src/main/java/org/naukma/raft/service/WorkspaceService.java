@@ -24,6 +24,7 @@ import org.naukma.raft.repository.UserRepository;
 import org.naukma.raft.repository.WorkspaceMemberRepository;
 import org.naukma.raft.repository.WorkspaceRepository;
 import org.naukma.raft.repository.ChatMessageRepository;
+import org.naukma.raft.repository.ChatReadStateRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ public class WorkspaceService {
     private final TaskRepository taskRepository;
     private final AchievementService achievementService;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatReadStateRepository chatReadStateRepository;
 
     @Transactional
     public List<WorkspaceResponse> getWorkspaces(Long userId) {
@@ -200,6 +202,7 @@ public class WorkspaceService {
             throw new ConflictException("You can't delete your personal space");
         }
         chatMessageRepository.deleteByWorkspace_Id(workspaceId);
+        chatReadStateRepository.deleteByWorkspace_Id(workspaceId);
         taskRepository.deleteByWorkspace_Id(workspaceId);
         memberRepository.deleteByWorkspace_Id(workspaceId);
         workspaceRepository.delete(workspace);
@@ -234,6 +237,7 @@ public class WorkspaceService {
                 .orElseThrow(() -> new NotFoundException("Member not found"));
 
         memberRepository.delete(member);
+        chatReadStateRepository.deleteByWorkspace_IdAndUser_Id(workspaceId, memberUserId);
     }
 
     @Transactional
@@ -248,6 +252,7 @@ public class WorkspaceService {
 
         taskRepository.unassignUserFromTasksInWorkspace(workspaceId, userId);
         memberRepository.delete(member);
+        chatReadStateRepository.deleteByWorkspace_IdAndUser_Id(workspaceId, userId);
     }
 
     private Workspace getWorkspaceEntity(Long workspaceId) {

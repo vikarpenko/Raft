@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
+import java.time.LocalDateTime;
+
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
     @EntityGraph(attributePaths = {"workspace", "sender"})
@@ -20,4 +22,12 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     Optional<ChatMessage> findDetailedById(@Param("id") Long id);
 
     void deleteByWorkspace_Id(Long workspaceId);
+
+    long countByWorkspace_IdAndSender_IdNot(Long workspaceId, Long senderId);
+
+    long countByWorkspace_IdAndCreatedAtAfterAndSender_IdNot(
+            Long workspaceId,
+            LocalDateTime createdAt,
+            Long senderId
+    );
 }
