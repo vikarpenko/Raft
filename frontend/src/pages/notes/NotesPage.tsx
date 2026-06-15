@@ -15,6 +15,7 @@ import { FolderModal } from '@/components/folder/FolderModal';
 import type { Note } from '@/types/note';
 import type { Folder } from '@/types/folder';
 import './NotesPage.css';
+import {NoteAchievements} from "@/components/note/NoteAchievements.tsx";
 
 type NoteModalState = { note: Note | null; defaultFolderId?: string } | null;
 type FolderModalState = { folder: Folder | null } | null;
@@ -70,6 +71,8 @@ export function NotesPage() {
     if (!hasWorkspaces && folders.length === 0) {
         console.warn('No workspace available to create folders');
     }
+
+    const userNotesCount = notes.filter(note => note.creator?.id === user?.id).length;
 
     return (
         <div className="notes">
@@ -218,6 +221,8 @@ export function NotesPage() {
                         </button>
                     </div>
                 )}
+
+                <NoteAchievements createdCount={userNotesCount} />
             </section>
 
             {/* Notes */}
