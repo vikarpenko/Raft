@@ -36,8 +36,7 @@ export function ExpenseHistoryList({expenses, currentUserId, currentPage, totalP
 
     return (
         <div className="we__list-card">
-            <p className="we__list-label">History</p>
-            <p className="we__section-title">My expenses history</p>
+            <p className="we__list-label">My expenses history</p>
 
             {expenses.length === 0 ? (
                 <p className="we__list-empty">No expenses yet.</p>
