@@ -1,0 +1,61 @@
+package org.naukma.raft.controller;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.naukma.raft.dto.request.ChatMessagePatchRequest;
+import org.naukma.raft.dto.request.ChatMessageRequest;
+import org.naukma.raft.dto.response.ChatMessageResponse;
+import org.naukma.raft.security.CustomUserDetails;
+import org.naukma.raft.service.ChatService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("api/chats")
+@RequiredArgsConstructor
+public class ChatController {
+
+    private final ChatService chatService;
+
+    @GetMapping("/workspaces/{workspaceId}/messages")
+    public ResponseEntity<List<ChatMessageResponse>> getMessages(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long workspaceId,
+            @RequestParam(defaultValue = "50") int limit
+    ) {
+        return ResponseEntity.ok(chatService.getWorkspaceMessages(user.getId(), workspaceId, limit));
+    }
+
+    @PostMapping("/workspaces/{workspaceId}/messages")
+    public ResponseEntity<ChatMessageResponse> sendMessage(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long workspaceId,
+            @Valid @RequestBody ChatMessageRequest request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(chatService.sendMessage(user.getId(), workspaceId, request));
+    }
+
+    @PatchMapping("/messages/{messageId}")
+    public ResponseEntity<ChatMessageResponse> updateMessage(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long messageId,
+            @Valid @RequestBody ChatMessagePatchRequest request
+    ) {
+        return ResponseEntity.ok(chatService.updateMessage(user.getId(), messageId, request));
+    }
+
+    @DeleteMapping("/messages/{messageId}")
+    public ResponseEntity<Void> deleteMessage(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long messageId
+    ) {
+        chatService.deleteMessage(user.getId(), messageId);
+        return ResponseEntity.noContent().build();
+    }
+}

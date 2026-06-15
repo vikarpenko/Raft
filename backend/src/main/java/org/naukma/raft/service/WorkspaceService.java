@@ -23,6 +23,7 @@ import org.naukma.raft.repository.TaskRepository;
 import org.naukma.raft.repository.UserRepository;
 import org.naukma.raft.repository.WorkspaceMemberRepository;
 import org.naukma.raft.repository.WorkspaceRepository;
+import org.naukma.raft.repository.ChatMessageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +45,7 @@ public class WorkspaceService {
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
     private final AchievementService achievementService;
+    private final ChatMessageRepository chatMessageRepository;
 
     @Transactional
     public List<WorkspaceResponse> getWorkspaces(Long userId) {
@@ -197,6 +199,7 @@ public class WorkspaceService {
         if (workspace.getType() == WorkspaceType.PERSONAL) {
             throw new ConflictException("You can't delete your personal space");
         }
+        chatMessageRepository.deleteByWorkspace_Id(workspaceId);
         taskRepository.deleteByWorkspace_Id(workspaceId);
         memberRepository.deleteByWorkspace_Id(workspaceId);
         workspaceRepository.delete(workspace);
