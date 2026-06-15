@@ -152,8 +152,7 @@ public class NoteService {
     }
 
     private NoteResponse mapToResponse(Note note, Long userId) {
-        boolean canEdit = note.getCreator().getId().equals(userId)
-                || note.getFolder().getWorkspace().getOwner().getId().equals(userId);
+        boolean canEdit = note.getCreator().getId().equals(userId);
         return NoteResponse.builder()
                 .id(note.getId().toString())
                 .title(note.getTitle())

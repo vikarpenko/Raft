@@ -22,12 +22,14 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
     const [submitting, setSubmitting] = useState(false);
 
     const isEditing = !!folder;
+    const canEdit = folder?.canEdit ?? true;
     const selectedWorkspace = workspaces.find(w => w.id === workspaceId);
     const isPersonalWorkspace = selectedWorkspace?.type === 'PERSONAL';
     const effectiveType = isPersonalWorkspace ? 'PERSONAL' : type;
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
+        if (!canEdit) return;
         const trimmed = name.trim();
         if (!trimmed || submitting) return;
         setSubmitting(true);
@@ -43,6 +45,7 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
     };
 
     const handleDelete = async () => {
+        if (!canEdit) return;
         if (!folder || !window.confirm('Are you sure you want to delete this folder? All notes inside this folder will be permanently deleted.')) return;
         setSubmitting(true);
         try {
@@ -69,6 +72,7 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         autoFocus
+                        disabled={!canEdit}
                     />
                     <span className="modal__counter">{nameLength}/{NAME_MAX}</span>
                 </label>
@@ -110,7 +114,7 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
 
 
                 <div className="modal__actions">
-                    {isEditing && (
+                    {isEditing  && canEdit &&(
                         <button type="button" className="modal__btn modal__btn--danger" onClick={handleDelete}
                                 disabled={submitting}>
                             Delete
@@ -120,7 +124,7 @@ export function FolderModal({folder, workspaces, onClose, onCreate, onUpdate, on
                     <button type="button" className="modal__btn modal__btn--ghost" onClick={onClose}>
                         Cancel
                     </button>
-                    <button type="submit" className="modal__btn modal__btn--primary" disabled={!name.trim() || submitting}>
+                    <button type="submit" className="modal__btn modal__btn--primary" disabled={!name.trim() || submitting || !canEdit}>
                         {folder ? 'Save' : 'Add'}
                     </button>
                 </div>

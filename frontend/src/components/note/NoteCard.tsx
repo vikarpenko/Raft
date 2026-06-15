@@ -39,7 +39,7 @@ export function NoteCard({note, isPinned, showFolder, showCreator, onView, onEdi
             <div className="note-card__head">
                 <span className="note-card__date">{formatDate(note.updatedAt)}</span>
 
-                {(!showCreator &&
+                {(note.canEdit &&
                     <button type="button" className="note-card__edit"
                             onClick={(e) => {
                                 e.stopPropagation();

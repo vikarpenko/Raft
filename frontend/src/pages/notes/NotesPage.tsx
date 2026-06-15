@@ -190,14 +190,14 @@ export function NotesPage() {
                                 className={`folder-card${filters.selectedFolderId === folder.id ? ' folder-card--active' : ''}`}
                                 onClick={() => filters.toggleFolder(folder.id)}
                             >
-                                <button
+                                {folder.canEdit && <button
                                     type="button"
                                     className="folder-card__edit-btn"
                                     aria-label="Edit folder"
                                     onClick={(e) => { e.stopPropagation(); setFolderModal({ folder }); }}
                                 >
                                     <Icon name="edit" size={13} />
-                                </button>
+                                </button>}
                                 <div className="folder-card__body">
                                     <p className="folder-card__name">{folder.name}</p>
                                     <p className="folder-card__meta">

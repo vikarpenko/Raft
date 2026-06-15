@@ -24,9 +24,11 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
     const [submitting, setSubmitting] = useState(false);
 
     const isEditing = !!note;
+    const canEdit = note?.canEdit ?? true;
 
     const handleSubmit = async (event: FormEvent) => {
         event.preventDefault();
+        if (!canEdit) return;
         const trimmedTitle = title.trim();
         if (!trimmedTitle || !folderId || submitting) return;
 
@@ -43,6 +45,7 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
     };
 
     const handleDelete = async () => {
+        if (!canEdit) return;
         if (!note || !window.confirm('Delete this note?')) return;
         setSubmitting(true);
         try {
@@ -70,6 +73,7 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         autoFocus
+                        disabled={!canEdit}
                     />
                     <span className="modal__counter">{titleLength}/{TITLE_MAX}</span>
                 </label>
@@ -83,6 +87,7 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         rows={5}
+                        disabled={!canEdit}
                     />
                     <span className="modal__counter">{contentLength}/{CONTENT_MAX}</span>
                 </label>
@@ -105,7 +110,7 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
                 )}
 
                 <div className="modal__actions">
-                    {isEditing && (
+                    {isEditing && canEdit && (
                         <button
                             type="button"
                             className="modal__btn modal__btn--danger"
@@ -122,7 +127,7 @@ export function NoteModal({note, folders, defaultFolderId, onClose, onCreate, on
                     <button
                         type="submit"
                         className="modal__btn modal__btn--primary"
-                        disabled={!title.trim() || !folderId || submitting}
+                        disabled={!title.trim() || !folderId || submitting || !canEdit}
                     >
                         {isEditing ? 'Save' : 'Add'}
                     </button>
