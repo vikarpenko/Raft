@@ -12,7 +12,6 @@ export interface Note {
     folderName: string;
     folderType: FolderType;
     creator: UserSummary;
-    /** Whether the current user may edit it (false for others' notes in shared folders). */
     canEdit: boolean;
 }
 

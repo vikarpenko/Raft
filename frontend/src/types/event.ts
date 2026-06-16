@@ -5,9 +5,7 @@ export interface Event {
   id: string;
   title: string;
   description?: string;
-  /** Start as a local `YYYY-MM-DDTHH:mm` string. */
   startTime: string;
-  /** End as a local `YYYY-MM-DDTHH:mm` string. */
   endTime: string;
   workspaceId?: string;
   workspaceName?: string;

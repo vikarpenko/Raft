@@ -1,7 +1,6 @@
 /** `PERSONAL` (solo, no chat/members) or `SHARED` (collaborative). */
 export type WorkspaceType = 'PERSONAL' | 'SHARED';
 export type MemberRole = 'ADMIN' | 'MEMBER';
-/** Accent color name a workspace can be tagged with (see `WORKSPACE_COLORS`). */
 export type WorkspaceColor =
   | 'RED' | 'ORANGE' | 'AMBER' | 'YELLOW' | 'GREEN' | 'TEAL'
   | 'BLUE' | 'SKY' | 'INDIGO' | 'VIOLET' | 'PINK' | 'ROSE' | 'GRAY';

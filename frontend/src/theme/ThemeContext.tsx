@@ -8,7 +8,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { DEFAULT_ACCENT } from '@/theme/accents';
 
-/** Theme choice: a fixed `light`/`dark`, or `system` (follow the OS). */
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 const THEME_KEY = 'raft-theme';
