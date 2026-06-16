@@ -2,10 +2,10 @@ import {
   LayoutDashboard, FolderKanban, NotebookPen, ListChecks, Calendar, BarChart3, Boxes, MessagesSquare,
   Wallet, Inbox, Settings, HelpCircle, LogOut, Search, Bell, Plus, ChevronDown, ChevronLeft, ChevronRight,
   Menu, X, Check, Folder, FolderPlus, FilePlus, Pencil, Pin, PinOff, MoreHorizontal, Trash2, MailCheck,
-  Award, Sun, Moon, Monitor, Send, CircleStar, CircleUserRound, BellRing, type LucideIcon,
+  Award, Sun, Moon, Monitor, Send, CircleStar, CircleUserRound, BellRing, Lightbulb, type LucideIcon,
 } from 'lucide-react';
 
-/** Central icon registry: maps a stable app name to its lucide icon, so the rest of the app never imports lucide directly. */
+/** Maps a name to its lucide icon, so components use `<Icon name="..." />` instead of importing lucide. */
 const icons = {
   dashboard: LayoutDashboard,
   projects: FolderKanban,
@@ -46,9 +46,10 @@ const icons = {
   send: Send,
   'circle-star': CircleStar,
   profile: CircleUserRound,
+  tip: Lightbulb,
 } satisfies Record<string, LucideIcon>;
 
-/** Names of every icon available through the {@link Icon} component. */
+/** Names of every icon the Icon component can render. */
 export type IconName = keyof typeof icons;
 
 interface IconProps {

@@ -1,5 +1,13 @@
 import type { NavSection } from '@/types/navigation';
 
+/**
+ * Returns the title to show in the top bar for the current page.
+ *
+ * First looks for a menu item with exactly this path. If there isn't one
+ * (e.g. a sub-page like `/spaces/42`), it uses the menu item for the first
+ * part of the path (`/spaces`). If still nothing matches, it just capitalizes
+ * that first part and uses it as the title.
+ */
 export function titleForPath(path: string): string {
   for (const section of navSections) {
     const item = section.items.find((navItem) => navItem.path === path);
@@ -14,6 +22,7 @@ export function titleForPath(path: string): string {
   return slug ? slug[0].toUpperCase() + slug.slice(1) : 'Page';
 }
 
+/** Sidebar navigation: grouped sections with their links and icons. */
 export const navSections: NavSection[] = [
   {
     title: 'Workspace',
@@ -32,7 +41,7 @@ export const navSections: NavSection[] = [
     title: 'General',
     items: [
       { label: 'Profile', icon: 'profile', path: '/profile' },
-      { label: 'Inbox', icon: 'inbox', path: '/inbox', badge: 3 },
+      { label: 'Inbox', icon: 'inbox', path: '/inbox' },
       { label: 'Settings', icon: 'settings', path: '/settings' },
       { label: 'Help', icon: 'help', path: '/help' },
     ],

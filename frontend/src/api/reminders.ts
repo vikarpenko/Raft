@@ -1,7 +1,7 @@
 import { api } from './http';
 import type { Reminder, CreateReminderInput, UpdateReminderInput } from '@/types/reminder';
 
-/** Fetches all of the current user's reminders. */
+/** Lists the user's reminders. */
 export async function getReminders(): Promise<Reminder[]> {
     return api.get<Reminder[]>('/reminders');
 }

@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '@/lib/icons';
 import { useAuth } from '@/auth/AuthContext';
+import { getUnreadCount } from '@/api/notifications';
 import { navSections } from '@/config/navigation';
 import './Sidebar.css';
 
@@ -17,6 +18,19 @@ export function Sidebar({ activeItem, onNavigate, isOpen, onClose }: SidebarProp
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    getUnreadCount()
+      .then((count) => {
+        if (active) setUnread(count);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [activeItem]);
 
   const handleLogout = () => {
     logout();
@@ -46,6 +60,9 @@ export function Sidebar({ activeItem, onNavigate, isOpen, onClose }: SidebarProp
                   >
                     <Icon name={item.icon} />
                     <span className="label">{item.label}</span>
+                    {item.path === '/inbox' && unread > 0 && (
+                      <span className="badge">{unread > 99 ? '99+' : unread}</span>
+                    )}
                   </button>
                 </li>
               ))}

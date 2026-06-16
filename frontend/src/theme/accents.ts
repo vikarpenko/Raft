@@ -1,8 +1,10 @@
+/** A selectable accent color: display `name` and its hex `value`. */
 export interface AccentPreset {
   name: string;
   value: string;
 }
 
+/** Accent colors a user can choose in Appearance settings. */
 export const ACCENT_PRESETS: AccentPreset[] = [
   { name: 'Rose', value: '#c14d63' },
   { name: 'Coral', value: '#e0894e' },
@@ -16,4 +18,5 @@ export const ACCENT_PRESETS: AccentPreset[] = [
   { name: 'Grey', value: '#605a5a' },
 ];
 
+/** Accent used until the user picks one (first preset, Rose). */
 export const DEFAULT_ACCENT = ACCENT_PRESETS[0].value;

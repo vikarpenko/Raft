@@ -1,7 +1,7 @@
 import { api } from './http';
 import type { Notification } from '@/types/notification';
 
-/** Fetches all of the current user's notifications (newest first). */
+/** Lists the user's notifications, newest first. */
 export async function getNotifications(): Promise<Notification[]> {
     return api.get<Notification[]>('/notifications');
 }

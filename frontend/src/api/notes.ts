@@ -1,7 +1,7 @@
 import { api } from '@/api/http';
 import type { Note, CreateNoteInput, UpdateNoteInput } from '@/types/note';
 
-/** Fetches all of the current user's notes. */
+/** Lists the user's notes. */
 export async function getNotes(): Promise<Note[]> {
     return api.get<Note[]>('/notes');
 }
