@@ -34,7 +34,7 @@ export function StatisticsPage() {
                 <>
                     <div className="stats-page__charts">
                         <StatChart
-                            title="Tasks completion statistics"
+                            title="Tasks created"
                             data={stats.taskStats}
                             valueKey="count"
                             yLabel="Number of tasks"
