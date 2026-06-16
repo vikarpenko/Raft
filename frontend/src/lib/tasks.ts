@@ -1,7 +1,7 @@
 import type { Task, TaskPriority, TaskStatus, TaskState } from '@/types/task';
 import type { Workspace } from '@/types/workspace';
 
-/** Human-readable label for each task priority. */
+/** Display label for each task priority. */
 export const priorityLabels: Record<TaskPriority, string> = {
   LOW: 'Low',
   MEDIUM: 'Medium',
@@ -49,7 +49,7 @@ export function isMyTask(task: Task, userId: string | undefined): boolean {
   return task.assignee?.id === userId;
 }
 
-/** Human-readable label for each task status. */
+/** Display label for each task status. */
 export const statusLabels: Record<TaskStatus, string> = {
   TODO: 'To do',
   IN_PROGRESS: 'In progress',

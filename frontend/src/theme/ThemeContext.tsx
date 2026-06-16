@@ -62,7 +62,7 @@ applyTheme(readMode());
 applyAccent(readAccent());
 
 /**
- * Provides theme state and keeps `<html>` in sync.
+ * Holds the theme state and keeps `<html>` in sync.
  *
  * Re-applies the theme/accent whenever they change. While in `system` mode it
  * also listens for OS light/dark changes and updates live.

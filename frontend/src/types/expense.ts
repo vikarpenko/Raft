@@ -47,7 +47,7 @@ export interface WorkspaceExpenseStatsResponse {
     recentExpenses: ExpenseResponse[];
 }
 
-/** The current user's cross-workspace expense overview and paged history. */
+/** The current user's expense overview across all workspaces, with paged history. */
 export interface PersonalExpenseStatsResponse {
     totalOwedToMe: number;
     totalIOwe: number;

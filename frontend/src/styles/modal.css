@@ -1,5 +1,5 @@
 /*
- * Shared modal styles, reused by every dialog (task, event, workspace, confirm…).
+ * Shared modal styles, reused by every dialog (task, event, workspace, confirm).
  * Covers the overlay/scrim, the card, the read-only "view" rows, form fields
  * and the action buttons, so individual modals only add their own specifics.
  */

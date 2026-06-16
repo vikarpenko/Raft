@@ -1,7 +1,7 @@
 import { api } from '@/api/http';
 import type { Folder, CreateFolderInput, UpdateFolderInput } from '@/types/folder';
 
-/** Fetches all of the user's note folders. */
+/** Lists the user's note folders. */
 export async function getFolders(): Promise<Folder[]> {
     return api.get<Folder[]>('/folders');
 }
