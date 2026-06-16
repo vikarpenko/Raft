@@ -47,7 +47,7 @@ export function StatsWidget() {
         <div className="dash-stats__grid">
           <div className="dash-stats__item">
             <span className="dash-stats__value">{tasksDone}</span>
-            <span className="dash-stats__label">Tasks completed</span>
+            <span className="dash-stats__label">Tasks created</span>
           </div>
           <div className="dash-stats__item">
             <span className="dash-stats__value">{fmt(spent)}</span>
