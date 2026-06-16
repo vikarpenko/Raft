@@ -1,5 +1,7 @@
 import './HelpPage.css';
 import {FaqItem} from "@/pages/help/FeqItem.tsx";
+import {WhatsNew} from "@/pages/help/WhatsNew";
+import {UsageTips} from "@/pages/help/UsageTips";
 
 const FAQ_ITEMS = [
     {
@@ -42,21 +44,28 @@ export function HelpPage() {
     return (
         <div className="help">
 
-            <section className="help__contact">
-                <p className="help__contact-label">Need more help?</p>
-                <a href="mailto:help@gmail.com" className="help__contact-email">
-                    help@gmail.com
-                </a>
-            </section>
+            <div className="help__main">
+                <section className="help__contact">
+                    <p className="help__contact-label">Need more help?</p>
+                    <a href="mailto:raft@gmail.com" className="help__contact-email">
+                        raft@gmail.com
+                    </a>
+                </section>
 
-            <section className="help__faq">
-                <h2 className="help__section-title">Frequently asked questions</h2>
-                <div className="help__faq-list">
-                    {FAQ_ITEMS.map((item) => (
-                        <FaqItem key={item.question} question={item.question} answer={item.answer} />
-                    ))}
-                </div>
-            </section>
+                <section className="help__faq">
+                    <h2 className="help__section-title">Frequently asked questions</h2>
+                    <div className="help__faq-list">
+                        {FAQ_ITEMS.map((item) => (
+                            <FaqItem key={item.question} question={item.question} answer={item.answer} />
+                        ))}
+                    </div>
+                </section>
+            </div>
+
+            <div className="help__sidebar">
+                <WhatsNew />
+                <UsageTips />
+            </div>
         </div>
     );
 }

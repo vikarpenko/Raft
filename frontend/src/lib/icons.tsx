@@ -2,7 +2,7 @@ import {
   LayoutDashboard, FolderKanban, NotebookPen, ListChecks, Calendar, BarChart3, Boxes, MessagesSquare,
   Wallet, Inbox, Settings, HelpCircle, LogOut, Search, Bell, Plus, ChevronDown, ChevronLeft, ChevronRight,
   Menu, X, Check, Folder, FolderPlus, FilePlus, Pencil, Pin, PinOff, MoreHorizontal, Trash2, MailCheck,
-  Award, Sun, Moon, Monitor, Send, CircleStar, CircleUserRound, BellRing, type LucideIcon,
+  Award, Sun, Moon, Monitor, Send, CircleStar, CircleUserRound, BellRing, Lightbulb, type LucideIcon,
 } from 'lucide-react';
 
 /** Maps a name to its lucide icon, so components use `<Icon name="..." />` instead of importing lucide. */
@@ -46,6 +46,7 @@ const icons = {
   send: Send,
   'circle-star': CircleStar,
   profile: CircleUserRound,
+  tip: Lightbulb,
 } satisfies Record<string, LucideIcon>;
 
 /** Names of every icon the Icon component can render. */
