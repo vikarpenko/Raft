@@ -6,7 +6,6 @@ export interface Notification {
     type: NotificationType;
     title: string;
     message: string;
-    /** Id of the related entity (e.g. the reminder/achievement), when applicable. */
     sourceId?: string;
     read: boolean;
     createdAt: string;

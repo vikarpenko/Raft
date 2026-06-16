@@ -1,12 +1,10 @@
 import type { NavSection } from '@/types/navigation';
 
 /**
- * Returns the title to show in the top bar for the current page.
+ * Returns the top bar title for the current path.
  *
- * First looks for a menu item with exactly this path. If there isn't one
- * (e.g. a sub-page like `/spaces/42`), it uses the menu item for the first
- * part of the path (`/spaces`). If still nothing matches, it just capitalizes
- * that first part and uses it as the title.
+ * Falls back from an exact route match to the root section,
+ * then to a capitalized path segment.
  */
 export function titleForPath(path: string): string {
   for (const section of navSections) {

@@ -7,9 +7,7 @@ export interface ChatMessage {
   workspaceName: string;
   sender: UserSummary;
   content: string;
-  /** True if the message was edited after sending. */
   edited: boolean;
-  /** True if the current user is the sender (used to align/style own bubbles). */
   ownMessage: boolean;
   createdAt: string;
   updatedAt: string;

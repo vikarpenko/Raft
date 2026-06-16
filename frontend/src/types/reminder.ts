@@ -3,9 +3,7 @@ export interface Reminder {
     id: string;
     taskId?: string;
     eventId?: string;
-    /** When to fire, as a local `YYYY-MM-DDTHH:mm` string. */
     reminderTime: string;
-    /** True once the scheduler has sent the notification. */
     sent: boolean;
 }
 
