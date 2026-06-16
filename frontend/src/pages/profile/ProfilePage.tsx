@@ -6,18 +6,13 @@ import {EditProfileModal} from "@/pages/profile/EditProfileModal.tsx";
 
 /** The Profile page: user details with an edit modal, achievements, and account deletion. */
 export function ProfilePage() {
-    const { user, remove, updateUser } = useProfile();
+    const { user, updateUser } = useProfile();
     const [editOpen, setEditOpen] = useState(false);
 
     if (!user) return null;
 
     const initials =
         (user.firstName[0] ?? '').toUpperCase() + (user.lastName[0] ?? '').toUpperCase();
-
-    const handleDeleteAccount = async () => {
-        if (!window.confirm('Are you sure you want to delete your account? This cannot be undone.')) return;
-        await remove();
-    };
 
     return (
         <div className="profile">
@@ -48,21 +43,6 @@ export function ProfilePage() {
             )}
 
             <AchievementsList />
-
-            <section className="profile-section">
-                <h2 className="profile-section__title">Account</h2>
-                <div className="profile-danger">
-                    <div className="profile-danger__text">
-                        <p className="profile-danger__title">Delete account</p>
-                        <p className="profile-danger__desc">
-                            Permanently removes your account and all associated data. This cannot be undone.
-                        </p>
-                    </div>
-                    <button type="button" className="modal__btn modal__btn--danger" onClick={handleDeleteAccount}>
-                        Delete account
-                    </button>
-                </div>
-            </section>
         </div>
     );
 }
